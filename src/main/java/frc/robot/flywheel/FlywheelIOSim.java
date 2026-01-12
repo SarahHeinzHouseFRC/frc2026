@@ -30,7 +30,7 @@ public class FlywheelIOSim implements FlywheelIO {
     }
 
     @Override
-    public void updateInputs(DriveIOInputs inputs) {
+    public void updateInputs(FlywheelIOInputs inputs) {
 
         double currentVelocity = flywheelSim.getAngularVelocityRPM() / 60.0;
 
