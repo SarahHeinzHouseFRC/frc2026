@@ -3,8 +3,9 @@ package frc.robot.subsystems.shooter;
 
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.joml.Matrix4d;
+import org.joml.Vector3d;
 
 public class ShooterSubsystem extends SubsystemBase {
     private final SparkMax motorPan;
@@ -82,6 +83,19 @@ public class ShooterSubsystem extends SubsystemBase {
                 throw new IllegalStateException("Tilt motor outside of bounds");
             }
         }
+    }
+
+    public void shootAtTarget(Vector3d target, Matrix4d current) {
+        var dx = target.x() - current.m03();
+        var dy = target.y() - current.m13();
+
+        // calculate angle
+        // tan(θ) = dy/dx
+        double panAngle = Math.atan(dy/dx);
+
+        // TODO: calculate tilt angle and power (misha's job)
+
+        this.setPan(panAngle);
     }
 }
 
