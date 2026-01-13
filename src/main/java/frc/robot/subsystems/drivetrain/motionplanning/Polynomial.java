@@ -1,8 +1,8 @@
 package frc.robot.subsystems.drivetrain.motionplanning;
 
 public class Polynomial {
-    int[] powers;
-    double[] coefficients;
+    public final int[] powers;
+    public final double[] coefficients;
 
     public Polynomial(int[] powers, double[] coefficients) {
         this.powers = powers;
@@ -42,8 +42,15 @@ public class Polynomial {
         // TODO
     }
 
-    public Polynomial negate() throws CloneNotSupportedException {
-        Polynomial newPolynomial = (Polynomial) this.clone();
-        // TODO
+    public Polynomial negate() {
+        Polynomial newPolynomial = this.copy();
+        for (int i = 0; i < newPolynomial.coefficients.length; ++i) {
+            newPolynomial.coefficients[i] *= -1;
+        }
+        return newPolynomial;
+    }
+
+    public Polynomial copy() {
+        return new Polynomial(this.powers, this.coefficients);
     }
 }
