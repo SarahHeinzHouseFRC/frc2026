@@ -38,16 +38,18 @@ public class Polynomial {
         return new Polynomial(newPowers, newCoefficients);
     }
 
-    public Polynomial add(Polynomial a) {
-        // TODO
+    public static Polynomial add(Polynomial x, Polynomial y) {
+        var newPowers = new int[x.powers.length + y.powers.length];
+        var newCoefficients = new double[x.coefficients.length + y.coefficients.length];
+
+        return new Polynomial(newPowers, newCoefficients);
     }
 
-    public Polynomial negate() {
-        Polynomial newPolynomial = this.copy();
-        for (int i = 0; i < newPolynomial.coefficients.length; ++i) {
-            newPolynomial.coefficients[i] *= -1;
+    public static Polynomial negate(Polynomial x) {
+        for (int i = 0; i < x.coefficients.length; ++i) {
+            x.coefficients[i] *= -1;
         }
-        return newPolynomial;
+        return x;
     }
 
     public Polynomial copy() {
