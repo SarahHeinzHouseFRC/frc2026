@@ -61,6 +61,27 @@ public class ShooterMath {
   }
 
   /**
+   * Uses the angle the ball is to enter the goal to calculate the velocity in each direction
+   * 
+   * @param s1 position of robot
+   * @param v1 velocity of robot
+   * @param s2 position of target
+   * @param alpha angle of goal entry
+   * @return velocity in each direction neede to be produced by the shooter to score
+   */
+  public static Vector3d calcuateForcesModelTwo(Vector3d s1, Vector3d v1, Vector3d s2, double alpha) {
+    final double tan_a = Math.tan(alpha);
+    final double ta = 0.0098/2;
+    final double tb = tan_a;
+    final double tc = (s2.x()-s1.x()+s2.y()-s1.y()+s2.z()-s1.z());
+    final double t = (-tb+Math.sqrt(tb*tb-4*ta*tc))/(2*ta);
+    final double a = (s2.x()-s1.x())/t+v1.x();
+    final double b = (s2.y()-s1.y())/t+v1.y();
+    final double c = 0.0098*t+tan_a-v1.z()-(s2.x()-s1.x()+s2.y()-s1.y())/t;
+    return new Vector3d(a, b, c);
+  }
+
+  /**
    * TODO: implement
    * 
    * @param expectedVelocities vector holding expected velocities in all three directions (x, y, z)
