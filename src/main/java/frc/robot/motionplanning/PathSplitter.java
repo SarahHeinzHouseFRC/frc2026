@@ -1,8 +1,6 @@
-package frc.robot.subsystems.drivetrain.motionplanning;
+package frc.robot.motionplanning;
 
 import org.joml.Vector2d;
-
-import java.lang.reflect.Method;
 
 public class PathSplitter {
     public final Polynomial x;

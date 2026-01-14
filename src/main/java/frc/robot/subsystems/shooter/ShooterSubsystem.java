@@ -3,9 +3,9 @@ package frc.robot.subsystems.shooter;
 
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.joml.Matrix4d;
-import org.joml.Vector3d;
 
 public class ShooterSubsystem extends SubsystemBase {
     private final SparkMax motorPan;
@@ -85,9 +85,9 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-    public void shootAtTarget(Vector3d target, Matrix4d current) {
-        var dx = target.x() - current.m03();
-        var dy = target.y() - current.m13();
+    public void shootAtTarget(Translation3d target, Pose3d current) {
+        var dx = target.getX() - current.getX();
+        var dy = target.getY() - current.getY();
 
         // calculate angle
         // tan(θ) = dy/dx

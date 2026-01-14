@@ -1,6 +1,8 @@
-import org.joml.Vector3d;
-import org.joml.Vector2d;
-import org.joml.Matrix3d;
+package frc.robot.subsystems.shooter;
+
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.VecBuilder;
 
 public class ShooterMath {
   /**
@@ -50,6 +52,7 @@ public class ShooterMath {
    * @return velocity in each direction neede to be produced by the shooter to score
    */
   public static Vector3d calcuateForcesModelOne(Vector3d s1, Vector3d v1, Vector3d s2, double v) {
+    s1.get(3);
     final double ta = -0.0098/2;
     final double tb = (v+v1.x()+v1.y()+v1.z());
     final double tc = (s2.x()-s1.x()+s2.y()-s1.y()+s2.z()-s1.z());

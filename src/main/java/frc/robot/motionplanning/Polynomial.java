@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrain.motionplanning;
+package frc.robot.motionplanning;
 
 public class Polynomial {
     public final int[] powers;
