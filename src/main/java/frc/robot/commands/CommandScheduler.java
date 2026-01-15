@@ -6,19 +6,14 @@ package frc.robot.commands;
 
 import static edu.wpi.first.util.ErrorMessages.requireNonNullParam;
 
-import edu.wpi.first.hal.FRCNetComm.tInstances;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
-import edu.wpi.first.hal.HAL;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.event.EventLoop;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import frc.robot.commands.Command.InterruptionBehavior;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -47,20 +42,20 @@ import java.util.function.Consumer;
  * <p>This class is provided by the NewCommands VendorDep
  */
 public final class CommandScheduler implements Sendable, AutoCloseable {
-    /** The Singleton Instance. */
-    private static CommandScheduler instance;
-
-    /**
-     * Returns the Scheduler instance.
-     *
-     * @return the instance
-     */
-    public static synchronized CommandScheduler getInstance() {
-        if (instance == null) {
-            instance = new CommandScheduler();
-        }
-        return instance;
-    }
+//    /** The Singleton Instance. */
+//    private static CommandScheduler instance;
+//
+//    /**
+//     * Returns the Scheduler instance.
+//     *
+//     * @return the instance
+//     */
+//    public static synchronized CommandScheduler getInstance() {
+//        if (instance == null) {
+//            instance = new CommandScheduler();
+//        }
+//        return instance;
+//    }
 
     private static final Optional<Command> kNoInterruptor = Optional.empty();
 
@@ -99,15 +94,8 @@ public final class CommandScheduler implements Sendable, AutoCloseable {
 
     private final Watchdog m_watchdog = new Watchdog(TimedRobot.kDefaultPeriod, () -> {});
 
-    CommandScheduler() {
-        HAL.report(tResourceType.kResourceType_Command, tInstances.kCommand2_Scheduler);
-        SendableRegistry.addLW(this, "Scheduler");
-        LiveWindow.setEnabledListener(
-                () -> {
-                    disable();
-                    cancelAll();
-                });
-        LiveWindow.setDisabledListener(this::enable);
+    public CommandScheduler() {
+
     }
 
     /**
@@ -122,9 +110,7 @@ public final class CommandScheduler implements Sendable, AutoCloseable {
 
     @Override
     public void close() {
-        SendableRegistry.remove(this);
-        LiveWindow.setEnabledListener(null);
-        LiveWindow.setDisabledListener(null);
+
     }
 
     /**

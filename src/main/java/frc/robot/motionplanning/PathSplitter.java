@@ -9,12 +9,12 @@ public class PathSplitter {
         this.y = y;
     }
 
-    public Vector2d[] splitPath(int segments) {
-        var points = new Vector2d[segments];
-        for (int i = 0; i < segments; ++i) {
-            var t = 1d / segments;
-            points[i] = new Vector2d(x.at(t), y.at(t));
-        }
-        return points;
-    }
+//    public Vector2d[] splitPath(int segments) {
+//        var points = new Vector2d[segments];
+//        for (int i = 0; i < segments; ++i) {
+//            var t = 1d / segments;
+//            points[i] = new Vector2d(x.at(t), y.at(t));
+//        }
+//        return points;
+//    }
 }

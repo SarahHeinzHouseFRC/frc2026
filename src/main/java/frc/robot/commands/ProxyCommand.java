@@ -58,7 +58,7 @@ public class ProxyCommand extends Command {
     @Override
     public void initialize() {
         m_command = m_supplier.get();
-        CommandScheduler.getInstance().schedule(m_command);
+        getScheduler().schedule(m_command);
     }
 
     @Override

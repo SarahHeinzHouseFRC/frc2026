@@ -38,7 +38,7 @@ public class ConditionalCommand extends Command {
         m_onFalse = requireNonNullParam(onFalse, "onFalse", "ConditionalCommand");
         m_condition = requireNonNullParam(condition, "condition", "ConditionalCommand");
 
-        CommandScheduler.getInstance().registerComposedCommands(onTrue, onFalse);
+        getScheduler().registerComposedCommands(onTrue, onFalse);
 
         addRequirements(m_onTrue.getRequirements());
         addRequirements(m_onFalse.getRequirements());

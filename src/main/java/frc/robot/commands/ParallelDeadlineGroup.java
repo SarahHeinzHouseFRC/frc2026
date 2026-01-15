@@ -78,7 +78,7 @@ public class ParallelDeadlineGroup extends Command {
                     "Commands cannot be added to a composition while it's running");
         }
 
-        CommandScheduler.getInstance().registerComposedCommands(commands);
+        getScheduler().registerComposedCommands(commands);
 
         for (Command command : commands) {
             if (!Collections.disjoint(command.getRequirements(), getRequirements())) {

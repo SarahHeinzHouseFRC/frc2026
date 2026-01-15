@@ -43,8 +43,8 @@ public class SelectCommand<K> extends Command {
         m_commands = requireNonNullParam(commands, "commands", "SelectCommand");
         m_selector = requireNonNullParam(selector, "selector", "SelectCommand");
 
-        CommandScheduler.getInstance().registerComposedCommands(m_defaultCommand);
-        CommandScheduler.getInstance()
+        getScheduler().registerComposedCommands(m_defaultCommand);
+        getScheduler()
                 .registerComposedCommands(commands.values().toArray(new Command[] {}));
 
         for (Command command : m_commands.values()) {

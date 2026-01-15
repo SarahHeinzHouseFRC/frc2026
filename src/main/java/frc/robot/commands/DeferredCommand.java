@@ -49,7 +49,7 @@ public class DeferredCommand extends Command {
         var cmd = m_supplier.get();
         if (cmd != null) {
             m_command = cmd;
-            CommandScheduler.getInstance().registerComposedCommands(m_command);
+            getScheduler().registerComposedCommands(m_command);
         }
         m_command.initialize();
     }

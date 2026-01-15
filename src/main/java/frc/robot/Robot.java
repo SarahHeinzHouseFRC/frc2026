@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
+import frc.robot.flywheel.Flywheel;
+import frc.robot.flywheel.FlywheelIO;
+import frc.robot.flywheel.FlywheelIOSim;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -23,7 +26,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
-  private final RobotContainer robotContainer;
+  private static CommandScheduler commandScheduler;
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
@@ -44,6 +47,7 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
+    commandScheduler = new CommandScheduler();
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -82,7 +86,29 @@ public class Robot extends LoggedRobot {
 
     // Start AdvantageKit logger
     Logger.start();
-    robotContainer = new RobotContainer();
+
+    configureSubsystems();
+    configureBindings();
+  }
+
+  private void configureBindings() {
+
+  }
+
+  private void configureSubsystems() {
+    switch (Robot.currentMode) {
+      case REAL:
+        // Real robot, instantiate hardware IO implementations
+        break;
+
+      case SIM:
+        // Sim robot, instantiate physics sim IO implementations
+        break;
+
+      default:
+        // Replayed robot, disable IO implementations
+        break;
+    }
   }
 
   /**
@@ -98,7 +124,7 @@ public class Robot extends LoggedRobot {
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
+    commandScheduler.run();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -111,12 +137,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
-    if (autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(autonomousCommand);
-    }
   }
 
   /** This function is called periodically during autonomous. */
@@ -141,7 +162,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
+    commandScheduler.cancelAll();
   }
 
   /** This function is called periodically during test mode. */

@@ -46,7 +46,7 @@ public class SequentialCommandGroup extends Command {
                     "Commands cannot be added to a composition while it's running");
         }
 
-        CommandScheduler.getInstance().registerComposedCommands(commands);
+        getScheduler().registerComposedCommands(commands);
 
         for (Command command : commands) {
             m_commands.add(command);

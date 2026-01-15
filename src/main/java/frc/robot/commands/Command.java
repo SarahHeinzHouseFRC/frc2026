@@ -29,6 +29,7 @@ import java.util.function.BooleanSupplier;
  */
 //@NoDiscard("Commands must be used! Did you mean to bind it to a trigger?")
 public abstract class Command implements Sendable {
+    private CommandScheduler commandScheduler = null;
     /** Requirements set. */
     private final Set<Subsystem> m_requirements = new HashSet<>();
 
@@ -93,6 +94,11 @@ public abstract class Command implements Sendable {
      */
     public final void addRequirements(Subsystem... requirements) {
         for (Subsystem requirement : requirements) {
+            if (commandScheduler == null) {
+                commandScheduler = requirement.getScheduler();
+            } else if (commandScheduler != requirement.getScheduler()) {
+                throw new IllegalArgumentException("You cannot mix commands from different schedulers!");
+            }
             m_requirements.add(requireNonNullParam(requirement, "requirement", "addRequirements"));
         }
     }
@@ -541,7 +547,7 @@ public abstract class Command implements Sendable {
      */
     @Deprecated(since = "2025", forRemoval = true)
     public void schedule() {
-        CommandScheduler.getInstance().schedule(this);
+        getScheduler().schedule(this);
     }
 
     /**
@@ -551,7 +557,7 @@ public abstract class Command implements Sendable {
      * @see CommandScheduler#cancel(Command...)
      */
     public void cancel() {
-        CommandScheduler.getInstance().cancel(this);
+        getScheduler().cancel(this);
     }
 
     /**
@@ -561,7 +567,7 @@ public abstract class Command implements Sendable {
      * @return Whether the command is scheduled.
      */
     public boolean isScheduled() {
-        return CommandScheduler.getInstance().isScheduled(this);
+        return getScheduler().isScheduled(this);
     }
 
     /**
@@ -616,7 +622,7 @@ public abstract class Command implements Sendable {
                 value -> {
                     if (value) {
                         if (!isScheduled()) {
-                            CommandScheduler.getInstance().schedule(this);
+                            getScheduler().schedule(this);
                         }
                     } else {
                         if (isScheduled()) {
@@ -625,7 +631,7 @@ public abstract class Command implements Sendable {
                     }
                 });
         builder.addBooleanProperty(
-                ".isParented", () -> CommandScheduler.getInstance().isComposed(this), null);
+                ".isParented", () -> getScheduler().isComposed(this), null);
         builder.addStringProperty(
                 "interruptBehavior", () -> getInterruptionBehavior().toString(), null);
         builder.addBooleanProperty("runsWhenDisabled", this::runsWhenDisabled, null);
@@ -645,5 +651,9 @@ public abstract class Command implements Sendable {
         kCancelSelf,
         /** This command continues, and the incoming command is not scheduled. */
         kCancelIncoming
+    }
+
+    public CommandScheduler getScheduler() {
+        return commandScheduler;
     }
 }

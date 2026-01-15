@@ -5,6 +5,7 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -21,7 +22,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * the {@link #getInstance()} method to get the single instance (rather
      * than trying to construct an instance of this class.)
      */
-    private final static ShooterSubsystem INSTANCE = new ShooterSubsystem();
+//    private final static ShooterSubsystem INSTANCE = new ShooterSubsystem();
 
     /**
      * Returns the Singleton instance of this ShooterSubsystem. This static method
@@ -29,16 +30,17 @@ public class ShooterSubsystem extends SubsystemBase {
      * of this class. For example: {@code ShooterSubsystem.getInstance();}
      */
     @SuppressWarnings("WeakerAccess")
-    public static ShooterSubsystem getInstance() {
-        return INSTANCE;
-    }
+//    public static ShooterSubsystem getInstance() {
+//        return INSTANCE;
+//    }
 
     /**
      * Creates a new instance of this ShooterSubsystem. This constructor
      * is private since this class is a Singleton. Code should use
      * the {@link #getInstance()} method to get the singleton instance.
      */
-    private ShooterSubsystem() {
+    public ShooterSubsystem(CommandScheduler scheduler) {
+        super(scheduler);
         // SET DEVICE IDs HERE
         motorPan = new SparkMax(0, SparkLowLevel.MotorType.kBrushless);
         motorTilt = new SparkMax(0, SparkLowLevel.MotorType.kBrushless);

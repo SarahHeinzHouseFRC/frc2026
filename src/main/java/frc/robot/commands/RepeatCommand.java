@@ -32,7 +32,7 @@ public class RepeatCommand extends Command {
     @SuppressWarnings("this-escape")
     public RepeatCommand(Command command) {
         m_command = requireNonNullParam(command, "command", "RepeatCommand");
-        CommandScheduler.getInstance().registerComposedCommands(command);
+        getScheduler().registerComposedCommands(command);
         addRequirements(command.getRequirements());
         setName("Repeat(" + command.getName() + ")");
     }

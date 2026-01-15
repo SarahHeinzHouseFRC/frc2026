@@ -46,7 +46,7 @@ public class Polynomial {
         var newCoefficients = new double[x.coefficients.length + y.coefficients.length];
 
         for (int i=0; i<x.powers.length; ++i) {
-            newPowers[]
+//            newPowers[]
         }
 
         return new Polynomial(newPowers, newCoefficients);

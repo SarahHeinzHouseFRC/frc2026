@@ -3,6 +3,7 @@ package frc.robot.intake;
 
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
+import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -17,7 +18,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * the {@link #getInstance()} method to get the single instance (rather
      * than trying to construct an instance of this class.)
      */
-    private final static IntakeSubsystem INSTANCE = new IntakeSubsystem();
+//    private final static IntakeSubsystem INSTANCE = new IntakeSubsystem();
 
     /**
      * Returns the Singleton instance of this IntakeSubsystem. This static method
@@ -25,16 +26,17 @@ public class IntakeSubsystem extends SubsystemBase {
      * of this class. For example: {@code IntakeSubsystem.getInstance();}
      */
     @SuppressWarnings("WeakerAccess")
-    public static IntakeSubsystem getInstance() {
-        return INSTANCE;
-    }
+//    public static IntakeSubsystem getInstance() {
+//        return INSTANCE;
+//    }
 
     /**
      * Creates a new instance of this IntakeSubsystem. This constructor
      * is private since this class is a Singleton. Code should use
      * the {@link #getInstance()} method to get the singleton instance.
      */
-    private IntakeSubsystem() {
+    public IntakeSubsystem(CommandScheduler scheduler) {
+        super(scheduler);
         intakeMotor = new SparkMax(0, SparkLowLevel.MotorType.kBrushless);
     }
 
