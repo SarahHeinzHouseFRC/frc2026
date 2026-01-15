@@ -15,8 +15,7 @@ public class FlywheelVelocityCommand extends Command {
 
     @Override
     public void initialize() {
-        // Optionally reset any sensors if needed
-        flywheel.setVelocity(targetVelocity);
+
     }
 
     @Override
