@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shooter;
+package frc.robot.shooter;
 
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Vector;

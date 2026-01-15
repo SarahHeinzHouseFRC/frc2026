@@ -1,8 +1,4 @@
-package frc.robot.subsystems.shooter;
-
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.VecBuilder;
+package frc.robot.shooter;
 
 public class ShooterMath {
   /**
@@ -91,7 +87,7 @@ public class ShooterMath {
    * @param robotRotation 3x3 roattion matirx that converts world coordiantes to robot coordinates
    * @return turret roatation in radians (0 points towards the front of the robot) and angle of elevation in radians
    */
-  public static Vector2d calculateTurretAngles(Vector3d expectedVelocities, Matrix3d robotRotation) {
-
-  }
+//  public static Vector2d calculateTurretAngles(Vector3d expectedVelocities, Matrix3d robotRotation) {
+//
+//  }
 }

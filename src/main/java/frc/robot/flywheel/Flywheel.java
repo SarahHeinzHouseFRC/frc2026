@@ -1,6 +1,6 @@
 package frc.robot.flywheel;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {

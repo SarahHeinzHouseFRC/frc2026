@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import frc.robot.commands.Command.InterruptionBehavior;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -666,7 +666,7 @@ public final class CommandScheduler implements Sendable, AutoCloseable {
     private StackTraceElement[] stripFrameworkStackElements(StackTraceElement[] stacktrace) {
         int i = stacktrace.length - 1;
         for (; i > 0; i--) {
-            if (stacktrace[i].getClassName().startsWith("edu.wpi.first.wpilibj2.command.")) {
+            if (stacktrace[i].getClassName().startsWith("frc.robot.commands.")) {
                 break;
             }
         }

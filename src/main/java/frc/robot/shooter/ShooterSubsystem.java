@@ -1,11 +1,11 @@
-package frc.robot.subsystems.shooter;
+package frc.robot.shooter;
 
 
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
     private final SparkMax motorPan;
