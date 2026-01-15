@@ -57,28 +57,33 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /**
      * sets angle of turret
-     * @param angle Angle in degrees relative to drivetrain rotation (0 deg = front, 90 deg = right)
+     * @param angle Angle in radians relative to drivetrain rotation (0 = front, pi/2 = right)
      */
     public void setPan(double angle) {
+        final var panMax = (380d / 180d) * Math.PI;
+        final var panMin = (-20d / 180d) * Math.PI;
         var encoder = motorPan.getAbsoluteEncoder();
-        var currentAngle = encoder.getPosition() % 1d;
-        var tolerance = 0.5d; // shooter pan angle tolerance in degrees
+        var currentAngle = (encoder.getPosition() % 1d) * Math.PI * 2;
+        var tolerance = (0.5d / 180d) * Math.PI; // shooter pan angle tolerance in degrees
         while (Math.abs(currentAngle - angle) <= tolerance) {
             motorPan.set(Math.signum(angle - currentAngle) * Math.min(Math.abs(angle - currentAngle), 1d));
+            if (currentAngle < panMin || currentAngle > panMax) {
+                throw new IllegalStateException("Pan motor outside of bounds");
+            }
         }
     }
 
     /**
      * sets angle of elevation of the turret
-     * @param angle angle of elevation in degrees. 0 deg = flat, 90 deg = straight up
+     * @param angle angle of elevation in radians. 0 = flat, 90 = straight up
      */
     public void setTilt(double angle) {
         // ASK THE PEOPLE ON THE SHOOTER DESIGN TEAM BEFORE CHANGING THESE NUMBERS
-        final var tiltMax = 35.881d;
-        final var tiltMin = 10.17d;
+        final var tiltMax = (35.881d / 180d) * Math.PI;
+        final var tiltMin = (10.17d / 180d) * Math.PI;
         var encoder = motorTilt.getAbsoluteEncoder();
-        var currentAngle = encoder.getPosition() % 1d;
-        var tolerance = 0.5d; // shooter pan angle tolerance in degrees
+        var currentAngle = (encoder.getPosition() % 1d) * Math.PI * 2;
+        var tolerance = (0.5d / 180d) * Math.PI; // shooter tilt angle tolerance in degrees
         while (Math.abs(currentAngle - angle) <= tolerance) {
             motorTilt.set(Math.signum(angle - currentAngle) * Math.min(Math.abs(angle - currentAngle), 1d));
             if (currentAngle < tiltMin || currentAngle > tiltMax) {
