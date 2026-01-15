@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrain.motionplanning;
+package frc.robot.motionplanning;
 
 import java.util.ArrayList;
 import java.util.List;
