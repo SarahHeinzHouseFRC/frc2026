@@ -4,12 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
-import frc.robot.flywheel.Flywheel;
-import frc.robot.flywheel.FlywheelIO;
-import frc.robot.flywheel.FlywheelIOSim;
+import frc.robot.simulator.Simulator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -27,9 +28,15 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private static CommandScheduler commandScheduler;
+  public static Simulator simulator;
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+  public XboxController driverController = new XboxController(0);
+
+  StructArrayTopic<Translation3d> ballPositionsTopic = NetworkTableInstance.getDefault().getStructArrayTopic("/SHARP/ballPositions", Translation3d.struct);
+  private final StructArrayPublisher<Translation3d> ballPositionsPublisher = ballPositionsTopic.publish();
 
   public enum Mode {
     /** Running on a real robot. */
@@ -47,6 +54,8 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
+    Simulator.init();
+    simulator = Simulator.getInstance();
     commandScheduler = new CommandScheduler();
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -125,6 +134,12 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     commandScheduler.run();
+
+    // temporary
+    if (driverController.getAButtonPressed()) {
+      simulator.getBallSim().shootBall(2, 2, 0, 2.9, 2.3, 8);
+    }
+    ballPositionsPublisher.set(simulator.getBallSim().getBallPositions());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
