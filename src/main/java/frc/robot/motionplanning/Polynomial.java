@@ -1,8 +1,5 @@
 package frc.robot.motionplanning;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Polynomial {
     public final int[] powers;
     public final double[] coefficients;
@@ -46,8 +43,28 @@ public class Polynomial {
         var newCoefficients = new double[x.coefficients.length + y.coefficients.length];
 
         for (int i=0; i<x.powers.length; ++i) {
-//            newPowers[]
+            newPowers[i] = x.powers[i];
         }
+        for (int i=0; i<y.powers.length; ++i) {
+            newPowers[x.powers.length+i] = y.powers[i];
+        }
+
+        for (int i=0; i<x.coefficients.length; ++i) {
+            newCoefficients[i] = x.coefficients[i];
+        }
+        for (int i=0; i<y.coefficients.length; ++i) {
+            newCoefficients[x.coefficients.length+i] = y.coefficients[i];
+        }
+
+        return new Polynomial(newPowers, newCoefficients);
+    }
+
+    public static Polynomial add(Polynomial x, double c) {
+        var newPowers = new int[x.powers.length + 1];
+        var newCoefficients = new double[x.coefficients.length + 1];
+
+        newPowers[newPowers.length-1] = 0;
+        newCoefficients[newCoefficients.length-1] = c;
 
         return new Polynomial(newPowers, newCoefficients);
     }
@@ -63,62 +80,16 @@ public class Polynomial {
         return new Polynomial(this.powers, this.coefficients);
     }
 
-    public Polynomial buildDistancePolynomial(
-            Polynomial x,
-            Polynomial y,
-            double t1,
-            double d
-    ) {
-        int maxDeg = 6;
-        Polynomial result = new Polynomial(new int[maxDeg + 1], new double[maxDeg + 1]);
-
-        for (int i = 0; i <= maxDeg; i++) {
-            result.powers[i] = i;
-        }
-
-        double x1 = x.at(t1);
-        double y1 = y.at(t1);
-
-        // (x(t) - x1)^2
-        for (int i = 0; i < x.coefficients.length; i++) {
-            for (int j = 0; j < x.coefficients.length; j++) {
-                int deg = x.powers[i] + x.powers[j];
-                if (deg <= maxDeg) {
-                    result.coefficients[deg] +=
-                            x.coefficients[i] * x.coefficients[j];
-                }
-            }
-
-            int deg = x.powers[i];
-            if (deg <= maxDeg) {
-                result.coefficients[deg] -=
-                        2 * x1 * x.coefficients[i];
+    public static Polynomial square(Polynomial x) {
+        var newPowers = new int[x.powers.length*2];
+        var newCoefficients = new double[x.coefficients.length*2];
+        for (int i=0; i<x.powers.length; ++i) {
+            for (int j=0; j<x.powers.length; ++j) {
+                newPowers[i*x.powers.length+j] = x.powers[i]*x.powers[j];
+                newCoefficients[i*x.powers.length+j] = x.coefficients[i]*x.coefficients[j];
             }
         }
-        result.coefficients[0] += x1 * x1;
-
-        // (y(t) - y1)^2
-        for (int i = 0; i < y.coefficients.length; i++) {
-            for (int j = 0; j < y.coefficients.length; j++) {
-                int deg = y.powers[i] + y.powers[j];
-                if (deg <= maxDeg) {
-                    result.coefficients[deg] +=
-                            y.coefficients[i] * y.coefficients[j];
-                }
-            }
-
-            int deg = y.powers[i];
-            if (deg <= maxDeg) {
-                result.coefficients[deg] -=
-                        2 * y1 * y.coefficients[i];
-            }
-        }
-        result.coefficients[0] += y1 * y1;
-
-        // subtract d^2
-        result.coefficients[0] -= d * d;
-
-        return result;
+        return new Polynomial(newPowers, newCoefficients);
     }
 
     public double solveMinRoot(double t) {
