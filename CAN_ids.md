@@ -1,9 +1,43 @@
 # CAN IDs
 
-## Shooter (prefix: `30`)
+yes i understand that different device classes can share a can id but i like it this way
 
-**Pan Motor:** 31
+## Misc (`00`-`09`)
 
-**Tilt Motor:** 32
+**RoboRIO:** `00`
 
-**Flywheel Motor:** 33
+**REV PDH:** `01`
+
+**Pigeon2:** `09`
+
+## Drivetrain (`10`-`19`)
+
+**Front Left Drive:** `10`
+
+**Front Left Turn:** `11`
+
+**Back Left Drive:** `12`
+
+**Back Left Turn:** `13`
+
+**Front Right Drive:** `14`
+
+**Front Right Turn:** `15`
+
+**Back Right Drive:** `16`
+
+**Back Right Turn:** `17`
+
+## Intake (`20`-`29`)
+
+**Intake Motor:** `20`
+
+## Shooter (`30`-`39`)
+
+**Flywheel Motor:** `30`
+
+**Pan Motor:** `31`
+
+**Tilt Motor:** `32`
+
+

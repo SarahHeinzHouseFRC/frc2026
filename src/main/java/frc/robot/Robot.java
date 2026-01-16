@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -37,6 +38,8 @@ public class Robot extends LoggedRobot {
 
   StructArrayTopic<Translation3d> ballPositionsTopic = NetworkTableInstance.getDefault().getStructArrayTopic("/SHARP/ballPositions", Translation3d.struct);
   private final StructArrayPublisher<Translation3d> ballPositionsPublisher = ballPositionsTopic.publish();
+
+  private final StructPublisher<Pose3d> robotPositionPublisher = NetworkTableInstance.getDefault().getStructTopic("/SHARP/robotPosition", Pose3d.struct).publish();
 
   public enum Mode {
     /** Running on a real robot. */
@@ -137,9 +140,11 @@ public class Robot extends LoggedRobot {
 
     // temporary
     if (driverController.getAButtonPressed()) {
-      simulator.getBallSim().shootBall(2, 2, 0, 2.9, 2.3, 8);
+//      simulator.getBallSim().shootBall(2, 2, 0, 2.9, 2.3, 8);
+      simulator.shootBallFromRobot(3.14/2 - .1775, 0, 7);
     }
-    ballPositionsPublisher.set(simulator.getBallSim().getBallPositions());
+    ballPositionsPublisher.set(simulator.getBallPositions());
+    robotPositionPublisher.set(simulator.getTruePosition());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
