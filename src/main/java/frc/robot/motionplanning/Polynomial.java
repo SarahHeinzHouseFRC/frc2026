@@ -93,13 +93,11 @@ public class Polynomial {
     }
 
     public double solveMinRoot(double t) {
-        double t_ = 0.1;
+        double t_ = t;
         Polynomial ddx = this.derivative();
         for (int i=0; i<10; ++i) {
             t_ = t_-this.at(t_)/ddx.at(t_);
         }
-        return t;
+        return t_;
     }
-
-
 }

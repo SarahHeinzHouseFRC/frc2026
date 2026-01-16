@@ -2,6 +2,7 @@ package frc.robot.motionplanning;
 
 import frc.robot.math.Vector2d;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PathSplitter {
     public final Polynomial x;
@@ -22,5 +23,14 @@ public class PathSplitter {
         }
         path.add(new Vector2d(x.at(t), y.at(t)));
         return path;
+    }
+
+    public ArrayList<Vector2d> splitPathBetter(double segments) {
+        double segLength = 1/segments;
+        ArrayList<Vector2d> points = new ArrayList<>();
+        for (int i = 0; i <= segments; ++i) {
+            points.add(new Vector2d(x.at(i * segLength), y.at(i * segLength)));
+        }
+        return points;
     }
 }
