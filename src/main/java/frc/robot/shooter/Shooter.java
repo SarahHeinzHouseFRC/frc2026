@@ -89,16 +89,29 @@ public class Shooter extends SubsystemBase {
         Logger.processInputs("Shooter", inputs);
     }
 
-    @SDMXDigitalInputEventHandler(SDMXConstants.BUTTON_SHOOT)
-    public void shootEventHandler(boolean active) {
-        setShooter(active ? 1d : 0d);
+    @SDMXDigitalInputEventHandler(1) // A button
+    public void shootEventHandler(boolean value) {
+        io.setFlywheelOpenLoop(value ? 1d : 0d);
     }
 
-    @SDMXDigitalInputEventHandler(SDMXConstants.BUTTON_AIM)
-    public void aimEventHandler(boolean active) {
-        if (active) {
-            // TODO: integrate with (currently unwritten) shooter math
-        }
+    @SDMXDigitalInputEventHandler(5) // Left bumper button
+    public void aimLeftEventHandler(boolean value) {
+        io.setTurretYawOpenLoop(value ? 1d : 0d);
+    }
+
+    @SDMXDigitalInputEventHandler(6) // Right bumper button
+    public void aimRightEventHandler(boolean value) {
+        io.setTurretYawOpenLoop(value ? -1d : 0d);
+    }
+
+    @SDMXDigitalInputEventHandler(3) // Y button
+    public void tiltUpEventHandler(boolean value) {
+        io.setTurretPitchOpenLoop(value ? 1d : 0d);
+    }
+
+    @SDMXDigitalInputEventHandler(4) // Y button
+    public void tiltDownEventHandler(boolean value) {
+        io.setTurretPitchOpenLoop(value ? -1d : 0d);
     }
 }
 

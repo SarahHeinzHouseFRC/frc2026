@@ -1,12 +1,14 @@
 package frc.robot;
 
 public class SDMXConstants {
+    // NOTICE: these values are all temporary for the period when we are testing using xbox controllers
+
     // INTAKE
-    public static final int BUTTON_INTAKE = 0x0000;
+    public static final int BUTTON_INTAKE = 1;
 
     // SHOOTER
-    public static final int BUTTON_SHOOT = 0x0010;
-    public static final int BUTTON_AIM = 0x0011;
+    public static final int BUTTON_SHOOT = 2;
+    public static final int BUTTON_AIM = 3;
 
     // CLIMBER
     public static final int BUTTON_CLIMB_L1 = 0x0020;
