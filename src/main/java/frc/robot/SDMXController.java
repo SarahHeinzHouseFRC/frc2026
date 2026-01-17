@@ -19,7 +19,7 @@ public class SDMXController {
     }
 
     public void registerEventHandlers() {
-        Reflections reflections = new Reflections("frc.robot");
+        Reflections reflections = new Reflections("frc.robot", org.reflections.scanners.Scanners.MethodsAnnotated);
         var digitalInputEventHandlerMethods = reflections.getMethodsAnnotatedWith(SDMXDigitalInputEventHandler.class);
         for (Method method : digitalInputEventHandlerMethods) {
             SDMXDigitalInputEventHandler annotation = method.getAnnotation(SDMXDigitalInputEventHandler.class);

@@ -111,8 +111,6 @@ public class Robot extends LoggedRobot {
 
     configureSubsystems();
     configureBindings();
-
-    sdmxController.registerEventHandlers();
   }
 
   private void configureBindings() {
@@ -185,6 +183,7 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+    sdmxController.registerEventHandlers();
   }
 
   /** This function is called periodically during operator control. */
