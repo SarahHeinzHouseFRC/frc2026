@@ -7,10 +7,12 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
+import frc.robot.shooter.Shooter;
 import frc.robot.simulator.Simulator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -18,6 +20,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -31,15 +35,19 @@ public class Robot extends LoggedRobot {
   private static CommandScheduler commandScheduler;
   public static Simulator simulator;
 
+  public Shooter shooter;
+
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public XboxController driverController = new XboxController(0);
+  public static final SDMXController sdmxController = new SDMXController(new GenericHID(1));
 
   StructArrayTopic<Translation3d> ballPositionsTopic = NetworkTableInstance.getDefault().getStructArrayTopic("/SHARP/ballPositions", Translation3d.struct);
   private final StructArrayPublisher<Translation3d> ballPositionsPublisher = ballPositionsTopic.publish();
 
   private final StructPublisher<Pose3d> robotPositionPublisher = NetworkTableInstance.getDefault().getStructTopic("/SHARP/robotPosition", Pose3d.struct).publish();
+
 
   public enum Mode {
     /** Running on a real robot. */
@@ -60,6 +68,7 @@ public class Robot extends LoggedRobot {
     Simulator.init();
     simulator = Simulator.getInstance();
     commandScheduler = new CommandScheduler();
+    shooter = new Shooter(commandScheduler);
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -177,7 +186,13 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+      try {
+          sdmxController.periodic();
+      } catch (InvocationTargetException | IllegalAccessException e) {
+          throw new RuntimeException(e);
+      }
+  }
 
   @Override
   public void testInit() {

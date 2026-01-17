@@ -1,12 +1,11 @@
 package frc.robot.shooter;
 
 
-import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Robot;
+import frc.robot.SDMXConstants;
+import frc.robot.SDMXDigitalInputEventHandler;
 import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -14,11 +13,9 @@ import org.littletonrobotics.junction.Logger;
 public class Shooter extends SubsystemBase {
     private final ShooterIO io;
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
-    private final XboxController controller;
 
-    public Shooter(XboxController controller, CommandScheduler scheduler) {
+    public Shooter(CommandScheduler scheduler) {
         super(scheduler);
-        this.controller = controller;
         io = switch (Robot.currentMode) {
             case SIM -> new ShooterIOSim();
             case REAL -> new ShooterIOSpark();
@@ -90,6 +87,18 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
+    }
+
+    @SDMXDigitalInputEventHandler(SDMXConstants.BUTTON_SHOOT)
+    public void shootEventHandler(boolean active) {
+        setShooter(active ? 1d : 0d);
+    }
+
+    @SDMXDigitalInputEventHandler(SDMXConstants.BUTTON_AIM)
+    public void aimEventHandler(boolean active) {
+        if (active) {
+            // TODO: integrate with (currently unwritten) shooter math
+        }
     }
 }
 

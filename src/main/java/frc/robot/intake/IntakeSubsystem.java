@@ -3,6 +3,8 @@ package frc.robot.intake;
 
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
+import frc.robot.SDMXConstants;
+import frc.robot.SDMXDigitalInputEventHandler;
 import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.SubsystemBase;
 
@@ -20,6 +22,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void stopIntake() {
         intakeMotor.set(0);
+    }
+
+    @SDMXDigitalInputEventHandler(SDMXConstants.BUTTON_INTAKE)
+    public void inputHandler(boolean active) {
+        if (active) startIntake();
+        else stopIntake();
     }
 }
 
