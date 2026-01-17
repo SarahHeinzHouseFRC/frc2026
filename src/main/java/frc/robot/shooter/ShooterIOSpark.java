@@ -14,6 +14,9 @@ public class ShooterIOSpark implements ShooterIO {
     public SparkMax panMotor;
     public SparkMax tiltMotor;
     public SparkMax flywheelMotor;
+    private final int panMotorCanId = -1;
+    private final int tiltMotorCanId = -1;
+    private final int flywheelMotorCanId = -1;
     public ShooterIOSpark() {
         SparkMaxConfig panConfig = new SparkMaxConfig();
         panConfig
@@ -21,7 +24,7 @@ public class ShooterIOSpark implements ShooterIO {
                 .idleMode(kBrake)
                 .inverted(false);
         panConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
-        panMotor = new SparkMax(-1, kBrushed);
+        panMotor = new SparkMax(panMotorCanId, kBrushed);
         panMotor.configure(panConfig, kResetSafeParameters, kPersistParameters);
 
         SparkMaxConfig tiltConfig = new SparkMaxConfig();
@@ -30,7 +33,7 @@ public class ShooterIOSpark implements ShooterIO {
                 .idleMode(kBrake)
                 .inverted(false);
         tiltConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
-        tiltMotor = new SparkMax(-1, kBrushed);
+        tiltMotor = new SparkMax(tiltMotorCanId, kBrushed);
         tiltMotor.configure(tiltConfig, kResetSafeParameters, kPersistParameters);
 
         SparkMaxConfig flywheelConfig = new SparkMaxConfig();
@@ -39,7 +42,7 @@ public class ShooterIOSpark implements ShooterIO {
                 .idleMode(kCoast)
                 .inverted(false);
         flywheelConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
-        flywheelMotor = new SparkMax(-1, kBrushed);
+        flywheelMotor = new SparkMax(flywheelMotorCanId, kBrushed);
         flywheelMotor.configure(tiltConfig, kResetSafeParameters, kPersistParameters);
     }
 

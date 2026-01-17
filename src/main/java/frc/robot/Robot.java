@@ -40,8 +40,9 @@ public class Robot extends LoggedRobot {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public XboxController driverController = new XboxController(0);
-  public static final SDMXController sdmxController = new SDMXController(new GenericHID(1));
+  public static XboxController driverController = new XboxController(0);
+//    public static final SDMXController sdmxController = new SDMXController(new GenericHID(1));
+    public static final SDMXController sdmxController = new SDMXController(driverController);
 
   StructArrayTopic<Translation3d> ballPositionsTopic = NetworkTableInstance.getDefault().getStructArrayTopic("/SHARP/ballPositions", Translation3d.struct);
   private final StructArrayPublisher<Translation3d> ballPositionsPublisher = ballPositionsTopic.publish();
