@@ -111,6 +111,8 @@ public class Robot extends LoggedRobot {
 
     configureSubsystems();
     configureBindings();
+
+    sdmxController.registerEventHandlers();
   }
 
   private void configureBindings() {
