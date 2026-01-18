@@ -1,9 +1,10 @@
 package frc.robot.shooter;
 
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 import static com.revrobotics.PersistMode.*;
 import static com.revrobotics.ResetMode.*;
@@ -11,38 +12,38 @@ import static com.revrobotics.spark.SparkLowLevel.MotorType.*;
 import static com.revrobotics.spark.config.SparkBaseConfig.IdleMode.*;
 
 public class ShooterIOSpark implements ShooterIO {
-    public SparkMax panMotor;
-    public SparkMax tiltMotor;
-    public SparkMax flywheelMotor;
+    public SparkFlex panMotor;
+    public SparkFlex tiltMotor;
+    public SparkFlex flywheelMotor;
     private final int panMotorCanId = -1;
-    private final int tiltMotorCanId = -1;
-    private final int flywheelMotorCanId = -1;
+    private final int tiltMotorCanId = 32;
+    private final int flywheelMotorCanId = 30;
     public ShooterIOSpark() {
-        SparkMaxConfig panConfig = new SparkMaxConfig();
+        SparkFlexConfig panConfig = new SparkFlexConfig();
         panConfig
                 .smartCurrentLimit(40)
                 .idleMode(kBrake)
                 .inverted(false);
         panConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
-        panMotor = new SparkMax(panMotorCanId, kBrushed);
+        panMotor = new SparkFlex(panMotorCanId, kBrushless);
         panMotor.configure(panConfig, kResetSafeParameters, kPersistParameters);
 
-        SparkMaxConfig tiltConfig = new SparkMaxConfig();
+        SparkFlexConfig tiltConfig = new SparkFlexConfig();
         tiltConfig
                 .smartCurrentLimit(40)
                 .idleMode(kBrake)
                 .inverted(false);
         tiltConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
-        tiltMotor = new SparkMax(tiltMotorCanId, kBrushed);
+        tiltMotor = new SparkFlex(tiltMotorCanId, kBrushless);
         tiltMotor.configure(tiltConfig, kResetSafeParameters, kPersistParameters);
 
-        SparkMaxConfig flywheelConfig = new SparkMaxConfig();
+        SparkFlexConfig flywheelConfig = new SparkFlexConfig();
         flywheelConfig
                 .smartCurrentLimit(40)
                 .idleMode(kCoast)
                 .inverted(false);
         flywheelConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
-        flywheelMotor = new SparkMax(flywheelMotorCanId, kBrushed);
+        flywheelMotor = new SparkFlex(flywheelMotorCanId, kBrushless);
         flywheelMotor.configure(tiltConfig, kResetSafeParameters, kPersistParameters);
     }
 
