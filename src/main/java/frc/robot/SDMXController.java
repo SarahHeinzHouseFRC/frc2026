@@ -38,7 +38,7 @@ public class SDMXController {
     protected void periodic() throws InvocationTargetException, IllegalAccessException {
         for (Integer key : digitalInputEventHandlers.keySet()) {
             if (hid.getRawButtonPressed(key) || hid.getRawButtonReleased(key)) {
-                digitalInputEventHandlers.get(key).invoke(hid.getRawButton(key));
+                digitalInputEventHandlers.get(key).invoke(null, hid.getRawButton(key));
             }
         }
     }

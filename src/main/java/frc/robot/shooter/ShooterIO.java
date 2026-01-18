@@ -28,4 +28,6 @@ public interface ShooterIO {
     default void setTurretYawOpenLoop(double voltage) {}
 
     default void setFlywheelOpenLoop(double voltage) {}
+
+    default double getTurretPitch() {return -1;}
 }

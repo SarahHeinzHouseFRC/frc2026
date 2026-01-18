@@ -14,8 +14,11 @@ public class Shooter extends SubsystemBase {
     private final ShooterIO io;
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
+    public static Shooter instance;
+
     public Shooter(CommandScheduler scheduler) {
         super(scheduler);
+        instance = this;
         io = switch (Robot.currentMode) {
             case SIM -> new ShooterIOSim();
             case REAL -> new ShooterIOSpark();
@@ -90,28 +93,30 @@ public class Shooter extends SubsystemBase {
     }
 
     @SDMXDigitalInputEventHandler(1) // A button
-    public void shootEventHandler(boolean value) {
-        io.setFlywheelOpenLoop(value ? 12d : 0d);
+    public static void shootEventHandler(boolean value) {
+        Shooter.instance.io.setFlywheelOpenLoop(value ? -12d : 0d);
     }
 
     @SDMXDigitalInputEventHandler(5) // Left bumper button
-    public void aimLeftEventHandler(boolean value) {
-        io.setTurretYawOpenLoop(value ? 1d : 0d);
+    public static void aimLeftEventHandler(boolean value) {
+        Shooter.instance.io.setTurretYawOpenLoop(value ? 1d : 0d);
     }
 
     @SDMXDigitalInputEventHandler(6) // Right bumper button
-    public void aimRightEventHandler(boolean value) {
-        io.setTurretYawOpenLoop(value ? -1d : 0d);
-    }
-
-    @SDMXDigitalInputEventHandler(3) // Y button
-    public void tiltUpEventHandler(boolean value) {
-        io.setTurretPitchOpenLoop(value ? 1d : 0d);
+    public static void aimRightEventHandler(boolean value) {
+        Shooter.instance.io.setTurretYawOpenLoop(value ? -1d : 0d);
     }
 
     @SDMXDigitalInputEventHandler(4) // Y button
-    public void tiltDownEventHandler(boolean value) {
-        io.setTurretPitchOpenLoop(value ? -1d : 0d);
+    public static void tiltUpEventHandler(boolean value) {
+        // Shooter.instance.io.setTurretPitchOpenLoop(value ? 12d : 0d);
+        Shooter.instance.io.setTurretPitch((1d/4));
+    }
+
+    @SDMXDigitalInputEventHandler(3) // X button
+    public static void tiltDownEventHandler(boolean value) {
+        // Shooter.instance.io.setTurretPitchOpenLoop(value ? -6d : 0d);
+        Shooter.instance.io.setTurretPitch(0);
     }
 }
 

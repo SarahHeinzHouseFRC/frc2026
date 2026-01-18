@@ -15,7 +15,7 @@ public class ShooterIOSpark implements ShooterIO {
     public SparkFlex panMotor;
     public SparkFlex tiltMotor;
     public SparkFlex flywheelMotor;
-    private final int panMotorCanId = -1;
+    private final int panMotorCanId = 31;
     private final int tiltMotorCanId = 32;
     private final int flywheelMotorCanId = 30;
     public ShooterIOSpark() {
@@ -33,9 +33,11 @@ public class ShooterIOSpark implements ShooterIO {
                 .smartCurrentLimit(40)
                 .idleMode(kBrake)
                 .inverted(false);
-        tiltConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
+        tiltConfig.closedLoop.pid(1, 0, 0.2, ClosedLoopSlot.kSlot0);
         tiltMotor = new SparkFlex(tiltMotorCanId, kBrushless);
         tiltMotor.configure(tiltConfig, kResetSafeParameters, kPersistParameters);
+
+        tiltMotor.getEncoder().setPosition(0);
 
         SparkFlexConfig flywheelConfig = new SparkFlexConfig();
         flywheelConfig
@@ -44,7 +46,8 @@ public class ShooterIOSpark implements ShooterIO {
                 .inverted(false);
         flywheelConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
         flywheelMotor = new SparkFlex(flywheelMotorCanId, kBrushless);
-        flywheelMotor.configure(tiltConfig, kResetSafeParameters, kPersistParameters);
+        flywheelMotor.configure(flywheelConfig, kResetSafeParameters, kPersistParameters);
+
     }
 
     public void updateInputs(ShooterIOInputs inputs) {
@@ -74,5 +77,9 @@ public class ShooterIOSpark implements ShooterIO {
     }
     public void setFlywheelOpenLoop(double voltage) {
         flywheelMotor.setVoltage(voltage);
+    }
+
+    public double getTurretPitch() {
+        return tiltMotor.getEncoder().getPosition() * 2 * Math.PI;
     }
 }
