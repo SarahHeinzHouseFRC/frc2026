@@ -2,7 +2,7 @@ package frc.robot.motionplanning;
 
 import frc.robot.math.Vector2d;
 import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.math3.analysis.interpolation.HermiteInterpolator;;
 
 public class PathSplitter {
     public final Polynomial x;
@@ -25,11 +25,17 @@ public class PathSplitter {
         return path;
     }
 
-    public ArrayList<Vector2d> splitPathBetter(double segments) {
-        double segLength = 1/segments;
-        ArrayList<Vector2d> points = new ArrayList<>();
-        for (int i = 0; i <= segments; ++i) {
-            points.add(new Vector2d(x.at(i * segLength), y.at(i * segLength)));
+    public ArrayList<Vector2d> splitPathBetter(double segments, ArrayList<Vector2d> points) {
+        HermiteInterpolator interpolator = new HermiteInterpolator();
+        double t = 0;
+        for (Vector2d e : points) {
+            interpolator.addSamplePoint(t, new double[] {e.x(), e.y()});
+            t += 1;
+        }
+        ArrayList<Vector2d> path_points = new ArrayList<Vector2d>();
+        for (double i = 0; i <= points.size(); i+=points.size()/segments) {
+            double[] p = interpolator.value(i);
+            path_points.add(new Vector2d(p[0], p[1]));
         }
         return points;
     }
