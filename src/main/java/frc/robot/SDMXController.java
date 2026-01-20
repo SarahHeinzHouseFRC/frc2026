@@ -11,11 +11,13 @@ import java.util.Map;
 public class SDMXController {
     private final GenericHID hid;
     private final Map<Integer, Method> digitalInputEventHandlers;
+    private final Map<Integer, Method> analogInputEventHandlers;
 
     public SDMXController(GenericHID hid) {
         this.hid = hid;
 
         digitalInputEventHandlers = new HashMap<>();
+        analogInputEventHandlers = new HashMap<>();
     }
 
     public void registerEventHandlers() {
@@ -24,6 +26,11 @@ public class SDMXController {
         for (Method method : digitalInputEventHandlerMethods) {
             SDMXDigitalInputEventHandler annotation = method.getAnnotation(SDMXDigitalInputEventHandler.class);
             digitalInputEventHandlers.put(annotation.value(), method);
+        }
+        var analogInputEventHandlerMethods = reflections.getMethodsAnnotatedWith(SDMXAnalogInputEventHandler.class);
+        for (Method method : analogInputEventHandlerMethods) {
+            SDMXAnalogInputEventHandler annotation = method.getAnnotation(SDMXAnalogInputEventHandler.class);
+            analogInputEventHandlers.put(annotation.value(), method);
         }
     }
 
@@ -40,6 +47,9 @@ public class SDMXController {
             if (hid.getRawButtonPressed(key) || hid.getRawButtonReleased(key)) {
                 digitalInputEventHandlers.get(key).invoke(null, hid.getRawButton(key));
             }
+        }
+        for (Integer key : analogInputEventHandlers.keySet()) {
+            analogInputEventHandlers.get(key).invoke(null, (byte) Math.round(Math.max(0.0, Math.min(1.0, hid.getRawAxis(key))) * 255.0));
         }
     }
 }
