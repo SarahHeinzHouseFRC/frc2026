@@ -5,11 +5,23 @@ import org.apache.commons.math3.ode.FirstOrderIntegrator;
 import org.apache.commons.math3.ode.events.EventHandler;
 import org.apache.commons.math3.ode.nonstiff.DormandPrince853Integrator;
 import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.fitting.leastsquares.EvaluationRmsChecker;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresFactory;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 
 import frc.robot.math.Matrix3d;
 import frc.robot.math.Vector3d;
+import frc.robot.math.Transformation;
 
 public class ShooterMath {
+  Vector3d target;
+  Transformation robotPosition;
+  Vector3d robotVelocity;
+  double theta;
 
   public static class TargetEventHandler implements EventHandler{
     private final Vector3d target;
@@ -20,7 +32,7 @@ public class ShooterMath {
 
     @Override
     public double g(double t, double[] y) {
-      return y[3]-target.z();
+      return y[2]-target.z();
     }
 
     @Override
@@ -128,11 +140,45 @@ public class ShooterMath {
         arrivalTheta - theta 
       };
     }
-    
   }
 
-  // TODO: get sleep
+  public Vector3d solve(double[] initialGuess) {
+    Optimizer model = new Optimizer(target, robotPosition.getTranslation(), robotVelocity, robotPosition.getRotation(), theta);
 
-  // TODO: write comments
+    double[] targetError = {0, 0, 0, 0};
+
+    double relTol = 1e-6;
+    double absTol = 1e-6;
+    EvaluationRmsChecker checker = new EvaluationRmsChecker(relTol, absTol);
+
+    LeastSquaresProblem problem = LeastSquaresFactory.create(
+      LeastSquaresFactory.model(model, params -> {
+        int m = 4;
+        int n = 3;
+        double[][] jac = new double[m][n];
+        double[] epsilon = {0.01, 0.001, 0.001};
+        double[] base = model.value(params);
+        for (int j = 0; j < n; j++) {
+          double[] stepped = params.clone();
+          stepped[j] += epsilon[j];
+          double[] val = model.value(stepped);
+          for (int i = 0; i < m; i++) jac[i][j] = (val[i] - base[i]) / epsilon[j];
+        }
+        return jac;
+      }),
+      new ArrayRealVector(targetError),
+      new ArrayRealVector(initialGuess),
+      checker,
+      1000,
+      1000
+    );
+
+    LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
+    LeastSquaresOptimizer.Optimum optimum = optimizer.optimize(problem);
+
+    double[] solution = optimum.getPoint().toArray();
+
+    return new Vector3d(solution[0], solution[1], solution[2]);
+  }
 
 }
