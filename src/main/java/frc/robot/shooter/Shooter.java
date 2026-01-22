@@ -78,7 +78,7 @@ public class Shooter extends SubsystemBase {
         var dy = target.getY() - current.getY();
 
         // calculate angle
-        // tan(θ) = dy/dx
+        // tan(theta) = dy/dx
         double panAngle = Math.atan(dy/dx);
 
         // TODO: calculate tilt angle and power (misha's job)
