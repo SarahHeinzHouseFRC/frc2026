@@ -30,7 +30,11 @@ yes i understand that different device classes can share a can id but i like it 
 
 ## Intake (`20`-`29`)
 
-**Intake Motor:** `20`
+**Intake & First Star Wheel Motor:** `20`
+
+**Indexer/Second Star Wheel Motor:** `22`
+
+**Belt Motor:** `23`
 
 ## Shooter (`30`-`39`)
 
