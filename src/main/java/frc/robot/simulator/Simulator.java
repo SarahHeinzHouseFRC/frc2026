@@ -4,9 +4,7 @@ package frc.robot.simulator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.FieldConstants;
-
-import java.lang.reflect.Field;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class Simulator {
     private long lastTime = -1;
@@ -31,7 +29,11 @@ public class Simulator {
     }
 
     public Pose3d getTruePosition() {
-        return driveSim.getTruePosition();
+        return new Pose3d(driveSim.getTruePosition());
+    }
+
+    public void setSwerveModuleStates(SwerveModuleState[] states) {
+        driveSim.setModuleStates(states);
     }
 
     public Translation3d[] getBallPositions() {
@@ -39,7 +41,12 @@ public class Simulator {
     }
 
     public void shootBallFromRobot(double pitchAngle, double yawAngle, double velocity) {
-        Translation3d position = getTruePosition().getTranslation().plus(new Translation3d(0, 0, 0));
+        Translation3d position = getTruePosition().getTranslation().plus(new Translation3d(0, 0, .5));
+        ballSim.shootBall(new Pose3d(position, new Rotation3d(0, pitchAngle, yawAngle)), velocity);
+    }
+
+    public void shootBallFromPosition(Pose3d positionPose, double pitchAngle, double yawAngle, double velocity) {
+        Translation3d position = positionPose.getTranslation().plus(new Translation3d(0, 0, .5));
         ballSim.shootBall(new Pose3d(position, new Rotation3d(0, pitchAngle, yawAngle)), velocity);
     }
 

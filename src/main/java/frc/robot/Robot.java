@@ -4,14 +4,13 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.*;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
+import frc.robot.drive.ControllerDriveCommand;
+import frc.robot.drive.Drive;
 import frc.robot.shooter.Shooter;
 import frc.robot.simulator.Simulator;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -31,11 +30,11 @@ import java.lang.reflect.InvocationTargetException;
 
 
 public class Robot extends LoggedRobot {
-  private Command autonomousCommand;
   private static CommandScheduler commandScheduler;
   public static Simulator simulator;
 
   public Shooter shooter;
+  public Drive drive;
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
@@ -66,10 +65,14 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
-    Simulator.init();
-    simulator = Simulator.getInstance();
+    if (currentMode == Mode.SIM) {
+      Simulator.init();
+      simulator = Simulator.getInstance();
+    }
     commandScheduler = new CommandScheduler();
     shooter = new Shooter(commandScheduler);
+    drive = new Drive(commandScheduler);
+    drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -147,14 +150,6 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     commandScheduler.run();
-
-    // temporary
-    if (driverController.getAButtonPressed()) {
-//      simulator.getBallSim().shootBall(2, 2, 0, 2.9, 2.3, 8);
-      simulator.shootBallFromRobot(3.14/2 - .1775, 0, 7);
-    }
-    ballPositionsPublisher.set(simulator.getBallPositions());
-    robotPositionPublisher.set(simulator.getTruePosition());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -180,9 +175,9 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
-    }
+//    if (autonomousCommand != null) {
+//      autonomousCommand.cancel();
+//    }
     sdmxController.registerEventHandlers();
   }
 
@@ -210,7 +205,37 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationInit() {}
 
+//  private Pose3d robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
+//  private int i = 0;
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+//    if (false) {
+//      // temporary
+//      i++;
+//      if (i % 1 == 0) {
+////      System.out.println("here");
+//        robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
+//
+//
+//        // Vector from A to B
+//        Translation2d delta = FieldConstants.HUB.toTranslation2d().minus(robotPoseSimTestingDontUse.getTranslation().toTranslation2d());
+//
+//        // Angle of that vector
+//        double yaw = new Rotation2d(delta.getX(), delta.getY()).getRadians();
+//
+//        double x = delta.getNorm();
+//
+//        double speed = ShooterCurveFit.calculateY(x);
+//        double pitch = ShooterCurveFit.calculateZ(x);
+//        simulator.shootBallFromPosition(robotPoseSimTestingDontUse, pitch, yaw, speed);
+//      }
+//      ballPositionsPublisher.set(simulator.getBallPositions());
+//      robotPositionPublisher.set(robotPoseSimTestingDontUse);
+//    }
+  }
+
+//  private Pose3d moveRobotToRandomPositionTestingDontUse() {
+//    return new Pose3d(new Translation3d(Math.random() * 4.6, Math.random() * 8.1, 0), Rotation3d.kZero);
+//  }
 }

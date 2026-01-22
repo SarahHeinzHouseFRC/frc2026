@@ -1,26 +1,30 @@
 package frc.robot.simulator;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.geometry.Twist3d;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.FieldConstants;
 
 public class DriveSim {
-    DriveSimModule frontLeft = new DriveSimModule(DriveSimModuleType.FrontLeft);
-    DriveSimModule frontRight = new DriveSimModule(DriveSimModuleType.FrontRight);
-    DriveSimModule backLeft = new DriveSimModule(DriveSimModuleType.BackLeft);
-    DriveSimModule backRight = new DriveSimModule(DriveSimModuleType.BackRight);
-
-    Pose3d truePosition =  new Pose3d(new Translation3d(FieldConstants.HUB.getX() - 1.2, FieldConstants.HUB.getY(), 0), Rotation3d.kZero);
-    Twist3d trueVelocity = new Twist3d();
+    private final DriveSimModule[] modules = new DriveSimModule[4];
+    private final Pose2d truePosition =  new Pose2d(new Translation2d(FieldConstants.HUB.getX() - 1.2, FieldConstants.HUB.getY()), Rotation2d.kZero);
+    private final Twist3d trueVelocity = new Twist3d();
+    private SwerveModuleState[] moduleStates = new SwerveModuleState[4];
     protected DriveSim() {
 
     }
     protected void periodic(double dt) {
-
+//        Vector2d[] forces = new Vector2d[4];
+//        for (int i = 0; i < 4; i++) {
+//            forces[i] = modules[i].simulate();
+//        }
     }
-    protected Pose3d getTruePosition() {
-        return new Pose3d(new Translation3d(FieldConstants.HUB.getX() - 1.2, FieldConstants.HUB.getY(), 0), Rotation3d.kZero);
+    protected Pose2d getTruePosition() {
+        return new Pose2d(new Translation2d(FieldConstants.HUB.getX() - 1.2, FieldConstants.HUB.getY()), Rotation2d.kZero);
+    }
+
+
+    protected void setModuleStates(SwerveModuleState[] states) {
+        moduleStates = states;
     }
 }
