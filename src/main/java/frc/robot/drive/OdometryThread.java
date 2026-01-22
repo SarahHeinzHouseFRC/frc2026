@@ -73,7 +73,7 @@ public class OdometryThread {
         try {
             genericSignals.add(signal);
             genericQueues.add(queue);
-            signalValidators.add(() -> true);
+            signalValidators.add(null);
         } finally {
             Drive.odometryLock.unlock();
         }
@@ -118,7 +118,8 @@ public class OdometryThread {
             boolean isValid = true;
             for (int i = 0; i < genericSignals.size(); i++) {
                 values[i] = genericSignals.get(i).getAsDouble();
-                if (!signalValidators.get(i).getAsBoolean()) {
+                BooleanSupplier validator = signalValidators.get(i);
+                if (validator != null && !validator.getAsBoolean()) {
                     isValid = false;
                 }
             }

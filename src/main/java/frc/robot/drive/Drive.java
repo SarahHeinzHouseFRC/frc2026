@@ -53,15 +53,28 @@ public class Drive extends SubsystemBase {
             new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
     public Drive(
-            GyroIO gyroIO,
-            ModuleIO flModuleIO,
-            ModuleIO frModuleIO,
-            ModuleIO blModuleIO,
-            ModuleIO brModuleIO,
             CommandScheduler scheduler) {
         super(scheduler);
 
-        this.gyroIO = gyroIO;
+        ModuleIO flModuleIO;
+        ModuleIO frModuleIO;
+        ModuleIO blModuleIO;
+        ModuleIO brModuleIO;
+        if (Robot.currentMode == Robot.Mode.REAL) {
+            flModuleIO = new ModuleIOSpark(0);
+            frModuleIO = new ModuleIOSpark(1);
+            blModuleIO = new ModuleIOSpark(2);
+            brModuleIO = new ModuleIOSpark(3);
+            this.gyroIO = new GyroIOPigeon2();
+        } else {
+            flModuleIO = new ModuleIO() {};
+            frModuleIO = new ModuleIO() {};
+            blModuleIO = new ModuleIO() {};
+            brModuleIO = new ModuleIO() {};
+            this.gyroIO = new GyroIO() {};
+        }
+
+
         modules[0] = new Module(flModuleIO, 0);
         modules[1] = new Module(frModuleIO, 1);
         modules[2] = new Module(blModuleIO, 2);
