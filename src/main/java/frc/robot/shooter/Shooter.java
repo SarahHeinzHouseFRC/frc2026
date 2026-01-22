@@ -94,7 +94,7 @@ public class Shooter extends SubsystemBase {
 
     @SDMXDigitalInputEventHandler(1) // A button
     public static void shootEventHandler(boolean value) {
-        Shooter.instance.io.setFlywheelOpenLoop(value ? -12d : 0d);
+        Shooter.instance.io.setFlywheelOpenLoop(value ? 12d : 0d);
     }
 
     @SDMXDigitalInputEventHandler(5) // Left bumper button
