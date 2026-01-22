@@ -4,11 +4,13 @@ package frc.robot.shooter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.Robot;
+import frc.robot.SDMXAnalogInputEventHandler;
 import frc.robot.SDMXConstants;
 import frc.robot.SDMXDigitalInputEventHandler;
 import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.wpilibj.XboxController.Axis;
 
 public class Shooter extends SubsystemBase {
     private final ShooterIO io;
@@ -92,9 +94,9 @@ public class Shooter extends SubsystemBase {
         Logger.processInputs("Shooter", inputs);
     }
 
-    @SDMXDigitalInputEventHandler(1) // A button
-    public static void shootEventHandler(boolean value) {
-        Shooter.instance.io.setFlywheelOpenLoop(value ? 12d : 0d);
+    @SDMXAnalogInputEventHandler(2) // Left trigger
+    public static void shootEventHandler(byte value) {
+        Shooter.instance.io.setFlywheelOpenLoop(((int)value/256d)*12d);
     }
 
     @SDMXDigitalInputEventHandler(5) // Left bumper button
