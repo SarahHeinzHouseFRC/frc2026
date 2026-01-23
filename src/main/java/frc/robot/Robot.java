@@ -4,12 +4,14 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
+import frc.robot.drive.ControllerDriveCommand;
+import frc.robot.drive.Drive;
+import frc.robot.shooter.Shooter;
 import frc.robot.simulator.Simulator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -17,6 +19,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -26,17 +30,24 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 
 public class Robot extends LoggedRobot {
-  private Command autonomousCommand;
   private static CommandScheduler commandScheduler;
   public static Simulator simulator;
+
+  public Shooter shooter;
+  public Drive drive;
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public XboxController driverController = new XboxController(0);
+  public static XboxController driverController = new XboxController(0);
+//    public static final SDMXController sdmxController = new SDMXController(new GenericHID(1));
+    public static final SDMXController sdmxController = new SDMXController(driverController);
 
   StructArrayTopic<Translation3d> ballPositionsTopic = NetworkTableInstance.getDefault().getStructArrayTopic("/SHARP/ballPositions", Translation3d.struct);
   private final StructArrayPublisher<Translation3d> ballPositionsPublisher = ballPositionsTopic.publish();
+
+  private final StructPublisher<Pose3d> robotPositionPublisher = NetworkTableInstance.getDefault().getStructTopic("/SHARP/robotPosition", Pose3d.struct).publish();
+
 
   public enum Mode {
     /** Running on a real robot. */
@@ -54,9 +65,14 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
-    Simulator.init();
-    simulator = Simulator.getInstance();
+    if (currentMode == Mode.SIM) {
+      Simulator.init();
+      simulator = Simulator.getInstance();
+    }
     commandScheduler = new CommandScheduler();
+    shooter = new Shooter(commandScheduler);
+    drive = new Drive(commandScheduler);
+    drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -134,12 +150,6 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     commandScheduler.run();
-
-    // temporary
-    if (driverController.getAButtonPressed()) {
-      simulator.getBallSim().shootBall(2, 2, 0, 2.9, 2.3, 8);
-    }
-    ballPositionsPublisher.set(simulator.getBallSim().getBallPositions());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -165,14 +175,21 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
-    }
+//    if (autonomousCommand != null) {
+//      autonomousCommand.cancel();
+//    }
+    sdmxController.registerEventHandlers();
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+      try {
+          sdmxController.periodic();
+      } catch (InvocationTargetException | IllegalAccessException e) {
+          throw new RuntimeException(e);
+      }
+  }
 
   @Override
   public void testInit() {
@@ -188,7 +205,37 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationInit() {}
 
+//  private Pose3d robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
+//  private int i = 0;
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+//    if (false) {
+//      // temporary
+//      i++;
+//      if (i % 1 == 0) {
+////      System.out.println("here");
+//        robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
+//
+//
+//        // Vector from A to B
+//        Translation2d delta = FieldConstants.HUB.toTranslation2d().minus(robotPoseSimTestingDontUse.getTranslation().toTranslation2d());
+//
+//        // Angle of that vector
+//        double yaw = new Rotation2d(delta.getX(), delta.getY()).getRadians();
+//
+//        double x = delta.getNorm();
+//
+//        double speed = ShooterCurveFit.calculateY(x);
+//        double pitch = ShooterCurveFit.calculateZ(x);
+//        simulator.shootBallFromPosition(robotPoseSimTestingDontUse, pitch, yaw, speed);
+//      }
+//      ballPositionsPublisher.set(simulator.getBallPositions());
+//      robotPositionPublisher.set(robotPoseSimTestingDontUse);
+//    }
+  }
+
+//  private Pose3d moveRobotToRandomPositionTestingDontUse() {
+//    return new Pose3d(new Translation3d(Math.random() * 4.6, Math.random() * 8.1, 0), Rotation3d.kZero);
+//  }
 }

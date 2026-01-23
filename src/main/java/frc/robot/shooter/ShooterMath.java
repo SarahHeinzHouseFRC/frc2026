@@ -1,93 +1,184 @@
 package frc.robot.shooter;
 
+import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
+import org.apache.commons.math3.ode.FirstOrderIntegrator;
+import org.apache.commons.math3.ode.events.EventHandler;
+import org.apache.commons.math3.ode.nonstiff.DormandPrince853Integrator;
+import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.fitting.leastsquares.EvaluationRmsChecker;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresFactory;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
+
+import frc.robot.math.Matrix3d;
+import frc.robot.math.Vector3d;
+import frc.robot.math.Transformation;
+
 public class ShooterMath {
-  /**
-   * Calculates force of gravity
-   * 
-   * @param m mass of object
-   * @param g gravity constant
-   * @return force of gravity
-   */
-  public static double FGravity(double m, double g) {
-    return m*g;
+  Vector3d target;
+  Transformation robotPosition;
+  Vector3d robotVelocity;
+  double theta;
+
+  public static class TargetEventHandler implements EventHandler{
+    private final Vector3d target;
+
+    public TargetEventHandler(Vector3d target) {
+      this.target = new Vector3d(target);
+    }
+
+    @Override
+    public double g(double t, double[] y) {
+      return y[2]-target.z();
+    }
+
+    @Override
+    public Action eventOccurred(double t, double[] y, boolean increasing) {
+      if (increasing) {
+        return Action.CONTINUE;
+      } else {
+        return Action.STOP;
+      }
+    }
+
+    @Override
+    public void init(double t0, double[] y0, double t) {}
+
+    @Override
+    public void resetState(double t, double[] y) {}
+
   }
 
-  /**
-   * Calculates the force of drag
-   * 
-   * @param rho fluid density
-   * @param v velocity
-   * @param Cd coefficent of drag
-   * @param A surface area of object contacting fluid
-   * @return force of drag
-   */
-  public static double FDrag(double rho, double v, double Cd, double A) {
-    return 0.5*rho*v*v*Cd*A;
+  public static class BallPositionSolver implements FirstOrderDifferentialEquations {
+
+    @Override
+    public int getDimension() {
+      return 6;
+    }
+
+    @Override
+    public void computeDerivatives(double t, double[] y, double[] yDot) {
+      // Gravitational force in m/s
+      final double g = -9.81;
+      // Ball mass
+      final double m = 0.203;
+      // Assuming Cd=0.47
+      final double c = 0.00509;
+
+      // Ball velocity
+      final double v = Math.sqrt(y[3]*y[3]+y[4]*y[4]+y[5]*y[5]);
+
+      // Forces on ball
+      yDot[3] = -c*v*y[3]/m;
+      yDot[4] = -c*v*y[4]/m;
+      yDot[5] = g-c*v*y[5]/m;
+
+      // Set derivatives of postiion
+      yDot[0] = y[3];
+      yDot[1] = y[4];
+      yDot[2] = y[5];
+
+    }
   }
 
-  /**
-   * Calculates the force of drag assuming the object is a perfect sphere
-   * 
-   * @param rho fluid density
-   * @param v velocity
-   * @param radius radius of sphere
-   * @return force of drag
-   */
-  public static double FDragSphere(double rho, double v, double radius) {
-    return 0.5*rho*v*v*0.47*(4*Math.PI*radius*radius);
+  public class Optimizer implements MultivariateVectorFunction {
+    private final Vector3d target;
+    private final Vector3d robotPosition;
+    private final Vector3d robotVelocity;
+    private final Matrix3d robotRotation;
+    private final double theta;
+
+    public Optimizer(Vector3d target, Vector3d robotPosition, Vector3d robotVelocity, Matrix3d robotRotation, double theta) {
+      this.target = target;
+      this.robotPosition = robotPosition;
+      this.robotVelocity = robotVelocity;
+      this.robotRotation = robotRotation;
+      this.theta = theta;
+    }
+
+    public double[] value(double[] parameters) {
+      double v = parameters[0];
+      double alpha = parameters[1];
+      double beta = parameters[2];
+
+      Vector3d vBall = (new Vector3d(robotRotation.times(Matrix3d.fromYaw(alpha).times(Matrix3d.fromPitch(beta).times(new Vector3d(1, 0, 0)))).times(v)));
+
+      double[] initial = {
+        robotPosition.x(), robotPosition.y(), robotPosition.y(),
+        robotVelocity.x()+vBall.x(), robotPosition.y()+vBall.y(), robotPosition.z()+vBall.z()
+      };
+
+      FirstOrderIntegrator integrator = new DormandPrince853Integrator(1.0e-8, 1.0, 1.0e-10, 1.0e-10);
+
+      integrator.addEventHandler(new TargetEventHandler(target), 0.1, 1.0e-4, 1000);
+
+      try {
+        integrator.integrate(new BallPositionSolver(), 0.0, initial, 30.0, initial);
+      } catch (Exception e) {
+        return new double[] { 1e9, 1e9, 1e9, 1e9 };
+      }
+
+      // Math I blatantly stole form ai because it's currently 3:12 am
+
+      double finalX = initial[0];
+      double finalY = initial[1];
+      double finalZ = initial[2];
+      
+      // Impact angle calculation
+      double finalVz = initial[5];
+      double finalVhoriz = Math.sqrt(initial[3]*initial[3] + initial[4]*initial[4]);
+      double arrivalTheta = Math.atan2(finalVz, finalVhoriz);
+
+      // Return residuals (distance from target and difference from desired angle)
+      return new double[] { 
+        finalX - target.x(), 
+        finalY - target.y(), 
+        finalZ - target.z(),
+        arrivalTheta - theta 
+      };
+    }
   }
 
+  public Vector3d solve(double[] initialGuess) {
+    Optimizer model = new Optimizer(target, robotPosition.getTranslation(), robotVelocity, robotPosition.getRotation(), theta);
 
-  /**
-   * Uses a set turret velocity to make a basic prediction of how much velocity is needed in each direction to score the ball assuming no air resistnace or magnus forces
-   * 
-   * @param s1 position of robot
-   * @param v1 velocity of robot
-   * @param s2 position of target
-   * @param v turret velocity
-   * @return velocity in each direction neede to be produced by the shooter to score
-   */
-  public static Vector3d calcuateForcesModelOne(Vector3d s1, Vector3d v1, Vector3d s2, double v) {
-    s1.get(3);
-    final double ta = -0.0098/2;
-    final double tb = (v+v1.x()+v1.y()+v1.z());
-    final double tc = (s2.x()-s1.x()+s2.y()-s1.y()+s2.z()-s1.z());
-    final double t = (-tb+Math.sqrt(tb*tb-4*ta*tc))/(2*ta);
-    final double a = (s2.x()-s1.x())/t+v1.x();
-    final double b = (s2.y()-s1.y())/t+v1.y();
-    final double c = v+v1.x()+v1.y()-(s2.x()-s1.x()+s2.y()-s1.y())/t;
-    return new Vector3d(a, b, c);
+    double[] targetError = {0, 0, 0, 0};
+
+    double relTol = 1e-6;
+    double absTol = 1e-6;
+    EvaluationRmsChecker checker = new EvaluationRmsChecker(relTol, absTol);
+
+    LeastSquaresProblem problem = LeastSquaresFactory.create(
+      LeastSquaresFactory.model(model, params -> {
+        int m = 4;
+        int n = 3;
+        double[][] jac = new double[m][n];
+        double[] epsilon = {0.01, 0.001, 0.001};
+        double[] base = model.value(params);
+        for (int j = 0; j < n; j++) {
+          double[] stepped = params.clone();
+          stepped[j] += epsilon[j];
+          double[] val = model.value(stepped);
+          for (int i = 0; i < m; i++) jac[i][j] = (val[i] - base[i]) / epsilon[j];
+        }
+        return jac;
+      }),
+      new ArrayRealVector(targetError),
+      new ArrayRealVector(initialGuess),
+      checker,
+      1000,
+      1000
+    );
+
+    LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
+    LeastSquaresOptimizer.Optimum optimum = optimizer.optimize(problem);
+
+    double[] solution = optimum.getPoint().toArray();
+
+    return new Vector3d(solution[0], solution[1], solution[2]);
   }
 
-  /**
-   * Uses the angle the ball is to enter the goal to calculate the velocity in each direction
-   * 
-   * @param s1 position of robot
-   * @param v1 velocity of robot
-   * @param s2 position of target
-   * @param alpha angle of goal entry
-   * @return velocity in each direction neede to be produced by the shooter to score
-   */
-  public static Vector3d calcuateForcesModelTwo(Vector3d s1, Vector3d v1, Vector3d s2, double alpha) {
-    final double tan_a = Math.tan(alpha);
-    final double ta = 0.0098/2;
-    final double tb = tan_a;
-    final double tc = (s2.x()-s1.x()+s2.y()-s1.y()+s2.z()-s1.z());
-    final double t = (-tb+Math.sqrt(tb*tb-4*ta*tc))/(2*ta);
-    final double a = (s2.x()-s1.x())/t+v1.x();
-    final double b = (s2.y()-s1.y())/t+v1.y();
-    final double c = 0.0098*t+tan_a-v1.z()-(s2.x()-s1.x()+s2.y()-s1.y())/t;
-    return new Vector3d(a, b, c);
-  }
-
-  /**
-   * TODO: implement
-   * 
-   * @param expectedVelocities vector holding expected velocities in all three directions (x, y, z)
-   * @param robotRotation 3x3 roattion matirx that converts world coordiantes to robot coordinates
-   * @return turret roatation in radians (0 points towards the front of the robot) and angle of elevation in radians
-   */
-//  public static Vector2d calculateTurretAngles(Vector3d expectedVelocities, Matrix3d robotRotation) {
-//
-//  }
 }

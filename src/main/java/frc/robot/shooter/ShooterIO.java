@@ -1,0 +1,33 @@
+package frc.robot.shooter;
+
+import org.littletonrobotics.junction.AutoLog;
+
+public interface ShooterIO {
+    @AutoLog
+    class ShooterIOInputs {
+        public double turretYawRadians = 0.0;
+        public double turretPitchRadians = 0.0;
+        public double flywheelVelocityRotationsPerSecond = 0.0;
+    }
+
+    default void updateInputs(ShooterIOInputs inputs) {}
+
+    default void setFlywheelVelocity(double speedRotationsPerSecond) {}
+
+    default void setTurretAngle(double yawRadians, double pitchRadians) {
+        setTurretYaw(yawRadians);
+        setTurretPitch(pitchRadians);
+    }
+
+    default void setTurretPitch(double pitchRadians) {}
+
+    default void setTurretYaw(double yawRadians) {}
+
+    default void setTurretPitchOpenLoop(double voltage) {}
+
+    default void setTurretYawOpenLoop(double voltage) {}
+
+    default void setFlywheelOpenLoop(double voltage) {}
+
+    default double getTurretPitch() {return -1;}
+}
