@@ -3,14 +3,16 @@ package frc.robot.intake;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO {
+    void setBeltStarOpenLoop(double voltage);
+
     @AutoLog
-    public static class IntakeIOInputs {}
+    static class IntakeIOInputs {}
 
-    public static void updateInputs() {}
+    default void updateInputs() {}
 
-    public static void setBeltOpenLoop(double voltage) {}
+    default void setBeltOpenLoop(double voltage) {}
 
-    public static void setIntakeOpenLoop(double voltage) {}
+    default void setIntakeOpenLoop(double voltage) {}
 
-    public static void setBeltStartOpenLoop(double voltage) {}
+    default void setBeltStartOpenLoop(double voltage) {}
 }

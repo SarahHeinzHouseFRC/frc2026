@@ -6,13 +6,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import static com.revrobotics.spark.SparkLowLevel.MotorType.*;
-import static frc.robot.subsystems.intake.IntakeConstants.*;
+import static frc.robot.intake.IntakeConstants.*;
 
-import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class IntakeIOSpark implements IntakeIO {
     private SparkMax beltMotor = new SparkMax(beltMotorCanId, kBrushless);
