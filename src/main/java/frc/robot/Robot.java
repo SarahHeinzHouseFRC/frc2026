@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.CommandScheduler;
 import frc.robot.drive.ControllerDriveCommand;
 import frc.robot.drive.Drive;
+import frc.robot.intake.Intake;
 import frc.robot.math.Matrix3d;
 import frc.robot.math.Transformation;
 import frc.robot.math.Vector3d;
@@ -40,6 +41,7 @@ public class Robot extends LoggedRobot {
 
   public Shooter shooter;
   public Drive drive;
+  public Intake intake;
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
@@ -75,9 +77,10 @@ public class Robot extends LoggedRobot {
       simulator = Simulator.getInstance();
     }
     commandScheduler = new CommandScheduler();
-    shooter = new Shooter(commandScheduler);
+    shooter = new Shooter(driverController, commandScheduler);
     drive = new Drive(commandScheduler);
     drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
+    intake = new Intake(driverController, commandScheduler);
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);

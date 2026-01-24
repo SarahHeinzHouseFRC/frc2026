@@ -3,11 +3,14 @@ package frc.robot.shooter;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Robot;
 import frc.robot.SDMXAnalogInputEventHandler;
 import frc.robot.SDMXConstants;
 import frc.robot.SDMXDigitalInputEventHandler;
+import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
+import frc.robot.commands.Commands;
 import frc.robot.commands.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.XboxController.Axis;
@@ -17,8 +20,9 @@ public class Shooter extends SubsystemBase {
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
     public static Shooter instance;
+    private XboxController controller;
 
-    public Shooter(CommandScheduler scheduler) {
+    public Shooter(XboxController controller, CommandScheduler scheduler) {
         super(scheduler);
         instance = this;
         io = switch (Robot.currentMode) {
@@ -26,6 +30,8 @@ public class Shooter extends SubsystemBase {
             case REAL -> new ShooterIOSpark();
             default -> new ShooterIO() {};
         };
+        setDefaultCommand(defaultCommand());
+        this.controller = controller;
     }
 
     /**
@@ -94,31 +100,65 @@ public class Shooter extends SubsystemBase {
         Logger.processInputs("Shooter", inputs);
     }
 
-    @SDMXAnalogInputEventHandler(2) // Left trigger
-    public static void shootEventHandler(byte value) {
-        Shooter.instance.io.setFlywheelOpenLoop(((int)value/256d)*12d);
+    private Command defaultCommand() {
+        return Commands.run(() -> {
+            int pov = controller.getPOV();
+            boolean right = pov == 45 || pov == 90 || pov == 135;
+            boolean down = pov == 135 || pov == 180 || pov == 225;
+            boolean left = pov == 225 || pov == 270 || pov == 315;
+            boolean up = pov == 315 || pov == 360 || pov == 0 || pov == 45;
+
+            if (up) {
+                io.setTurretPitch(1d / 4);
+            }
+            if (down) {
+                io.setTurretPitch(0);
+            }
+            if (left) {
+                io.setTurretYawOpenLoop(1d);
+            }
+            if (right) {
+                io.setTurretYawOpenLoop(-1d);
+            }
+
+            if (!left && !right) {
+                io.setTurretYawOpenLoop(0d);
+            }
+
+            if (controller.getAButton()) {
+                io.setFlywheelOpenLoop(12d);
+            } else {
+                io.setFlywheelOpenLoop(0d);
+            }
+
+        }, this);
     }
 
-    @SDMXDigitalInputEventHandler(5) // Left bumper button
-    public static void aimLeftEventHandler(boolean value) {
-        Shooter.instance.io.setTurretYawOpenLoop(value ? 1d : 0d);
-    }
-
-    @SDMXDigitalInputEventHandler(6) // Right bumper button
-    public static void aimRightEventHandler(boolean value) {
-        Shooter.instance.io.setTurretYawOpenLoop(value ? -1d : 0d);
-    }
-
-    @SDMXDigitalInputEventHandler(4) // Y button
-    public static void tiltUpEventHandler(boolean value) {
-        // Shooter.instance.io.setTurretPitchOpenLoop(value ? 12d : 0d);
-        Shooter.instance.io.setTurretPitch((1d/4));
-    }
-
-    @SDMXDigitalInputEventHandler(3) // X button
-    public static void tiltDownEventHandler(boolean value) {
-        // Shooter.instance.io.setTurretPitchOpenLoop(value ? -6d : 0d);
-        Shooter.instance.io.setTurretPitch(0);
-    }
+//    @SDMXAnalogInputEventHandler(2) // Left trigger
+//    public static void shootEventHandler(byte value) {
+//        Shooter.instance.io.setFlywheelOpenLoop(((int)value/256d)*12d);
+//    }
+//
+//    @SDMXDigitalInputEventHandler(5) // Left bumper button
+//    public static void aimLeftEventHandler(boolean value) {
+//        Shooter.instance.io.setTurretYawOpenLoop(value ? 1d : 0d);
+//    }
+//
+//    @SDMXDigitalInputEventHandler(6) // Right bumper button
+//    public static void aimRightEventHandler(boolean value) {
+//        Shooter.instance.io.setTurretYawOpenLoop(value ? -1d : 0d);
+//    }
+//
+//    @SDMXDigitalInputEventHandler(4) // Y button
+//    public static void tiltUpEventHandler(boolean value) {
+//        // Shooter.instance.io.setTurretPitchOpenLoop(value ? 12d : 0d);
+//        Shooter.instance.io.setTurretPitch((1d/4));
+//    }
+//
+//    @SDMXDigitalInputEventHandler(3) // X button
+//    public static void tiltDownEventHandler(boolean value) {
+//        // Shooter.instance.io.setTurretPitchOpenLoop(value ? -6d : 0d);
+//        Shooter.instance.io.setTurretPitch(0);
+//    }
 }
 
