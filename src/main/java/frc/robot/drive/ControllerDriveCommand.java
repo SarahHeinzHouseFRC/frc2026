@@ -15,9 +15,9 @@ public class ControllerDriveCommand extends Command {
 
     @Override
     public void execute() {
-        double vx = controller.getLeftY() * controller.getLeftY();
-        double vy = controller.getLeftX() * controller.getLeftX();
-        double omega = controller.getRightX() * controller.getRightX();
+        double vx = controller.getLeftY() * controller.getLeftY() * controller.getLeftY();
+        double vy = controller.getLeftX() * controller.getLeftX() * controller.getLeftX();
+        double omega = controller.getRightX() * controller.getRightX() * controller.getRightX();
         ChassisSpeeds speeds = new ChassisSpeeds(vx, vy, omega);
         drive.runVelocity(speeds);
     }
