@@ -45,6 +45,7 @@ public class ShooterIOSpark implements ShooterIO {
                 .idleMode(kCoast)
                 .inverted(true);
         flywheelConfig.closedLoop.pid(0, 0, 0, ClosedLoopSlot.kSlot0);
+        flywheelConfig.openLoopRampRate(0.1);
         flywheelMotor = new SparkFlex(flywheelMotorCanId, kBrushless);
         flywheelMotor.configure(flywheelConfig, kResetSafeParameters, kPersistParameters);
 
