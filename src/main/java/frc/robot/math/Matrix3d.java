@@ -3,8 +3,6 @@ package frc.robot.math;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.numbers.N3;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.opencv.core.Mat;
 
 public class Matrix3d extends Matrix<N3, N3> {
   public Matrix3d(Vector3d r1, Vector3d r2, Vector3d r3) {

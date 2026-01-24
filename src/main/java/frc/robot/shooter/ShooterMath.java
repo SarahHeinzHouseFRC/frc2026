@@ -9,7 +9,6 @@ import org.apache.commons.math3.fitting.leastsquares.EvaluationRmsChecker;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresFactory;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 
@@ -23,6 +22,13 @@ public class ShooterMath {
   Vector3d robotVelocity;
   double theta;
 
+  public ShooterMath(Vector3d target, Transformation robotPosition, Vector3d robotVelocity, double theta) {
+    this.target = target;
+    this.robotPosition = robotPosition;
+    this.robotVelocity = robotVelocity;
+    this.theta = theta;
+  }
+  
   public static class TargetEventHandler implements EventHandler{
     private final Vector3d target;
 
@@ -84,7 +90,7 @@ public class ShooterMath {
     }
   }
 
-  public class Optimizer implements MultivariateVectorFunction {
+  public static class Optimizer implements MultivariateVectorFunction {
     private final Vector3d target;
     private final Vector3d robotPosition;
     private final Vector3d robotVelocity;
@@ -143,7 +149,7 @@ public class ShooterMath {
   }
 
   public Vector3d solve(double[] initialGuess) {
-    Optimizer model = new Optimizer(target, robotPosition.getTranslation(), robotVelocity, robotPosition.getRotation(), theta);
+    Optimizer model = new Optimizer(target, (Vector3d)robotPosition.getTranslation().toVector(), robotVelocity, (Matrix3d)robotPosition.getRotation().toMatrix(), theta);
 
     double[] targetError = {0, 0, 0, 0};
 

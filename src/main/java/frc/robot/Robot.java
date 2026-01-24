@@ -11,7 +11,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.CommandScheduler;
 import frc.robot.drive.ControllerDriveCommand;
 import frc.robot.drive.Drive;
+import frc.robot.math.Matrix3d;
+import frc.robot.math.Transformation;
+import frc.robot.math.Vector3d;
 import frc.robot.shooter.Shooter;
+import frc.robot.shooter.ShooterMath;
+import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.simulator.Simulator;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -205,34 +210,57 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationInit() {}
 
-//  private Pose3d robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
-//  private int i = 0;
+  // private Pose3d robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
+  // private int i = 0;
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-//    if (false) {
-//      // temporary
-//      i++;
-//      if (i % 1 == 0) {
-////      System.out.println("here");
-//        robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
-//
-//
-//        // Vector from A to B
-//        Translation2d delta = FieldConstants.HUB.toTranslation2d().minus(robotPoseSimTestingDontUse.getTranslation().toTranslation2d());
-//
-//        // Angle of that vector
-//        double yaw = new Rotation2d(delta.getX(), delta.getY()).getRadians();
-//
-//        double x = delta.getNorm();
-//
-//        double speed = ShooterCurveFit.calculateY(x);
-//        double pitch = ShooterCurveFit.calculateZ(x);
-//        simulator.shootBallFromPosition(robotPoseSimTestingDontUse, pitch, yaw, speed);
-//      }
-//      ballPositionsPublisher.set(simulator.getBallPositions());
-//      robotPositionPublisher.set(robotPoseSimTestingDontUse);
-//    }
+    // if (false) {
+      // temporary
+      // i++;
+      // if (i % 1 == 0) {
+      // // System.out.println("here");
+      //   robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
+
+
+    //     // Vector from A to B
+    //     Translation2d delta = FieldConstants.HUB.toTranslation2d().minus(robotPoseSimTestingDontUse.getTranslation().toTranslation2d());
+
+    //     // Angle of that vector
+    //     double yaw = new Rotation2d(delta.getX(), delta.getY()).getRadians();
+
+    //     double x = delta.getNorm();
+
+    //     double speed = ShooterCurveFit.calculateY(x);
+    //     double pitch = ShooterCurveFit.calculateZ(x);
+    //     simulator.shootBallFromPosition(robotPoseSimTestingDontUse, pitch, yaw, speed);
+    //   }
+    //   ballPositionsPublisher.set(simulator.getBallPositions());
+    //   robotPositionPublisher.set(robotPoseSimTestingDontUse);
+    // }
+    
+    Translation3d target = FieldConstants.HUB;
+
+    Pose3d robotPose = null;
+
+    Vector3d robotVelocity = null;
+
+    ShooterMath calc = new ShooterMath((Vector3d)target.toVector(), (Transformation)robotPose, robotVelocity, Math.PI/6);
+    Translation2d delta = FieldConstants.HUB.toTranslation2d().minus(robotPose.getTranslation().toTranslation2d());
+
+    double yaw = new Rotation2d(delta.getX(), delta.getY()).getRadians();
+
+    double x = delta.getNorm();
+
+    double speed = ShooterCurveFit.calculateY(x);
+    double pitch = ShooterCurveFit.calculateZ(x);
+
+    Vector3d out = calc.solve(new double[] {speed, yaw, pitch});
+
+    simulator.shootBallFromPosition(robotPose, out.z(), out.y(), out.x());
+
+    ballPositionsPublisher.set(simulator.getBallPositions());
+    robotPositionPublisher.set(robotPose);
   }
 
 //  private Pose3d moveRobotToRandomPositionTestingDontUse() {
