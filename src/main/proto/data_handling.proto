@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package robot_vision;
+
+option java_package = "frc.robot.protos";
+
+message TagInCamCoords {
+  int32 tag_id = 1;
+  repeated double mat1 = 2; // 4x4 matrix, [j*cols+i]
+  repeated double mat2 = 3;
+}
+
+message CameraPosition {
+  int32 camera_id = 1;
+  repeated TagInCamCoords tag_in_cam_coords = 2; // tag_id can be non-unique
+}
+
+message SetCameraCoefficients {
+  int32 camera_id = 1;
+  CameraCoefficients camera_coefficients = 2;
+}
+
+message CameraCoefficients {
+  repeated double camera_matrix = 1; // 3x3
+  repeated double distortion_coefficients = 2; // 1-D, variable size
+}
+
+message Telemetry {
+  // to do...
+}
+
+message ReportCameraPositions {
+  repeated CameraPosition camera_position = 1;
+  repeated Telemetry telemetry = 2;
+}
+
+message ClientRequest {
+  oneof msg {
+    ReportCameraPositions report_camera_positions = 1;
+    // future client-to-server messages
+  }
+}
+
+message ServerRequest {
+  oneof msg {
+    SetCameraCoefficients set_camera_coefficients = 1;
+    // future server-to-client messages
+  }
+}
+
+message GetRobotPositionRequest {
+
+}
+
+message GetRobotPositionResponse {
+  repeated double mat = 1; // 4x4
+}
+
+service VisionSystem {
+  // Endpoint for camera co-processors to connect to the central unit (opened by Camera unit). 
+  rpc OpenControlStream(stream ClientRequest) returns (stream ServerRequest);
+  // Gets robot position in World coordinates (called by RoboRIO).
+  rpc GetRobotPosition(GetRobotPositionRequest) returns (GetRobotPositionResponse);
+}

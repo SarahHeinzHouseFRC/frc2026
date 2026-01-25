@@ -2,6 +2,7 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
+    id "com.google.protobuf" version "0.9.6"
 }
 
 java {
@@ -94,9 +95,37 @@ dependencies {
 
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.apache.commons:commons-math3:3.6.1")
+    implementation("com.google.protobuf:protobuf-java:4.33.4")
+    implementation("io.grpc:grpc-protobuf:1.78.0")
+    implementation 'io.grpc:grpc-stub:1.78.0'
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
+}
+
+protobuf {
+    protoc {
+        // Specify the protobuf compiler version
+        artifact = "com.google.protobuf:protoc:4.33.4" // Use latest version from Maven Central
+    }
+    plugins {
+        // Define the gRPC generator plugin
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.78.0' // Must match the main gRPC version
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                // Apply the "grpc" plugin to all source sets
+                grpc { }
+            }
+            // Also enable the default Java built-in generator
+            task.builtins {
+                java { }
+            }
+        }
+    }
 }
 
 test {
