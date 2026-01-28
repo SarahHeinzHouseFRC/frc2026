@@ -2,6 +2,7 @@ package frc.robot.drive;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Utils;
 import frc.robot.commands.Command;
 
 public class ControllerDriveCommand extends Command {
@@ -15,9 +16,9 @@ public class ControllerDriveCommand extends Command {
 
     @Override
     public void execute() {
-        double vx = controller.getLeftY() * controller.getLeftY() * controller.getLeftY();
-        double vy = controller.getLeftX() * controller.getLeftX() * controller.getLeftX();
-        double omega = controller.getRightX() * controller.getRightX() * controller.getRightX();
+        double vx = Utils.scaleAxis(Utils.deadband(controller.getLeftY(), .1), 2);
+        double vy = Utils.scaleAxis(Utils.deadband(controller.getLeftX(), .1), 2);
+        double omega = Utils.scaleAxis(Utils.deadband(controller.getRightX(), .1), 2);
         ChassisSpeeds speeds = new ChassisSpeeds(vx, vy, omega);
         drive.runVelocity(speeds);
     }
