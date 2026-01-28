@@ -38,10 +38,10 @@ yes i understand that different device classes can share a can id but i like it 
 
 ## Shooter (`30`-`39`)
 
-**Flywheel Motor:** `30`
-
 **Pan Motor:** `31`
 
-**Tilt Motor:** `32`
+**Flywheel Motor 1:** `32`
+
+**Flywheel Motor 2:** `33`
 
 
