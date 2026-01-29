@@ -46,7 +46,7 @@ public class Robot extends LoggedRobot {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public static GenericController<XboxController> driverController = new GenericController<XboxController>(new XboxController(0));
+  public static GenericController driverController = new GenericController(new XboxController(0));
 //    public static final SDMXController sdmxController = new SDMXController(new GenericHID(1));
 //    public static final SDMXController sdmxController = new SDMXController(driverController);
 
