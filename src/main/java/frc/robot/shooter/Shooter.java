@@ -4,10 +4,8 @@ package frc.robot.shooter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.GenericController;
 import frc.robot.Robot;
-import frc.robot.SDMXAnalogInputEventHandler;
-import frc.robot.SDMXConstants;
-import frc.robot.SDMXDigitalInputEventHandler;
 import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.Commands;
@@ -20,9 +18,9 @@ public class Shooter extends SubsystemBase {
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
     public static Shooter instance;
-    private XboxController controller;
+    private GenericController controller;
 
-    public Shooter(XboxController controller, CommandScheduler scheduler) {
+    public Shooter(GenericController controller, CommandScheduler scheduler) {
         super(scheduler);
         instance = this;
         io = switch (Robot.currentMode) {
@@ -102,7 +100,7 @@ public class Shooter extends SubsystemBase {
 
     private Command defaultCommand() {
         return Commands.run(() -> {
-            int pov = controller.getPOV();
+            int pov = (int) controller.readAnalog(6);
             boolean right = pov == 45 || pov == 90 || pov == 135;
             boolean down = pov == 135 || pov == 180 || pov == 225;
             boolean left = pov == 225 || pov == 270 || pov == 315;
@@ -125,7 +123,7 @@ public class Shooter extends SubsystemBase {
                 io.setTurretYawOpenLoop(0d);
             }
 
-            if (controller.getAButton()) {
+            if (controller.readDigital(5)) {
                 io.setFlywheelOpenLoop(12d);
             } else {
                 io.setFlywheelOpenLoop(0d);
