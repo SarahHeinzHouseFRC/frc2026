@@ -110,10 +110,10 @@ public class Shooter extends SubsystemBase {
             boolean up = pov == 315 || pov == 360 || pov == 0 || pov == 45;
 
             if (up) {
-                io.setTurretPitch(1d / 4);
+                io.setTurretPitchOpenLoop(12);
             }
             if (down) {
-                io.setTurretPitch(0);
+                io.setTurretPitchOpenLoop(-12);
             }
             if (left) {
                 io.setTurretYawOpenLoop(1d);

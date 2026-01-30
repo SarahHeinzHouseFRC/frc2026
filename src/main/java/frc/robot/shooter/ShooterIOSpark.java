@@ -4,6 +4,9 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static com.revrobotics.PersistMode.*;
 import static com.revrobotics.ResetMode.*;
@@ -11,15 +14,21 @@ import static com.revrobotics.spark.SparkLowLevel.MotorType.*;
 import static com.revrobotics.spark.config.SparkBaseConfig.IdleMode.*;
 
 public class ShooterIOSpark implements ShooterIO {
-    public SparkFlex panMotor;
-//    public SparkFlex tiltMotor;
-    public SparkFlex flywheelMotor;
-    public SparkFlex flywheelMotor2;
+    private final Servo linearActuator;
+    private final SparkFlex panMotor;
+    private final SparkFlex flywheelMotor;
+    private final SparkFlex flywheelMotor2;
     private final int panMotorCanId = 31;
-//    private final int tiltMotorCanId = ;
     private final int flywheelMotorCanId = 32;
     private final int flywheelMotor2CanId = 33;
+    private final int linearActuatorServoPwmId = 0;
+    private final int linearActuatorLengthMm = 100;
+    private final int linearActuatorSpeedMmPerSec = 32;
+    private double linearActuatorSetpoint = 0;
     public ShooterIOSpark() {
+        linearActuator = new Servo(linearActuatorServoPwmId);
+        linearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+
         SparkFlexConfig panConfig = new SparkFlexConfig();
         panConfig
                 .smartCurrentLimit(40)
@@ -68,6 +77,7 @@ public class ShooterIOSpark implements ShooterIO {
         inputs.flywheelVelocityRotationsPerSecond = flywheelMotor.getEncoder().getVelocity();
 //        inputs.turretPitchRadians = tiltMotor.getAbsoluteEncoder().getPosition();
         inputs.turretYawRadians = panMotor.getAbsoluteEncoder().getPosition();
+//        SmartDashboard.putNumber("linear Actuator Setpoint", linearActuatorSetpoint);
     }
     public void setFlywheelVelocity(double speedRotationsPerSecond) {
         flywheelMotor.getClosedLoopController().setSetpoint(speedRotationsPerSecond, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
@@ -79,13 +89,17 @@ public class ShooterIOSpark implements ShooterIO {
     }
 
     public void setTurretPitch(double pitchRadians) {
-//        tiltMotor.getClosedLoopController().setSetpoint(pitchRadians, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+
     }
     public void setTurretYaw(double yawRadians) {
         panMotor.getClosedLoopController().setSetpoint(yawRadians, ControlType.kPosition, ClosedLoopSlot.kSlot0);
     }
     public void setTurretPitchOpenLoop(double voltage) {
-//        tiltMotor.setVoltage(voltage);
+        double setpoint = MathUtil.clamp(voltage/12, -1, 1);
+        double setpointSpeed = setpoint / 100;
+        double newSetpoint = MathUtil.clamp(linearActuatorSetpoint + setpointSpeed, -1, 1);
+        linearActuatorSetpoint = newSetpoint;
+        linearActuator.setSpeed(newSetpoint);
     }
     public void setTurretYawOpenLoop(double voltage) {
         panMotor.setVoltage(voltage);
