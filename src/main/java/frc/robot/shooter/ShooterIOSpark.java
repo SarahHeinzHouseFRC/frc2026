@@ -89,7 +89,24 @@ public class ShooterIOSpark implements ShooterIO {
     }
 
     public void setTurretPitch(double pitchRadians) {
+        final double r = 6.25; // inches
+        final double offsetX = 9.5; // inches
+        final double offsetY = 2.75; // inches
+        double distanceIn = Math.sqrt(
+            Math.pow((r * Math.cos(pitchRadians) + offsetX), 2) +
+            Math.pow((r * Math.sin(pitchRadians) + offsetY), 2)
+        );
+        double distanceMm = distanceIn * 25.4;
 
+        final double minMm = 10;
+        final double maxMm = 100;
+
+        double distance = MathUtil.clamp(distanceMm, minMm, maxMm);
+        double setpoint = -0.8 + ((distance - minMm) / (maxMm - minMm)) * 1.8;
+        double setpointSpeed = setpoint / 100;
+        double newSetpoint = MathUtil.clamp(linearActuatorSetpoint + setpointSpeed, -1, 1);
+        linearActuatorSetpoint = newSetpoint;
+        linearActuator.setSpeed(newSetpoint);
     }
     public void setTurretYaw(double yawRadians) {
         panMotor.getClosedLoopController().setSetpoint(yawRadians, ControlType.kPosition, ClosedLoopSlot.kSlot0);
