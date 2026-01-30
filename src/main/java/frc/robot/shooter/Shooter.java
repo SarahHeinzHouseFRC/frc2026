@@ -13,6 +13,9 @@ import frc.robot.commands.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.XboxController.Axis;
 
+import static frc.robot.ButtonIds.BUTTON_X;
+import static frc.robot.ButtonIds.POV;
+
 public class Shooter extends SubsystemBase {
     private final ShooterIO io;
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
@@ -100,7 +103,7 @@ public class Shooter extends SubsystemBase {
 
     private Command defaultCommand() {
         return Commands.run(() -> {
-            int pov = (int) controller.readAnalog(6);
+            int pov = (int) controller.readAnalog(POV);
             boolean right = pov == 45 || pov == 90 || pov == 135;
             boolean down = pov == 135 || pov == 180 || pov == 225;
             boolean left = pov == 225 || pov == 270 || pov == 315;
@@ -123,7 +126,7 @@ public class Shooter extends SubsystemBase {
                 io.setTurretYawOpenLoop(0d);
             }
 
-            if (controller.readDigital(5)) {
+            if (controller.readDigital(BUTTON_X)) {
                 io.setFlywheelOpenLoop(12d);
             } else {
                 io.setFlywheelOpenLoop(0d);
