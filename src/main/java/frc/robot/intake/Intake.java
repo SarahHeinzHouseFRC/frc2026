@@ -24,10 +24,7 @@
 //             case SIM -> new IntakeIOSim();
              case REAL -> new IntakeIOSpark();
              default -> new IntakeIO() {
-                 @Override
-                 public void setBeltStarOpenLoop(double voltage) {
 
-                 }
              };
          };
          setDefaultCommand(defaultCommand());
