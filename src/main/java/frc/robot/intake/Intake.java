@@ -1,6 +1,7 @@
  package frc.robot.intake;
 
  import edu.wpi.first.wpilibj.XboxController;
+ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  import frc.robot.GenericController;
  import frc.robot.Robot;
  import frc.robot.commands.Command;
@@ -10,7 +11,7 @@
  import org.littletonrobotics.junction.Logger;
 
  public class Intake extends SubsystemBase {
-     private final IntakeIO io;
+     public final IntakeIO io;
      private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
      public static Intake instance;
@@ -30,7 +31,6 @@
                  }
              };
          };
-         setDefaultCommand(defaultCommand());
      }
 
      public void setBeltOpenLoop(double speed) {
@@ -39,10 +39,14 @@
 
      public void setIntakeOpenLoop(double speed) {
          io.setIntakeOpenLoop(speed * 12.0);
+         SmartDashboard.putNumber("intake speed", speed);
      }
 
      public void setBeltStarOpenLoop(double speed) {
          io.setBeltStarOpenLoop(speed * 12.0);
+     }
+     public void setOBIOpenLoop(double speed) {
+         io.setOBIOpenLoop(speed);
      }
 
      @Override

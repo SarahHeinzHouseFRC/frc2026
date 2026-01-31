@@ -1,9 +1,11 @@
 package frc.robot.shooter;
 
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.GenericController;
 import frc.robot.Robot;
 import frc.robot.commands.Command;
@@ -19,11 +21,12 @@ import static frc.robot.ButtonIds.POV;
 public class Shooter extends SubsystemBase {
     private final ShooterIO io;
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
+    private double shooterSpeedSetpoint = 6000;
 
     public static Shooter instance;
-    private GenericController controller;
+    private XboxController controller;
 
-    public Shooter(GenericController controller, CommandScheduler scheduler) {
+    public Shooter(XboxController controller, CommandScheduler scheduler) {
         super(scheduler);
         instance = this;
         io = switch (Robot.currentMode) {
@@ -99,11 +102,12 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
+        SmartDashboard.putNumber("shooter speed rpm", ((double) 13 /9) * inputs.flywheelVelocityRotationsPerSecond);
     }
 
     private Command defaultCommand() {
         return Commands.run(() -> {
-            int pov = (int) controller.readAnalog(POV);
+            int pov = controller.getPOV();
             boolean right = pov == 45 || pov == 90 || pov == 135;
             boolean down = pov == 135 || pov == 180 || pov == 225;
             boolean left = pov == 225 || pov == 270 || pov == 315;
@@ -125,13 +129,13 @@ public class Shooter extends SubsystemBase {
             if (!left && !right) {
                 io.setTurretYawOpenLoop(0d);
             }
-
-            if (controller.readDigital(BUTTON_X)) {
-                io.setFlywheelOpenLoop(12d);
+            shooterSpeedSetpoint = MathUtil.clamp(shooterSpeedSetpoint - 100 * controller.getRightY(), 0, 6000);
+            SmartDashboard.putNumber("shooterSpeedSetpoint", shooterSpeedSetpoint);
+            if (controller.getRightBumperButton()) {
+                io.setFlywheelVelocity(shooterSpeedSetpoint);
             } else {
-                io.setFlywheelOpenLoop(0d);
+                io.setFlywheelOpenLoop(0);
             }
-
         }, this);
     }
 

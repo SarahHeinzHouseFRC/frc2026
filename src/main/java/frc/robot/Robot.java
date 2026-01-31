@@ -12,6 +12,7 @@ import frc.robot.commands.CommandScheduler;
 import frc.robot.drive.ControllerDriveCommand;
 import frc.robot.drive.Drive;
 import frc.robot.intake.Intake;
+import frc.robot.intake.IntakeControllerCommand;
 import frc.robot.math.Matrix3d;
 import frc.robot.math.Transformation;
 import frc.robot.math.Vector3d;
@@ -46,7 +47,10 @@ public class Robot extends LoggedRobot {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public static GenericController driverController = new GenericController(new XboxController(0));
+  public static XboxController xboxDriverController = new XboxController(0);
+  public static GenericController driverController = new GenericController(xboxDriverController);
+  public static XboxController operatorController = new XboxController(1);
+  public static GenericController operatorGenericController = new GenericController(operatorController);
 //    public static final SDMXController sdmxController = new SDMXController(new GenericHID(1));
 //    public static final SDMXController sdmxController = new SDMXController(driverController);
 
@@ -77,10 +81,11 @@ public class Robot extends LoggedRobot {
       simulator = Simulator.getInstance();
     }
     commandScheduler = new CommandScheduler();
-    shooter = new Shooter(driverController, commandScheduler);
+    shooter = new Shooter(operatorController, commandScheduler);
     drive = new Drive(commandScheduler);
     drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
     intake = new Intake(driverController, commandScheduler);
+    intake.setDefaultCommand(new IntakeControllerCommand(xboxDriverController, operatorController, intake));
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);

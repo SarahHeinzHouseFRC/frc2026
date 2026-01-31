@@ -36,6 +36,10 @@ yes i understand that different device classes can share a can id but i like it 
 
 **Belt Motor:** `23`
 
+**Over Bumper Intake Spin:** `25`
+
+**Over Bumper Intake Pivot:** `26`
+
 ## Shooter (`30`-`39`)
 
 **Tilt Servo:** `PWM 0`

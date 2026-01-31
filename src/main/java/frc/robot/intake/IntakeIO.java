@@ -6,7 +6,7 @@ public interface IntakeIO {
     void setBeltStarOpenLoop(double voltage);
 
     @AutoLog
-    static class IntakeIOInputs {}
+    public static class IntakeIOInputs {}
 
     default void updateInputs() {}
 
@@ -14,9 +14,11 @@ public interface IntakeIO {
 
     default void setIntakeOpenLoop(double voltage) {}
 
-    default void setIntakeAngle(double angleRadians) {}
-
-    default void setIntakeAngleOpenLoop(double voltage) {}
-
     default void setBeltStartOpenLoop(double voltage) {}
+
+    default void setOBIOpenLoop(double voltage) {}
+
+    default public void setOBIPivotMotorOpenLoop(double voltage) {}
+
+    default void setOBIPivotMotorClosedLoop(double voltage) {}
 }

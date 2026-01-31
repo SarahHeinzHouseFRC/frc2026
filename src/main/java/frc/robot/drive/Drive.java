@@ -84,6 +84,10 @@ public class Drive extends SubsystemBase {
         OdometryThread.getInstance().start();
     }
 
+    public void zeroGyro() {
+        gyroIO.zero();
+    }
+
     @Override
     public void periodic() {
         odometryLock.lock(); // Prevents odometry updates while reading data

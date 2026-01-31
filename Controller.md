@@ -1,0 +1,2 @@
+# v0.1
+https://www.padcrafter.com/?templates=Driver%7COperator&leftTrigger=Over+bumper+intake%7COuttake&col=%23242424%2C%23606A6E%2C%23FFFFFF&rightTrigger=Intake%7CShoot+%28overrides+outtake%29&rightBumper=%7C&plat=%7C%7C0&dpadUp=%7CTurret+Up&dpadRight=%7CTurret+Right&dpadLeft=%7CTurret+Left&dpadDown=%7CTurret+Down&leftStickClick=Swerve%7CTurret+Control+%28up%2Fright%2Fleft%2Fdown%29&rightStickClick=Swerve%7CShooter+speed+setpoint+alteration+%28up%2Fdown%29&yButton=climb+up%7C&aButton=climb+down%7C#
