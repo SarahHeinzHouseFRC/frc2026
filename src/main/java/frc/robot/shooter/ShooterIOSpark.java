@@ -112,7 +112,7 @@ public class ShooterIOSpark implements ShooterIO {
         panMotor.getClosedLoopController().setSetpoint(yawRadians, ControlType.kPosition, ClosedLoopSlot.kSlot0);
     }
     public void setTurretPitchOpenLoop(double voltage) {
-        double setpoint = MathUtil.clamp(voltage/12, -1, 1);
+        double setpoint = MathUtil.clamp(voltage/12, -0.8, 1);
         double setpointSpeed = setpoint / 100;
         double newSetpoint = MathUtil.clamp(linearActuatorSetpoint + setpointSpeed, -1, 1);
         linearActuatorSetpoint = newSetpoint;
