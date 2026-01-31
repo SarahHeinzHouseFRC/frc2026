@@ -14,5 +14,9 @@ public interface IntakeIO {
 
     default void setIntakeOpenLoop(double voltage) {}
 
+    default void setIntakeAngle(double angleRadians) {}
+
+    default void setIntakeAngleOpenLoop(double voltage) {}
+
     default void setBeltStartOpenLoop(double voltage) {}
 }
