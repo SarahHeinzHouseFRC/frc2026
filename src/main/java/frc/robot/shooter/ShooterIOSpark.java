@@ -27,7 +27,7 @@ public class ShooterIOSpark implements ShooterIO {
     private double linearActuatorSetpoint = 0;
     public ShooterIOSpark() {
         linearActuator = new Servo(linearActuatorServoPwmId);
-        linearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+        linearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1075);
 
         SparkFlexConfig panConfig = new SparkFlexConfig();
         panConfig
