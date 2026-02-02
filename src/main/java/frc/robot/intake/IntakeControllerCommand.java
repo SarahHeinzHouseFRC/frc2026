@@ -62,6 +62,7 @@ public class IntakeControllerCommand extends Command {
         }
 
 //        intake.io.setOBIPivotMotorOpenLoop(obipivotol-.3);
-        intake.io.setOBIPivotMotorClosedLoop(0.265);
+        if (driverController.getPOV() == 0) intake.io.setOBIPivotMotorClosedLoop(intake.io.getOBIPivotMotorSetpoint() + 0.1d);
+        if (driverController.getPOV() == 180) intake.io.setOBIPivotMotorClosedLoop(intake.io.getOBIPivotMotorSetpoint() - 0.1d);
     }
 }

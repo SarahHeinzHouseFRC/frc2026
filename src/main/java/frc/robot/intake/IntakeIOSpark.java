@@ -66,4 +66,9 @@ public class IntakeIOSpark implements IntakeIO {
     public void setOBIPivotMotorClosedLoop(double position) {
         OBIPivotMotor.getClosedLoopController().setSetpoint(position, SparkBase.ControlType.kPosition);
     }
+
+    @Override
+    public double getOBIPivotMotorSetpoint() {
+        return OBIPivotMotor.getClosedLoopController().getSetpoint();
+    }
 }

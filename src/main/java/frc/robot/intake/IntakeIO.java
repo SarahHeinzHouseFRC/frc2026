@@ -21,4 +21,6 @@ public interface IntakeIO {
     default public void setOBIPivotMotorOpenLoop(double voltage) {}
 
     default void setOBIPivotMotorClosedLoop(double voltage) {}
+
+    default double getOBIPivotMotorSetpoint() { return -1; }
 }
