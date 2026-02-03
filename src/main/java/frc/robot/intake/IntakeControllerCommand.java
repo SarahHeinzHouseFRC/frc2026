@@ -1,6 +1,7 @@
 package frc.robot.intake;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.Command;
 
 public class IntakeControllerCommand extends Command {
@@ -64,7 +65,8 @@ public class IntakeControllerCommand extends Command {
 
 //        intake.io.setOBIPivotMotorOpenLoop(obipivotol-.3);
         intake.io.setOBIPivotMotorClosedLoop(pivotSetpoint);
-        if (driverController.getPOV() == 0) pivotSetpoint+=0.000001;
-        if (driverController.getPOV() == 180) pivotSetpoint-=0.000001;
+        SmartDashboard.putNumber("pivotSetpoint", pivotSetpoint);
+        if (driverController.getPOV() == 0) pivotSetpoint-=0.001;
+        if (driverController.getPOV() == 180) pivotSetpoint+=0.001;
     }
 }
