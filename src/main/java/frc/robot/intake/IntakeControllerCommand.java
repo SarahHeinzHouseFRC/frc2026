@@ -7,6 +7,7 @@ public class IntakeControllerCommand extends Command {
     private final Intake intake;
     private final XboxController driverController;
     private final XboxController operatorController;
+    private double pivotSetpoint = 0.265;
     public IntakeControllerCommand(XboxController driver, XboxController operator, Intake intake) {
         addRequirements(intake);
         this.intake = intake;
@@ -62,7 +63,8 @@ public class IntakeControllerCommand extends Command {
         }
 
 //        intake.io.setOBIPivotMotorOpenLoop(obipivotol-.3);
-        if (driverController.getPOV() == 0) intake.io.setOBIPivotMotorClosedLoop(intake.io.getOBIPivotMotorSetpoint() + 0.1d);
-        if (driverController.getPOV() == 180) intake.io.setOBIPivotMotorClosedLoop(intake.io.getOBIPivotMotorSetpoint() - 0.1d);
+        intake.io.setOBIPivotMotorClosedLoop(pivotSetpoint);
+        if (driverController.getPOV() == 0) pivotSetpoint+=0.000001;
+        if (driverController.getPOV() == 180) pivotSetpoint-=0.000001;
     }
 }
