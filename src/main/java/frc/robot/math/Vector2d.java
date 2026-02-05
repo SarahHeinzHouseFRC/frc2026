@@ -1,6 +1,5 @@
 package frc.robot.math;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
@@ -11,7 +10,7 @@ public class Vector2d extends Vector<N3> {
     this.set(0, 0, x);
     this.set(1, 0, y);
   }
-  
+
   public double x() {
     return this.get(0);
   }

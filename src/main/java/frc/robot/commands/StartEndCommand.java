@@ -17,25 +17,25 @@ import java.util.function.Consumer;
  * <p>This class is provided by the NewCommands VendorDep
  */
 public class StartEndCommand extends FunctionalCommand {
-    /**
-     * Creates a new StartEndCommand. Will run the given runnables when the command starts and when it
-     * ends.
-     *
-     * @param onInit the Runnable to run on command init
-     * @param onEnd the Runnable to run on command end
-     * @param requirements the subsystems required by this command
-     */
-    public StartEndCommand(Runnable onInit, Runnable onEnd, Subsystem... requirements) {
-        super(
-                onInit,
-                () -> {},
-                // we need to do some magic here to null-check `onEnd` before it's captured
-                droppingParameter(requireNonNullParam(onEnd, "onEnd", "StartEndCommand")),
-                () -> false,
-                requirements);
-    }
+  /**
+   * Creates a new StartEndCommand. Will run the given runnables when the command starts and when it
+   * ends.
+   *
+   * @param onInit the Runnable to run on command init
+   * @param onEnd the Runnable to run on command end
+   * @param requirements the subsystems required by this command
+   */
+  public StartEndCommand(Runnable onInit, Runnable onEnd, Subsystem... requirements) {
+    super(
+        onInit,
+        () -> {},
+        // we need to do some magic here to null-check `onEnd` before it's captured
+        droppingParameter(requireNonNullParam(onEnd, "onEnd", "StartEndCommand")),
+        () -> false,
+        requirements);
+  }
 
-    private static Consumer<Boolean> droppingParameter(Runnable run) {
-        return bool -> run.run();
-    }
+  private static Consumer<Boolean> droppingParameter(Runnable run) {
+    return bool -> run.run();
+  }
 }

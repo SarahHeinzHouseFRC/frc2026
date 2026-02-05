@@ -8,7 +8,7 @@ public class Matrix4d extends Matrix<N4, N4> {
 
   public Matrix4d(Vector4d r1, Vector4d r2, Vector4d r3, Vector4d r4) {
     super(Nat.N4(), Nat.N4());
-    setRow(0,  r1.transpose());
+    setRow(0, r1.transpose());
     setRow(1, r2.transpose());
     setRow(2, r2.transpose());
     setRow(3, r4.transpose());

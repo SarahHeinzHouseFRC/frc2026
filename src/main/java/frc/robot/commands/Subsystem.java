@@ -25,159 +25,159 @@ import java.util.function.Supplier;
  * <p>This class is provided by the NewCommands VendorDep
  */
 public interface Subsystem {
-    /**
-     * This method is called periodically by the {@link CommandScheduler}. Useful for updating
-     * subsystem-specific state that you don't want to offload to a {@link Command}. Teams should try
-     * to be consistent within their own codebases about which responsibilities will be handled by
-     * Commands, and which will be handled here.
-     */
-    default void periodic() {}
+  /**
+   * This method is called periodically by the {@link CommandScheduler}. Useful for updating
+   * subsystem-specific state that you don't want to offload to a {@link Command}. Teams should try
+   * to be consistent within their own codebases about which responsibilities will be handled by
+   * Commands, and which will be handled here.
+   */
+  default void periodic() {}
 
-    /**
-     * This method is called periodically by the {@link CommandScheduler}. Useful for updating
-     * subsystem-specific state that needs to be maintained for simulations, such as for updating
-     * {@link edu.wpi.first.wpilibj.simulation} classes and setting simulated sensor readings.
-     */
-    default void simulationPeriodic() {}
+  /**
+   * This method is called periodically by the {@link CommandScheduler}. Useful for updating
+   * subsystem-specific state that needs to be maintained for simulations, such as for updating
+   * {@link edu.wpi.first.wpilibj.simulation} classes and setting simulated sensor readings.
+   */
+  default void simulationPeriodic() {}
 
-    /**
-     * Gets the subsystem name of this Subsystem.
-     *
-     * @return Subsystem name
-     */
-    default String getName() {
-        return this.getClass().getSimpleName();
-    }
+  /**
+   * Gets the subsystem name of this Subsystem.
+   *
+   * @return Subsystem name
+   */
+  default String getName() {
+    return this.getClass().getSimpleName();
+  }
 
-    /**
-     * Sets the default {@link Command} of the subsystem. The default command will be automatically
-     * scheduled when no other commands are scheduled that require the subsystem. Default commands
-     * should generally not end on their own, i.e. their {@link Command#isFinished()} method should
-     * always return false. Will automatically register this subsystem with the {@link
-     * CommandScheduler}.
-     *
-     * @param defaultCommand the default command to associate with this subsystem
-     */
-    default void setDefaultCommand(Command defaultCommand) {
-        getScheduler().setDefaultCommand(this, defaultCommand);
-    }
+  /**
+   * Sets the default {@link Command} of the subsystem. The default command will be automatically
+   * scheduled when no other commands are scheduled that require the subsystem. Default commands
+   * should generally not end on their own, i.e. their {@link Command#isFinished()} method should
+   * always return false. Will automatically register this subsystem with the {@link
+   * CommandScheduler}.
+   *
+   * @param defaultCommand the default command to associate with this subsystem
+   */
+  default void setDefaultCommand(Command defaultCommand) {
+    getScheduler().setDefaultCommand(this, defaultCommand);
+  }
 
-    /**
-     * Removes the default command for the subsystem. This will not cancel the default command if it
-     * is currently running.
-     */
-    default void removeDefaultCommand() {
-        getScheduler().removeDefaultCommand(this);
-    }
+  /**
+   * Removes the default command for the subsystem. This will not cancel the default command if it
+   * is currently running.
+   */
+  default void removeDefaultCommand() {
+    getScheduler().removeDefaultCommand(this);
+  }
 
-    /**
-     * Gets the default command for this subsystem. Returns null if no default command is currently
-     * associated with the subsystem.
-     *
-     * @return the default command associated with this subsystem
-     */
-    default Command getDefaultCommand() {
-        return getScheduler().getDefaultCommand(this);
-    }
+  /**
+   * Gets the default command for this subsystem. Returns null if no default command is currently
+   * associated with the subsystem.
+   *
+   * @return the default command associated with this subsystem
+   */
+  default Command getDefaultCommand() {
+    return getScheduler().getDefaultCommand(this);
+  }
 
-    /**
-     * Returns the command currently running on this subsystem. Returns null if no command is
-     * currently scheduled that requires this subsystem.
-     *
-     * @return the scheduled command currently requiring this subsystem
-     */
-    default Command getCurrentCommand() {
-        return getScheduler().requiring(this);
-    }
+  /**
+   * Returns the command currently running on this subsystem. Returns null if no command is
+   * currently scheduled that requires this subsystem.
+   *
+   * @return the scheduled command currently requiring this subsystem
+   */
+  default Command getCurrentCommand() {
+    return getScheduler().requiring(this);
+  }
 
-    /**
-     * Registers this subsystem with the {@link CommandScheduler}, allowing its {@link
-     * Subsystem#periodic()} method to be called when the scheduler runs.
-     */
-    default void register() {
-        getScheduler().registerSubsystem(this);
-    }
+  /**
+   * Registers this subsystem with the {@link CommandScheduler}, allowing its {@link
+   * Subsystem#periodic()} method to be called when the scheduler runs.
+   */
+  default void register() {
+    getScheduler().registerSubsystem(this);
+  }
 
-    /**
-     * Constructs a command that does nothing until interrupted. Requires this subsystem.
-     *
-     * @return the command
-     */
-    default Command idle() {
-        return Commands.idle(this);
-    }
+  /**
+   * Constructs a command that does nothing until interrupted. Requires this subsystem.
+   *
+   * @return the command
+   */
+  default Command idle() {
+    return Commands.idle(this);
+  }
 
-    /**
-     * Constructs a command that runs an action once and finishes. Requires this subsystem.
-     *
-     * @param action the action to run
-     * @return the command
-     * @see InstantCommand
-     */
-    default Command runOnce(Runnable action) {
-        return Commands.runOnce(action, this);
-    }
+  /**
+   * Constructs a command that runs an action once and finishes. Requires this subsystem.
+   *
+   * @param action the action to run
+   * @return the command
+   * @see InstantCommand
+   */
+  default Command runOnce(Runnable action) {
+    return Commands.runOnce(action, this);
+  }
 
-    /**
-     * Constructs a command that runs an action every iteration until interrupted. Requires this
-     * subsystem.
-     *
-     * @param action the action to run
-     * @return the command
-     * @see RunCommand
-     */
-    default Command run(Runnable action) {
-        return Commands.run(action, this);
-    }
+  /**
+   * Constructs a command that runs an action every iteration until interrupted. Requires this
+   * subsystem.
+   *
+   * @param action the action to run
+   * @return the command
+   * @see RunCommand
+   */
+  default Command run(Runnable action) {
+    return Commands.run(action, this);
+  }
 
-    /**
-     * Constructs a command that runs an action once and another action when the command is
-     * interrupted. Requires this subsystem.
-     *
-     * @param start the action to run on start
-     * @param end the action to run on interrupt
-     * @return the command
-     * @see StartEndCommand
-     */
-    default Command startEnd(Runnable start, Runnable end) {
-        return Commands.startEnd(start, end, this);
-    }
+  /**
+   * Constructs a command that runs an action once and another action when the command is
+   * interrupted. Requires this subsystem.
+   *
+   * @param start the action to run on start
+   * @param end the action to run on interrupt
+   * @return the command
+   * @see StartEndCommand
+   */
+  default Command startEnd(Runnable start, Runnable end) {
+    return Commands.startEnd(start, end, this);
+  }
 
-    /**
-     * Constructs a command that runs an action every iteration until interrupted, and then runs a
-     * second action. Requires this subsystem.
-     *
-     * @param run the action to run every iteration
-     * @param end the action to run on interrupt
-     * @return the command
-     */
-    default Command runEnd(Runnable run, Runnable end) {
-        return Commands.runEnd(run, end, this);
-    }
+  /**
+   * Constructs a command that runs an action every iteration until interrupted, and then runs a
+   * second action. Requires this subsystem.
+   *
+   * @param run the action to run every iteration
+   * @param end the action to run on interrupt
+   * @return the command
+   */
+  default Command runEnd(Runnable run, Runnable end) {
+    return Commands.runEnd(run, end, this);
+  }
 
-    /**
-     * Constructs a command that runs an action once and then runs another action every iteration
-     * until interrupted. Requires this subsystem.
-     *
-     * @param start the action to run on start
-     * @param run the action to run every iteration
-     * @return the command
-     */
-    default Command startRun(Runnable start, Runnable run) {
-        return Commands.startRun(start, run, this);
-    }
+  /**
+   * Constructs a command that runs an action once and then runs another action every iteration
+   * until interrupted. Requires this subsystem.
+   *
+   * @param start the action to run on start
+   * @param run the action to run every iteration
+   * @return the command
+   */
+  default Command startRun(Runnable start, Runnable run) {
+    return Commands.startRun(start, run, this);
+  }
 
-    /**
-     * Constructs a {@link DeferredCommand} with the provided supplier. This subsystem is added as a
-     * requirement.
-     *
-     * @param supplier the command supplier.
-     * @return the command.
-     * @see DeferredCommand
-     */
-    default Command defer(Supplier<Command> supplier) {
-        return Commands.defer(supplier, Set.of(this));
-    }
+  /**
+   * Constructs a {@link DeferredCommand} with the provided supplier. This subsystem is added as a
+   * requirement.
+   *
+   * @param supplier the command supplier.
+   * @return the command.
+   * @see DeferredCommand
+   */
+  default Command defer(Supplier<Command> supplier) {
+    return Commands.defer(supplier, Set.of(this));
+  }
 
-    public CommandScheduler getScheduler();
+  public CommandScheduler getScheduler();
 }

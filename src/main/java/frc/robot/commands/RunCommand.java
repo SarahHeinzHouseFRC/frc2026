@@ -14,14 +14,14 @@ import java.util.function.BooleanSupplier;
  * <p>This class is provided by the NewCommands VendorDep
  */
 public class RunCommand extends FunctionalCommand {
-    /**
-     * Creates a new RunCommand. The Runnable will be run continuously until the command ends. Does
-     * not run when disabled.
-     *
-     * @param toRun the Runnable to run
-     * @param requirements the subsystems to require
-     */
-    public RunCommand(Runnable toRun, Subsystem... requirements) {
-        super(() -> {}, toRun, interrupted -> {}, () -> false, requirements);
-    }
+  /**
+   * Creates a new RunCommand. The Runnable will be run continuously until the command ends. Does
+   * not run when disabled.
+   *
+   * @param toRun the Runnable to run
+   * @param requirements the subsystems to require
+   */
+  public RunCommand(Runnable toRun, Subsystem... requirements) {
+    super(() -> {}, toRun, interrupted -> {}, () -> false, requirements);
+  }
 }

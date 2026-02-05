@@ -1,8 +1,8 @@
 package frc.robot.math;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
@@ -38,6 +38,6 @@ public class Vector3d extends Vector<N3> {
   }
 
   public double magnitude() {
-    return Math.sqrt(x()*x()+y()*y()+z()*z());
+    return Math.sqrt(x() * x() + y() * y() + z() * z());
   }
 }

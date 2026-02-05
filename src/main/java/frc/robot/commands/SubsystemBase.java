@@ -15,93 +15,94 @@ import edu.wpi.first.util.sendable.SendableRegistry;
  * <p>This class is provided by the NewCommands VendorDep
  */
 public abstract class SubsystemBase implements Subsystem, Sendable {
-    private final CommandScheduler commandScheduler;
-    /** Constructor. Telemetry/log name defaults to the classname. */
-    @SuppressWarnings("this-escape")
-    public SubsystemBase(CommandScheduler commandScheduler) {
-        this.commandScheduler = commandScheduler;
-        String name = this.getClass().getSimpleName();
-        name = name.substring(name.lastIndexOf('.') + 1);
-        SendableRegistry.addLW(this, name, name);
-        getScheduler().registerSubsystem(this);
-    }
+  private final CommandScheduler commandScheduler;
 
-    /**
-     * Constructor.
-     *
-     * @param name Name of the subsystem for telemetry and logging.
-     */
-    @SuppressWarnings("this-escape")
-    public SubsystemBase(String name, CommandScheduler commandScheduler) {
-        this.commandScheduler = commandScheduler;
-        SendableRegistry.addLW(this, name, name);
-        getScheduler().registerSubsystem(this);
-    }
+  /** Constructor. Telemetry/log name defaults to the classname. */
+  @SuppressWarnings("this-escape")
+  public SubsystemBase(CommandScheduler commandScheduler) {
+    this.commandScheduler = commandScheduler;
+    String name = this.getClass().getSimpleName();
+    name = name.substring(name.lastIndexOf('.') + 1);
+    SendableRegistry.addLW(this, name, name);
+    getScheduler().registerSubsystem(this);
+  }
 
-    /**
-     * Gets the name of this Subsystem.
-     *
-     * @return Name
-     */
-    @Override
-    public String getName() {
-        return SendableRegistry.getName(this);
-    }
+  /**
+   * Constructor.
+   *
+   * @param name Name of the subsystem for telemetry and logging.
+   */
+  @SuppressWarnings("this-escape")
+  public SubsystemBase(String name, CommandScheduler commandScheduler) {
+    this.commandScheduler = commandScheduler;
+    SendableRegistry.addLW(this, name, name);
+    getScheduler().registerSubsystem(this);
+  }
 
-    /**
-     * Sets the name of this Subsystem.
-     *
-     * @param name name
-     */
-    public void setName(String name) {
-        SendableRegistry.setName(this, name);
-    }
+  /**
+   * Gets the name of this Subsystem.
+   *
+   * @return Name
+   */
+  @Override
+  public String getName() {
+    return SendableRegistry.getName(this);
+  }
 
-    /**
-     * Gets the subsystem name of this Subsystem.
-     *
-     * @return Subsystem name
-     */
-    public String getSubsystem() {
-        return SendableRegistry.getSubsystem(this);
-    }
+  /**
+   * Sets the name of this Subsystem.
+   *
+   * @param name name
+   */
+  public void setName(String name) {
+    SendableRegistry.setName(this, name);
+  }
 
-    /**
-     * Sets the subsystem name of this Subsystem.
-     *
-     * @param subsystem subsystem name
-     */
-    public void setSubsystem(String subsystem) {
-        SendableRegistry.setSubsystem(this, subsystem);
-    }
+  /**
+   * Gets the subsystem name of this Subsystem.
+   *
+   * @return Subsystem name
+   */
+  public String getSubsystem() {
+    return SendableRegistry.getSubsystem(this);
+  }
 
-    /**
-     * Associates a {@link Sendable} with this Subsystem. Also update the child's name.
-     *
-     * @param name name to give child
-     * @param child sendable
-     */
-    public void addChild(String name, Sendable child) {
-        SendableRegistry.addLW(child, getSubsystem(), name);
-    }
+  /**
+   * Sets the subsystem name of this Subsystem.
+   *
+   * @param subsystem subsystem name
+   */
+  public void setSubsystem(String subsystem) {
+    SendableRegistry.setSubsystem(this, subsystem);
+  }
 
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("Subsystem");
+  /**
+   * Associates a {@link Sendable} with this Subsystem. Also update the child's name.
+   *
+   * @param name name to give child
+   * @param child sendable
+   */
+  public void addChild(String name, Sendable child) {
+    SendableRegistry.addLW(child, getSubsystem(), name);
+  }
 
-        builder.addBooleanProperty(".hasDefault", () -> getDefaultCommand() != null, null);
-        builder.addStringProperty(
-                ".default",
-                () -> getDefaultCommand() != null ? getDefaultCommand().getName() : "none",
-                null);
-        builder.addBooleanProperty(".hasCommand", () -> getCurrentCommand() != null, null);
-        builder.addStringProperty(
-                ".command",
-                () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "none",
-                null);
-    }
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("Subsystem");
 
-    public CommandScheduler getScheduler() {
-        return commandScheduler;
-    }
+    builder.addBooleanProperty(".hasDefault", () -> getDefaultCommand() != null, null);
+    builder.addStringProperty(
+        ".default",
+        () -> getDefaultCommand() != null ? getDefaultCommand().getName() : "none",
+        null);
+    builder.addBooleanProperty(".hasCommand", () -> getCurrentCommand() != null, null);
+    builder.addStringProperty(
+        ".command",
+        () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "none",
+        null);
+  }
+
+  public CommandScheduler getScheduler() {
+    return commandScheduler;
+  }
 }
