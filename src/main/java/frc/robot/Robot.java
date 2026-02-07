@@ -40,6 +40,8 @@ public class Robot extends LoggedRobot {
   public Drive drive;
   public Intake intake;
 
+  public GetPose poseGetter;
+
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
@@ -82,6 +84,7 @@ public class Robot extends LoggedRobot {
       Simulator.init();
       simulator = Simulator.getInstance();
     }
+    poseGetter = new GetPose("10.32.60.200:50001");
     commandScheduler = new CommandScheduler();
     shooter = new Shooter(operatorController, commandScheduler);
     drive = new Drive(commandScheduler);
@@ -162,6 +165,8 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotPeriodic() {
+    poseGetter.writePose();
+    System.out.println(poseGetter.readPose());
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
