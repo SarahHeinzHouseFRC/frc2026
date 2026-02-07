@@ -22,7 +22,7 @@ public class GetPose {
     mutex = new ReentrantLock();
     pose = null;
 
-    Channel channel = ManagedChannelBuilder.forTarget(visionServer).build();
+    Channel channel = ManagedChannelBuilder.forTarget(visionServer).usePlaintext().build();
     visionSystem = VisionSystemGrpc.newBlockingStub(channel);
   }
 
