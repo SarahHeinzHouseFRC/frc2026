@@ -49,8 +49,8 @@ public class Shooter extends SubsystemBase {
           case REAL -> new ShooterIOSpark();
           default -> new ShooterIO() {};
         };
-//    setDefaultCommand(directDriveCommand());
-        setDefaultCommand(autoAimCommand());
+    //    setDefaultCommand(directDriveCommand());
+    setDefaultCommand(autoAimCommand());
     this.controller = controller;
   }
 
@@ -182,7 +182,8 @@ public class Shooter extends SubsystemBase {
               itsPose
                   .minus(myPose.getTranslation())
                   .getAngle()
-                  .minus(myPose.getRotation()).plus(Rotation2d.kPi);
+                  .minus(myPose.getRotation())
+                  .plus(Rotation2d.kPi);
 
           SmartDashboard.putNumber("Target Yaw Pos", MathUtil.angleModulus(angle.getRadians()));
         },

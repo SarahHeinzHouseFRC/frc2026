@@ -9,7 +9,6 @@ import static frc.robot.shooter.ShooterConstants.*;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.*;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
@@ -23,7 +22,7 @@ public class ShooterIOSpark implements ShooterIO {
   private final Servo linearActuator;
   private final SparkMax panMotor;
   private final AbsoluteEncoder panEncoder;
-//  private final SparkClosedLoopController panController;
+  //  private final SparkClosedLoopController panController;
   private final SparkFlex flywheelMotor;
   private final RelativeEncoder flywheelEncoder;
   private final SparkClosedLoopController flywheelController;
@@ -62,7 +61,7 @@ public class ShooterIOSpark implements ShooterIO {
     SparkMaxConfig panConfig = new SparkMaxConfig();
     panConfig.smartCurrentLimit(20).idleMode(kCoast).inverted(true);
 
-//        panConfig.encoder.inverted(true);
+    //        panConfig.encoder.inverted(true);
     panConfig.encoder.positionConversionFactor(2 * Math.PI / yawReduction);
     panMotor = new SparkMax(panMotorCanId, kBrushless);
     panMotor.configure(panConfig, kResetSafeParameters, kPersistParameters);
@@ -140,7 +139,7 @@ public class ShooterIOSpark implements ShooterIO {
     inputs.turretYawRadians = yawEncoderContinuous.getPosition() * (28d / 200d) * (2 * Math.PI);
     inputs.timestamp = Timer.getFPGATimestamp();
     inputs.linearActuatorSetpointMm = ((linearActuatorSetpoint + 1) / 2) * linearActuatorLengthMm;
-//    inputs.turretYawRadians = panController.getSetpoint();
+    //    inputs.turretYawRadians = panController.getSetpoint();
     //    if (flywheelController.isAtSetpoint()) {
     //      System.out.println("1 at setpoint");
     //    }
@@ -194,8 +193,12 @@ public class ShooterIOSpark implements ShooterIO {
 
   @Override
   public void setTurretYaw(double yawRadians) {
-    panMotor.setVoltage(MathUtil.clamp(yawPID.calculate(yawEncoderContinuous.getPosition(), MathUtil.clamp(yawRadians, -1, 1)), -2, 2));
-//    panController.setSetpoint(yawRadians, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    panMotor.setVoltage(
+        MathUtil.clamp(
+            yawPID.calculate(yawEncoderContinuous.getPosition(), MathUtil.clamp(yawRadians, -1, 1)),
+            -2,
+            2));
+    //    panController.setSetpoint(yawRadians, ControlType.kPosition, ClosedLoopSlot.kSlot0);
   }
 
   @Override

@@ -8,8 +8,6 @@ import edu.wpi.first.networktables.StructPublisher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import edu.wpi.first.wpilibj.Timer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -73,10 +71,12 @@ public class PhotonCameraIO implements CameraIO {
         }
       } else if (!photonResult.targets.isEmpty()) {
         if (photonResult.targets.size() != 1) {
-          System.out.println("[WARNING] if there is no multitag there should be at most 1 tag present!");
+          System.out.println(
+              "[WARNING] if there is no multitag there should be at most 1 tag present!");
         } else {
           PhotonTrackedTarget target = photonResult.targets.get(0);
-          Optional<Pose3d> tagPose = VisionConstants.aprilTagFieldLayout.getTagPose(target.fiducialId);
+          Optional<Pose3d> tagPose =
+              VisionConstants.aprilTagFieldLayout.getTagPose(target.fiducialId);
           if (tagPose.isPresent()) {
             Pose3d fieldToCamera = tagPose.get().plus(target.bestCameraToTarget.inverse());
             Pose3d fieldToRobot = fieldToCamera.plus(cameraToRobot);
@@ -92,8 +92,8 @@ public class PhotonCameraIO implements CameraIO {
               latestTimestamp = photonResult.getTimestampSeconds();
               latestCameraPose = fieldToCamera;
             }
-          }else {
-//            System.out.println("[WARNING] tag pose not present!");
+          } else {
+            //            System.out.println("[WARNING] tag pose not present!");
           }
         }
       }
@@ -102,7 +102,7 @@ public class PhotonCameraIO implements CameraIO {
     if (latestCameraPose != null) {
       publisher.set(latestCameraPose);
     } else {
-//      publisher.set(Pose3d.kZero);
+      //      publisher.set(Pose3d.kZero);
     }
   }
 }

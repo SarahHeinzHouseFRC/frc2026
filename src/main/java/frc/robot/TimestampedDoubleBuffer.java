@@ -21,7 +21,8 @@ public class TimestampedDoubleBuffer {
   public double getValueAtTimestamp(double timestamp) {
     // Search backwards from most recent
 
-    if (timestamps[(index - 1 + size) % size] <= timestamp) return buffer[(index - 1 + size) % size];
+    if (timestamps[(index - 1 + size) % size] <= timestamp)
+      return buffer[(index - 1 + size) % size];
     for (int i = 2; i < size; i++) {
       int prevIndex = (index - i + size) % size;
       int nextIndex = (index - i + 1 + size) % size;
