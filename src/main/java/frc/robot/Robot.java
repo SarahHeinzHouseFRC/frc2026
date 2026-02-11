@@ -19,6 +19,7 @@ import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
 import frc.robot.simulator.Simulator;
+import frc.robot.vision.Vision;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -39,6 +40,7 @@ public class Robot extends LoggedRobot {
   public Shooter shooter;
   public Drive drive;
   public Intake intake;
+  public Vision vision;
 
   public GetPose poseGetter;
 
@@ -84,10 +86,13 @@ public class Robot extends LoggedRobot {
       Simulator.init();
       simulator = Simulator.getInstance();
     }
-    poseGetter = new GetPose("10.32.60.200:50001");
+    //    poseGetter = new GetPose("10.32.60.200:50001");
     commandScheduler = new CommandScheduler();
-    shooter = new Shooter(operatorController, commandScheduler);
-    drive = new Drive(commandScheduler);
+    Shooter.init(operatorController, commandScheduler);
+    shooter = Shooter.getInstance();
+    Drive.init(commandScheduler);
+    drive = Drive.getInstance();
+    vision = new Vision(commandScheduler);
     drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
     intake = new Intake(commandScheduler);
     intake.setDefaultCommand(
@@ -165,8 +170,8 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotPeriodic() {
-    poseGetter.writePose();
-    System.out.println(poseGetter.readPose());
+    //    poseGetter.writePose();
+    //    System.out.println(poseGetter.readPose());
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic

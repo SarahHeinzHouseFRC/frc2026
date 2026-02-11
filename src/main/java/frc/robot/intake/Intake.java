@@ -11,7 +11,7 @@ public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
-  @AutoLogOutput private double obiSetpoint = 0.28;
+  @AutoLogOutput private double obiSetpoint = 0.0;
 
   public static Intake instance;
 

@@ -51,7 +51,23 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
-  public Drive(CommandScheduler scheduler) {
+  private static Drive instance;
+
+  public static void init(CommandScheduler scheduler) {
+    if (instance != null) {
+      throw new IllegalStateException("Drive instance already initialized.");
+    }
+    instance = new Drive(scheduler);
+  }
+
+  public static Drive getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Drive instance not initialized.");
+    }
+    return instance;
+  }
+
+  private Drive(CommandScheduler scheduler) {
     super(scheduler);
 
     ModuleIO flModuleIO;

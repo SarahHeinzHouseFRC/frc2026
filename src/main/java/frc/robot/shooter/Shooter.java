@@ -1,15 +1,17 @@
 package frc.robot.shooter;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.FieldConstants;
 import frc.robot.Robot;
+import frc.robot.TimestampedDoubleBuffer;
 import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.Commands;
 import frc.robot.commands.SubsystemBase;
+import frc.robot.drive.Drive;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -17,10 +19,28 @@ public class Shooter extends SubsystemBase {
   private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
   private double shooterSpeedSetpoint = 6000;
 
+  private final ShotCalculator shotCalculator = ShotCalculators.lutShotCalculator;
+
   public static Shooter instance;
   private XboxController controller;
 
-  public Shooter(XboxController controller, CommandScheduler scheduler) {
+  private final TimestampedDoubleBuffer yawBuffer = new TimestampedDoubleBuffer(100);
+
+  public static void init(XboxController controller, CommandScheduler scheduler) {
+    if (instance != null) {
+      throw new IllegalStateException("Shooter instance already initialized.");
+    }
+    instance = new Shooter(controller, scheduler);
+  }
+
+  public static Shooter getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Shooter instance not initialized.");
+    }
+    return instance;
+  }
+
+  private Shooter(XboxController controller, CommandScheduler scheduler) {
     super(scheduler);
     instance = this;
     io =
@@ -29,7 +49,8 @@ public class Shooter extends SubsystemBase {
           case REAL -> new ShooterIOSpark();
           default -> new ShooterIO() {};
         };
-    setDefaultCommand(defaultCommand());
+//    setDefaultCommand(directDriveCommand());
+        setDefaultCommand(autoAimCommand());
     this.controller = controller;
   }
 
@@ -48,7 +69,7 @@ public class Shooter extends SubsystemBase {
    * @param angle Angle in radians relative to drivetrain rotation (0 = front, pi/2 = right)
    */
   public void setPan(double angle) {
-    io.setTurretPitch(angle);
+    //    io.setTurretPitch(angle);
     //        final var panMax = (380d / 180d) * Math.PI;
     //        final var panMin = (-20d / 180d) * Math.PI;
     //        var encoder = motorPan.getAbsoluteEncoder();
@@ -85,6 +106,11 @@ public class Shooter extends SubsystemBase {
     //        }
   }
 
+  // ccw positive
+  public double getTurretYaw() {
+    return inputs.turretYawRadians;
+  }
+
   public void shootAtTarget(Translation3d target, Pose3d current) {
     var dx = target.getX() - current.getX();
     var dy = target.getY() - current.getY();
@@ -104,11 +130,19 @@ public class Shooter extends SubsystemBase {
     Logger.processInputs("Shooter", inputs);
     SmartDashboard.putNumber(
         "shooter speed rpm", ((double) 13 / 9) * inputs.flywheelVelocityRotationsPerMinute);
+    yawBuffer.add(inputs.turretYawRadians, inputs.timestamp);
   }
 
-  private Command defaultCommand() {
+  public double getYawAtTime(double time) {
+    return yawBuffer.getValueAtTimestamp(time);
+  }
+
+  private Command directDriveCommand() {
     return Commands.run(
         () -> {
+          if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
+            io.zeroYaw();
+          }
           int pov = controller.getPOV();
           boolean right = pov == 45 || pov == 90 || pov == 135;
           boolean down = pov == 135 || pov == 180 || pov == 225;
@@ -132,12 +166,56 @@ public class Shooter extends SubsystemBase {
             io.setTurretYawOpenLoop(0d);
           }
           shooterSpeedSetpoint =
-              MathUtil.clamp(shooterSpeedSetpoint - 100 * controller.getRightY(), 0, 6000);
+              MathUtil.clamp(
+                  shooterSpeedSetpoint - 50 * MathUtil.applyDeadband(controller.getRightY(), .1),
+                  0,
+                  6000);
           SmartDashboard.putNumber("shooterSpeedSetpoint", shooterSpeedSetpoint);
           if (controller.getRightBumperButton()) {
             io.setFlywheelVelocity(shooterSpeedSetpoint);
           } else {
             io.setFlywheelOpenLoop(0);
+          }
+          Pose2d myPose = Drive.getInstance().getPose();
+          Translation2d itsPose = FieldConstants.HUB.toTranslation2d();
+          Rotation2d angle =
+              itsPose
+                  .minus(myPose.getTranslation())
+                  .getAngle()
+                  .minus(myPose.getRotation()).plus(Rotation2d.kPi);
+
+          SmartDashboard.putNumber("Target Yaw Pos", MathUtil.angleModulus(angle.getRadians()));
+        },
+        this);
+  }
+
+  private Command autoAimCommand() {
+    return Commands.run(
+        () -> {
+          if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
+            io.zeroYaw();
+          }
+          Pose2d myPose = Drive.getInstance().getPose();
+          Translation2d itsPose = FieldConstants.HUB.toTranslation2d();
+          ShotParams shotParams =
+              shotCalculator.calculateShotParams(
+                  itsPose.getDistance(myPose.getTranslation()) + .3, 0, 0);
+          io.setLinearActuatorPosition(shotParams.linearActuatorExtensionMillimeters());
+          if (controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1) {
+            io.setFlywheelVelocity(shotParams.flywheelVelocityRotationsPerMinute());
+          } else {
+            io.setFlywheelOpenLoop(0);
+          }
+          Rotation2d angle =
+              itsPose
+                  .minus(myPose.getTranslation())
+                  .getAngle()
+                  .minus(myPose.getRotation())
+                  .plus(Rotation2d.kPi);
+          SmartDashboard.putNumber("Target Yaw Pos", MathUtil.angleModulus(angle.getRadians()));
+          io.setTurretYaw(MathUtil.angleModulus(angle.getRadians()));
+          if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
+            io.zeroYaw();
           }
         },
         this);

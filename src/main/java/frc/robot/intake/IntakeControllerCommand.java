@@ -20,19 +20,28 @@ public class IntakeControllerCommand extends Command {
     boolean intaking = driverController.getRightTriggerAxis() > .1;
     boolean shooting = (operatorController.getRightTriggerAxis() > .1);
     boolean outtaking = operatorController.getLeftTriggerAxis() > .1;
+    //    System.out.println("intaking: " + intaking + ", shooting: " + shooting + ", outtaking:" +
+    // outtaking);
     // if shooting or intaking
-    double intakeMotor = intaking || shooting ? -1 : 0;
+    double intakeMotor = intaking ? -1 : 0;
 
     // outtaking
     if (intakeMotor == 0 && outtaking) {
       intakeMotor = 1;
     }
 
-    // if shooting
-    double indexerMotor = shooting ? -1 : 0;
+    // if shooting and intaking
+    double indexerMotor = 0;
 
+    if (shooting && intaking) {
+      indexerMotor = -.5;
+    }
+
+    if (shooting && !intaking) {
+      indexerMotor = -1;
+    }
     // if not shooting but intaking
-    if (indexerMotor == 0 && intaking) {
+    if (!shooting && intaking) {
       indexerMotor = 1;
     }
     if (indexerMotor == 0 && outtaking) {
@@ -50,10 +59,15 @@ public class IntakeControllerCommand extends Command {
     if (intaking && !shooting) {
       beltMotor = -1;
     }
+    if (intaking && shooting) {
+      beltMotor = -1;
+    }
 
     intake.setIntakeOpenLoop(intakeMotor * 1);
     intake.setBeltStarOpenLoop(indexerMotor * 1);
     intake.setBeltOpenLoop(beltMotor * 1);
+    //    System.out.println("intake: " + intakeMotor + ", index: " + indexerMotor + ", belt:" +
+    // beltMotor);
 
     if (driverController.getLeftTriggerAxis() > .1) {
 

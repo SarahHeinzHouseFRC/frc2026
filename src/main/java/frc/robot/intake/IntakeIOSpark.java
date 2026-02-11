@@ -46,6 +46,10 @@ public class IntakeIOSpark implements IntakeIO {
     pivconfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake).inverted(false);
     pivconfig.closedLoop.pid(6, 0, 0, ClosedLoopSlot.kSlot0);
     pivconfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+    // NOT working??? todo
+    //    pivconfig.closedLoop.feedForward.kCos(.3, ClosedLoopSlot.kSlot0);
+    pivconfig.closedLoop.positionWrappingEnabled(true);
+    pivconfig.closedLoop.positionWrappingInputRange(-.5, .5);
     obiPivotMotor.configure(
         pivconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     obiPivotController = obiPivotMotor.getClosedLoopController();
@@ -90,16 +94,14 @@ public class IntakeIOSpark implements IntakeIO {
 
   @Override
   public void setOBIPivotMotorClosedLoop(double position) {
-    double clampedPosition = MathUtil.clamp(position, 0, .333);
-    double horizontalPosition = .28;
-    double theta = horizontalPosition - clampedPosition;
-    theta *= 2 * Math.PI;
+    double clampedPosition = MathUtil.clamp(position, -.5, .5);
+    double theta = clampedPosition * 2 * Math.PI;
     double cos = Math.cos(theta);
     obiPivotController.setSetpoint(
         clampedPosition,
         SparkBase.ControlType.kPosition,
         ClosedLoopSlot.kSlot0,
-        cos * .3,
+        .3 * cos,
         SparkClosedLoopController.ArbFFUnits.kVoltage);
   }
 }
