@@ -2,6 +2,7 @@ package frc.robot.shooter;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.FieldConstants;
@@ -198,9 +199,24 @@ public class Shooter extends SubsystemBase {
           }
           Pose2d myPose = Drive.getInstance().getPose();
           Translation2d itsPose = FieldConstants.HUB.toTranslation2d();
+          ChassisSpeeds speeds = Drive.getInstance().getChassisSpeeds();
+          double angleToHub =
+              itsPose
+                  .minus(myPose.getTranslation())
+                  .getAngle()
+                  .minus(myPose.getRotation())
+                  .getRadians();
+          double vrad =
+              -speeds.vxMetersPerSecond * Math.cos(angleToHub)
+                  + speeds.vyMetersPerSecond * Math.sin(angleToHub);
+          double vtan =
+              -speeds.vxMetersPerSecond * Math.sin(angleToHub)
+                  - speeds.vyMetersPerSecond * Math.cos(angleToHub);
+          SmartDashboard.putNumber("vrad", vrad);
+          SmartDashboard.putNumber("vtan", vtan);
           ShotParams shotParams =
               shotCalculator.calculateShotParams(
-                  itsPose.getDistance(myPose.getTranslation()) + .3, 0, 0);
+                  itsPose.getDistance(myPose.getTranslation()) + .3, vrad, vtan);
           io.setLinearActuatorPosition(shotParams.linearActuatorExtensionMillimeters());
           if (controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1) {
             io.setFlywheelVelocity(shotParams.flywheelVelocityRotationsPerMinute());
@@ -212,7 +228,8 @@ public class Shooter extends SubsystemBase {
                   .minus(myPose.getTranslation())
                   .getAngle()
                   .minus(myPose.getRotation())
-                  .plus(Rotation2d.kPi);
+                  .plus(Rotation2d.kPi)
+                  .plus(Rotation2d.fromRadians(shotParams.yawOffsetRadians()));
           SmartDashboard.putNumber("Target Yaw Pos", MathUtil.angleModulus(angle.getRadians()));
           io.setTurretYaw(MathUtil.angleModulus(angle.getRadians()));
           if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {

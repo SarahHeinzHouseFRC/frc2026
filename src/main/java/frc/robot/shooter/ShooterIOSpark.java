@@ -195,7 +195,7 @@ public class ShooterIOSpark implements ShooterIO {
   public void setTurretYaw(double yawRadians) {
     panMotor.setVoltage(
         MathUtil.clamp(
-            yawPID.calculate(yawEncoderContinuous.getPosition(), MathUtil.clamp(yawRadians, -1, 1)),
+            yawPID.calculate(yawEncoderContinuous.getPosition(), MathUtil.clamp(yawRadians * 1.1441647597, -1, 1)),
             -2,
             2));
     //    panController.setSetpoint(yawRadians, ControlType.kPosition, ClosedLoopSlot.kSlot0);

@@ -38,15 +38,57 @@ public class ShotCalculators {
         double t = (distanceMeters - distanceLow) / distanceRange;
         double lerpRpm = rpmLow + t * rpmRange;
         double lerpLinear = linearLow + t * linearRange;
-        return new ShotParams(lerpRpm, lerpLinear, 0);
+
+        // xy plane is field
+        // z is up
+        double velocityY =
+            velocityFromFlywheel(lerpRpm) * Math.cos(pitchFromLinearActuator(lerpLinear));
+        double velocityZ =
+            velocityFromFlywheel(lerpRpm) * Math.sin(pitchFromLinearActuator(lerpLinear));
+        double velocityX = 0;
+        velocityY += velocityRadialMetersPerSecond;
+        velocityX -= velocityTangentialMetersPerSecond;
+        double yawOffsetRadians = -Math.atan2(velocityX, velocityY);
+        double angle =
+            Math.atan2(velocityZ, Math.sqrt(velocityX * velocityX + velocityY * velocityY));
+        return new ShotParams(
+            flywheelFromVelocity(
+                Math.sqrt(velocityX * velocityX + velocityY * velocityY + velocityZ * velocityZ)),
+            linearActuatorFromPitch(angle),
+            yawOffsetRadians);
       };
 
   private static double pitchFromLinearActuator(double linearActuatorExtensionMillimeters) {
-    return 0;
+    double linearActuatorLength = 168 + linearActuatorExtensionMillimeters;
+    double linearActuatorTopToPivot = 159;
+    double linearActuatorBottomToPivot = 251;
+    double angleOffsetRadians = -0.35;
+    // A = arccos((b^2 + c^2 - a^2)/(2bc))
+    double triangleAngle =
+        Math.acos(
+            (linearActuatorTopToPivot * linearActuatorTopToPivot
+                    + linearActuatorBottomToPivot * linearActuatorBottomToPivot
+                    - linearActuatorLength * linearActuatorLength)
+                / (2 * linearActuatorTopToPivot * linearActuatorBottomToPivot));
+    return triangleAngle + angleOffsetRadians;
   }
 
   private static double linearActuatorFromPitch(double pitchRadians) {
-    return 0;
+    double angleOffsetRadians = 0.35;
+    double linearActuatorExtensionOffset = -168;
+    double triangleAngle = pitchRadians + angleOffsetRadians;
+    double linearActuatorTopToPivot = 159;
+    double linearActuatorBottomToPivot = 251;
+    // a = sqrt(b^2 + c^2 - 2bccos(A))
+    double linearActuatorLength =
+        Math.sqrt(
+            linearActuatorTopToPivot * linearActuatorTopToPivot
+                + linearActuatorBottomToPivot * linearActuatorBottomToPivot
+                - 2
+                    * linearActuatorTopToPivot
+                    * linearActuatorBottomToPivot
+                    * Math.cos(triangleAngle));
+    return linearActuatorLength + linearActuatorExtensionOffset;
   }
 
   private static final double flywheelEfficiencyRatio = 0.5;
