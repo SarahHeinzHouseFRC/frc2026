@@ -49,3 +49,7 @@ yes i understand that different device classes can share a can id but i like it 
 **Flywheel Motor 1:** `32`
 
 **Flywheel Motor 2:** `33`
+
+## Climber (`40`-`49`)
+
+**Climber:** `40`
