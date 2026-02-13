@@ -1,8 +1,7 @@
 package frc.robot.vision;
 
-import edu.wpi.first.math.Nat;
-
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N4;
@@ -11,28 +10,32 @@ import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.protos.DataHandling.GetRobotPositionRequest;
 import frc.robot.protos.DataHandling.GetRobotPositionResponse;
 import frc.robot.protos.VisionSystemGrpc;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.Channel;
+import io.grpc.ManagedChannelBuilder;
 
 public class AdvVisionServerIO implements CameraIO {
+  //public static final String ADV_VISION_SERVER = "10.32.60.200:50001";
+  public static final String ADV_VISION_SERVER = "127.0.0.1:50001";
+
+
   // Ignored because it is ZERO for now
   private Transform3d cameraToRobot;
   private VisionSystemGrpc.VisionSystemBlockingStub visionSystem;
 
   private StructPublisher<Pose3d> publisher;
 
-  public AdvVisionServerIO(String serverAddress, String cameraName) {
-    this(serverAddress, Transform3d.kZero, cameraName);
+  public AdvVisionServerIO(String cameraName) {
+    this(Transform3d.kZero, cameraName);
   }
 
-  public AdvVisionServerIO(String serverAddress, Transform3d robotToCamera, String cameraName) {
+  public AdvVisionServerIO(Transform3d robotToCamera, String cameraName) {
     this.cameraToRobot = robotToCamera.inverse();
     publisher =
         NetworkTableInstance.getDefault()
             .getStructTopic("/SHARP/Vision" + cameraName, Pose3d.struct)
             .publish();
 
-    Channel channel = ManagedChannelBuilder.forTarget(serverAddress).usePlaintext().build();
+    Channel channel = ManagedChannelBuilder.forTarget(ADV_VISION_SERVER).usePlaintext().build();
     visionSystem = VisionSystemGrpc.newBlockingStub(channel);
   }
 
@@ -46,7 +49,7 @@ public class AdvVisionServerIO implements CameraIO {
       e.printStackTrace();
       publisher.set(Pose3d.kZero);
       inputs.results = new PoseObservation[0];
-      return;      
+      return;
     }
 
     Nat<N4> rows = N4.instance;
@@ -70,13 +73,12 @@ public class AdvVisionServerIO implements CameraIO {
     System.out.println(inMat);
     Pose3d fieldToCamera = new Pose3d(inMat);
 
-    inputs.results = new PoseObservation[] {
-      new PoseObservation(
-        System.currentTimeMillis(), 
-        fieldToCamera.plus(cameraToRobot), 0, 0, 1, 0)};
+    inputs.results =
+        new PoseObservation[] {
+          new PoseObservation(
+              System.currentTimeMillis(), fieldToCamera.plus(cameraToRobot), 0, 0, 1, 0)
+        };
 
     publisher.set(fieldToCamera /*?*/);
   }
-
-
 }

@@ -19,6 +19,7 @@ import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
 import frc.robot.simulator.Simulator;
+import frc.robot.vision.TagLocationSender;
 import frc.robot.vision.Vision;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -41,6 +42,7 @@ public class Robot extends LoggedRobot {
   public Drive drive;
   public Intake intake;
   public Vision vision;
+//  public TagLocationSender tagLocationSender;
 
   public GetPose poseGetter;
 
@@ -93,6 +95,7 @@ public class Robot extends LoggedRobot {
     Drive.init(commandScheduler);
     drive = Drive.getInstance();
     vision = new Vision(commandScheduler);
+    // tagLocationSender = new TagLocationSender(commandScheduler);
     drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
     intake = new Intake(commandScheduler);
     intake.setDefaultCommand(
@@ -264,7 +267,10 @@ public class Robot extends LoggedRobot {
 
     ShooterMath calc =
         new ShooterMath(
-            new Vector3d(target.toVector()), (Transformation) robotPose, robotVelocity, Math.PI / 6);
+            new Vector3d(target.toVector()),
+            (Transformation) robotPose,
+            robotVelocity,
+            Math.PI / 6);
     Translation2d delta =
         FieldConstants.HUB.toTranslation2d().minus(robotPose.getTranslation().toTranslation2d());
 
