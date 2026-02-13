@@ -258,9 +258,13 @@ public class Robot extends LoggedRobot {
 
     Vector3d robotVelocity = null;
 
+    if (robotPose == null || robotVelocity == null) {
+      return;
+    }
+
     ShooterMath calc =
         new ShooterMath(
-            (Vector3d) target.toVector(), (Transformation) robotPose, robotVelocity, Math.PI / 6);
+            new Vector3d(target.toVector()), (Transformation) robotPose, robotVelocity, Math.PI / 6);
     Translation2d delta =
         FieldConstants.HUB.toTranslation2d().minus(robotPose.getTranslation().toTranslation2d());
 

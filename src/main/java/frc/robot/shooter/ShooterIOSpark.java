@@ -196,7 +196,7 @@ public class ShooterIOSpark implements ShooterIO {
     panMotor.setVoltage(
         MathUtil.clamp(
             yawPID.calculate(
-                yawEncoderContinuous.getPosition() * (28d/200d) * (2 * Math.PI),
+                yawEncoderContinuous.getPosition() * (28d / 200d) * (2 * Math.PI),
                 MathUtil.clamp(yawRadians, -1, 1)),
             -2,
             2));

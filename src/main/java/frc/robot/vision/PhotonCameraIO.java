@@ -22,7 +22,7 @@ public class PhotonCameraIO implements CameraIO {
   private StructPublisher<Pose3d> publisher;
 
   public PhotonCameraIO(String cameraName) {
-    new PhotonCameraIO(cameraName, Transform3d.kZero);
+    this(cameraName, Transform3d.kZero);
   }
 
   public PhotonCameraIO(String cameraName, Transform3d robotToCamera) {
