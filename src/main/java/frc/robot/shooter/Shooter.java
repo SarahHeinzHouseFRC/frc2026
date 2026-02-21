@@ -64,6 +64,21 @@ public class Shooter extends SubsystemBase {
     io.setFlywheelOpenLoop(power * 12.0);
   }
 
+  /** Sets shooter wheel target speed in RPM. */
+  public void setFlywheelVelocityRpm(double rpm) {
+    io.setFlywheelVelocity(rpm);
+  }
+
+  /** Returns measured shooter speed in RPM. */
+  public double getFlywheelVelocityRpm() {
+    return inputs.flywheelVelocityRotationsPerMinute;
+  }
+
+  /** True when measured RPM is within tolerance of target RPM. */
+  public boolean isFlywheelAtSpeed(double targetRpm, double toleranceRpm) {
+    return Math.abs(getFlywheelVelocityRpm() - targetRpm) <= toleranceRpm;
+  }
+
   /**
    * sets angle of turret
    *
@@ -123,6 +138,19 @@ public class Shooter extends SubsystemBase {
     // TODO: calculate tilt angle and power (misha's job)
 
     this.setPan(panAngle);
+  }
+
+  /** Points the turret toward the hub using odometry pose. */
+  public void pointAtHub() {
+    Pose2d myPose = Drive.getInstance().getPose();
+    Rotation2d angle =
+        FieldConstants.HUB
+            .toTranslation2d()
+            .minus(myPose.getTranslation())
+            .getAngle()
+            .minus(myPose.getRotation())
+            .plus(Rotation2d.kPi);
+    io.setTurretYaw(MathUtil.angleModulus(angle.getRadians()));
   }
 
   @Override

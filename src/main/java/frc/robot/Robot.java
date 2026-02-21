@@ -8,18 +8,16 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.commands.Command;
 import frc.robot.commands.CommandScheduler;
-import frc.robot.drive.ControllerDriveCommand;
 import frc.robot.drive.Drive;
 import frc.robot.intake.Intake;
-import frc.robot.intake.IntakeControllerCommand;
 import frc.robot.math.Transformation;
 import frc.robot.math.Vector3d;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
 import frc.robot.simulator.Simulator;
-import frc.robot.vision.TagLocationSender;
 import frc.robot.vision.Vision;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -29,13 +27,17 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
+
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
  * this project, you must also update the Main.java file in the project.
  */
+
 public class Robot extends LoggedRobot {
   private static CommandScheduler commandScheduler;
+  private RobotContainer robotContainer;
+  private Command autonomousCommand;
   public static Simulator simulator;
 
   public Shooter shooter;
@@ -96,10 +98,10 @@ public class Robot extends LoggedRobot {
     drive = Drive.getInstance();
     vision = new Vision(commandScheduler);
     // tagLocationSender = new TagLocationSender(commandScheduler);
-    drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
     intake = new Intake(commandScheduler);
-    intake.setDefaultCommand(
-        new IntakeControllerCommand(xboxDriverController, operatorController, intake));
+    robotContainer =
+        new RobotContainer(
+            drive, shooter, intake, driverController, xboxDriverController, operatorController);
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -191,7 +193,12 @@ public class Robot extends LoggedRobot {
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    autonomousCommand = robotContainer.getAutonomousCommand();
+    if (autonomousCommand != null) {
+      commandScheduler.schedule(autonomousCommand);
+    }
+  }
 
   /** This function is called periodically during autonomous. */
   @Override
@@ -199,13 +206,11 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    //    if (autonomousCommand != null) {
-    //      autonomousCommand.cancel();
-    //    }
+    // Stop autonomous command on teleop transition.
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
+      autonomousCommand = null;
+    }
   }
 
   /** This function is called periodically during operator control. */
