@@ -13,6 +13,7 @@ import frc.robot.protos.VisionSystemGrpc;
 import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
 
+// DO NOT USE
 public class AdvVisionServerIO implements CameraIO {
   //public static final String ADV_VISION_SERVER = "10.32.60.200:50001";
   public static final String ADV_VISION_SERVER = "127.0.0.1:50001";

@@ -16,6 +16,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Channel;
 import java.util.Optional;
 
+// DO NOT USE
 public class TagLocationSender extends SubsystemBase {
   private int cnt;
   private VisionSystemGrpc.VisionSystemBlockingStub visionSystem;

@@ -14,6 +14,7 @@ import frc.robot.drive.Drive;
 import frc.robot.intake.Intake;
 import frc.robot.math.Transformation;
 import frc.robot.math.Vector3d;
+import frc.robot.math.Matrix4d;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
@@ -43,7 +44,7 @@ public class Robot extends LoggedRobot {
   public Shooter shooter;
   public Drive drive;
   public Intake intake;
-  public Vision vision;
+  // public Vision vision;
 //  public TagLocationSender tagLocationSender;
 
   public GetPose poseGetter;
@@ -96,7 +97,7 @@ public class Robot extends LoggedRobot {
     shooter = Shooter.getInstance();
     Drive.init(commandScheduler);
     drive = Drive.getInstance();
-    vision = new Vision(commandScheduler);
+    // vision = new Vision(commandScheduler);
     // tagLocationSender = new TagLocationSender(commandScheduler);
     intake = new Intake(commandScheduler);
     robotContainer =
@@ -262,9 +263,9 @@ public class Robot extends LoggedRobot {
 
     Translation3d target = FieldConstants.HUB;
 
-    Pose3d robotPose = null;
+    Pose3d robotPose = new Pose3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0));
 
-    Vector3d robotVelocity = null;
+    Vector3d robotVelocity = new Vector3d(0, 0, 0);
 
     if (robotPose == null || robotVelocity == null) {
       return;
@@ -273,7 +274,7 @@ public class Robot extends LoggedRobot {
     ShooterMath calc =
         new ShooterMath(
             new Vector3d(target.toVector()),
-            (Transformation) robotPose,
+            new Transformation(new Matrix4d(robotPose.toMatrix())),
             robotVelocity,
             Math.PI / 6);
     Translation2d delta =
@@ -283,7 +284,7 @@ public class Robot extends LoggedRobot {
 
     double x = delta.getNorm();
 
-    double speed = ShooterCurveFit.calculateY(x);
+    double speed = ShooterCurveFit.calculateY(x)*0.75;
     double pitch = ShooterCurveFit.calculateZ(x);
 
     Vector3d out = calc.solve(new double[] {speed, yaw, pitch});
@@ -294,8 +295,11 @@ public class Robot extends LoggedRobot {
     robotPositionPublisher.set(robotPose);
   }
 
-  //  private Pose3d moveRobotToRandomPositionTestingDontUse() {
-  //    return new Pose3d(new Translation3d(Math.random() * 4.6, Math.random() * 8.1, 0),
-  // Rotation3d.kZero);
-  //  }
+  // private Pose3d moveRobotToRandomPositionTestingDontUse() {
+  //   return new Pose3d(new Translation3d(Math.random() * 4.6, Math.random() * 8.1, 0), Rotation3d.kZero);
+  // }
+
+  // private Vector3d makeRandomVelocity() {
+  //   return new Vector3d(Math.random() * 4.5, Math.random() * 4.5, 0);
+  // }
 }

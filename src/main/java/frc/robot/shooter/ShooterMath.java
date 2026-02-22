@@ -21,8 +21,7 @@ public class ShooterMath {
   Vector3d robotVelocity;
   double theta;
 
-  public ShooterMath(
-      Vector3d target, Transformation robotPosition, Vector3d robotVelocity, double theta) {
+  public ShooterMath(Vector3d target, Transformation robotPosition, Vector3d robotVelocity, double theta) {
     this.target = target;
     this.robotPosition = robotPosition;
     this.robotVelocity = robotVelocity;
@@ -163,9 +162,9 @@ public class ShooterMath {
     Optimizer model =
         new Optimizer(
             target,
-            (Vector3d) robotPosition.getTranslation().toVector(),
+            new Vector3d(robotPosition.getTranslation().toVector()),
             robotVelocity,
-            (Matrix3d) robotPosition.getRotation().toMatrix(),
+            new Matrix3d(robotPosition.getRotation().toMatrix()),
             theta);
 
     double[] targetError = {0, 0, 0, 0};
