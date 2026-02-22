@@ -13,8 +13,7 @@ public class Vision extends SubsystemBase {
       new Transform3d(.18, 0, .5, new Rotation3d(0, -Math.PI / 6, 0));
   // private CameraIO turretCam =
   //     new PhotonCameraIO("camera-4", turretCamTransform); // TODO change to RobotVisionIO
-  private CameraIO turretCam =
-      new AdvVisionServerIO(turretCamTransform, "camera-2");
+  private CameraIO turretCam = new AdvVisionServerIO(turretCamTransform, "camera-2");
   private CameraIOInputsAutoLogged turretCamInputs = new CameraIOInputsAutoLogged();
 
   public Vision(CommandScheduler commandScheduler) {

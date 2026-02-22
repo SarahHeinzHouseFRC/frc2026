@@ -1,19 +1,14 @@
 package frc.robot.vision;
 
-import java.nio.file.OpenOption;
-
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.SubsystemBase;
-import frc.robot.protos.DataHandling.GetRobotPositionRequest;
 import frc.robot.protos.DataHandling.SetTagLocationsRequest;
 import frc.robot.protos.DataHandling.TagLocation;
 import frc.robot.protos.VisionSystemGrpc;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.Channel;
+import io.grpc.ManagedChannelBuilder;
 import java.util.Optional;
 
 // DO NOT USE
@@ -21,12 +16,12 @@ public class TagLocationSender extends SubsystemBase {
   private int cnt;
   private VisionSystemGrpc.VisionSystemBlockingStub visionSystem;
 
-  
   public TagLocationSender(CommandScheduler commandScheduler) {
     super(commandScheduler);
     cnt = 99;
 
-    Channel channel = ManagedChannelBuilder.forTarget(AdvVisionServerIO.ADV_VISION_SERVER).usePlaintext().build();
+    Channel channel =
+        ManagedChannelBuilder.forTarget(AdvVisionServerIO.ADV_VISION_SERVER).usePlaintext().build();
     visionSystem = VisionSystemGrpc.newBlockingStub(channel);
   }
 
@@ -34,7 +29,7 @@ public class TagLocationSender extends SubsystemBase {
     if (cnt++ >= 100) {
       SetTagLocationsRequest.Builder reqBuilder = SetTagLocationsRequest.newBuilder();
       int[] tags = new int[] {25, 26};
-      for (int i=0; i<tags.length; ++i) {
+      for (int i = 0; i < tags.length; ++i) {
         TagLocation.Builder tagLocation = reqBuilder.addTagLocationsBuilder();
         tagLocation.setTagId(i);
         Optional<Pose3d> pos = VisionConstants.aprilTagFieldLayout.getTagPose(tags[i]);
@@ -67,5 +62,4 @@ public class TagLocationSender extends SubsystemBase {
       cnt = 0;
     }
   }
-
 }

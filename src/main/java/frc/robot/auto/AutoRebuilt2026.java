@@ -12,7 +12,7 @@ import frc.robot.FieldConstants;
 import frc.robot.commands.Command;
 import frc.robot.commands.Commands;
 import frc.robot.commands.FunctionalCommand;
-import frc.robot.commands.SequentialCommandGroup; 
+import frc.robot.commands.SequentialCommandGroup;
 import frc.robot.drive.Drive;
 import frc.robot.intake.Intake;
 import frc.robot.shooter.Shooter;
@@ -21,9 +21,9 @@ import org.littletonrobotics.junction.Logger;
 /**
  * Autonomous routine for the 2026 game REBUILT.
  *
- * <p>This routine assumes a swerve drivetrain with odometry. It drives out of the community,
- * shoots into the active hub, optionally moves to a second position if time remains, and ends at a
- * known heading.
+ * <p>This routine assumes a swerve drivetrain with odometry. It drives out of the community, shoots
+ * into the active hub, optionally moves to a second position if time remains, and ends at a known
+ * heading.
  */
 public class AutoRebuilt2026 extends SequentialCommandGroup {
   // This implementation uses PID + timed/pose drive as a fallback auto path.
@@ -31,7 +31,7 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
 
   // Robot starts on the line, facing downfield.
   private static final Pose2d kStartPose = new Pose2d(1.25, 4.05, Rotation2d.kZero);
-   
+
   // First position outside the community.
   private static final Pose2d kCrossedLinePose = new Pose2d(6.10, 4.05, Rotation2d.kZero);
 
@@ -55,7 +55,8 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
         // Initialize odometry and mechanisms to safe states.
         Commands.runOnce(
             () -> {
-              boolean pathPlannerAvailable = isClassAvailable("com.pathplanner.lib.auto.AutoBuilder");
+              boolean pathPlannerAvailable =
+                  isClassAvailable("com.pathplanner.lib.auto.AutoBuilder");
               drive.setPose(kStartPose);
               drive.stop();
               shooter.setFlywheelVelocityRpm(0.0);
@@ -89,7 +90,6 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
 
         // End auto facing a known heading.
         turnToHeadingCommand(drive, kFinalHeading, 1.6).withName("FaceKnownHeading"),
-
         Commands.runOnce(
             () -> {
               drive.stop();
@@ -102,7 +102,6 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
             drive,
             shooter,
             intake),
-
         Commands.print("[AutoRebuilt2026] Auto routine complete"));
   }
 
@@ -122,8 +121,10 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
             () -> {
               Pose2d current = drive.getPose();
 
-              double vx = MathUtil.clamp(xController.calculate(current.getX(), goalPose.getX()), -2.3, 2.3);
-              double vy = MathUtil.clamp(yController.calculate(current.getY(), goalPose.getY()), -2.3, 2.3);
+              double vx =
+                  MathUtil.clamp(xController.calculate(current.getX(), goalPose.getX()), -2.3, 2.3);
+              double vy =
+                  MathUtil.clamp(yController.calculate(current.getY(), goalPose.getY()), -2.3, 2.3);
               double omega =
                   MathUtil.clamp(
                       thetaController.calculate(
@@ -132,11 +133,14 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
                       3.0);
 
               ChassisSpeeds fieldRelative = new ChassisSpeeds(vx, vy, omega);
-              drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelative, drive.getRotation()));
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelative, drive.getRotation()));
 
               Logger.recordOutput("AutoRebuilt2026/DriveToPoseCurrent", current);
-              SmartDashboard.putNumber("AutoRebuilt2026/PoseErrorX", goalPose.getX() - current.getX());
-              SmartDashboard.putNumber("AutoRebuilt2026/PoseErrorY", goalPose.getY() - current.getY());
+              SmartDashboard.putNumber(
+                  "AutoRebuilt2026/PoseErrorX", goalPose.getX() - current.getX());
+              SmartDashboard.putNumber(
+                  "AutoRebuilt2026/PoseErrorY", goalPose.getY() - current.getY());
             },
             interrupted -> drive.stop(),
             () -> {
@@ -161,7 +165,8 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
         Commands.run(
                 () -> {
                   Pose2d pose = drive.getPose();
-                  Translation2d toHub = FieldConstants.HUB.toTranslation2d().minus(pose.getTranslation());
+                  Translation2d toHub =
+                      FieldConstants.HUB.toTranslation2d().minus(pose.getTranslation());
 
                   Rotation2d desired = toHub.getAngle();
                   double omega =
@@ -171,7 +176,8 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
                           -2.5,
                           2.5);
 
-                  drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(0.0, 0.0, omega, drive.getRotation()));
+                  drive.runVelocity(
+                      ChassisSpeeds.fromFieldRelativeSpeeds(0.0, 0.0, omega, drive.getRotation()));
                   shooter.pointAtHub();
                   shooter.setFlywheelVelocityRpm(kShooterRpm);
 
@@ -187,9 +193,9 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
                       FieldConstants.HUB.toTranslation2d().minus(pose.getTranslation()).getAngle();
                   double headingError =
                       Math.abs(
-                          MathUtil.angleModulus(
-                              desired.minus(pose.getRotation()).getRadians()));
-                  return headingError < Math.toRadians(3.0) && shooter.isFlywheelAtSpeed(kShooterRpm, 200.0);
+                          MathUtil.angleModulus(desired.minus(pose.getRotation()).getRadians()));
+                  return headingError < Math.toRadians(3.0)
+                      && shooter.isFlywheelAtSpeed(kShooterRpm, 200.0);
                 })
             .withTimeout(kSpinupTimeoutSeconds)
             .finallyDo(
@@ -222,7 +228,8 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
     return Commands.sequence(aimAndSpinUp, feed);
   }
 
-  private static Command turnToHeadingCommand(Drive drive, Rotation2d heading, double timeoutSeconds) {
+  private static Command turnToHeadingCommand(
+      Drive drive, Rotation2d heading, double timeoutSeconds) {
     PIDController thetaController = new PIDController(5.0, 0.0, 0.2);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -234,15 +241,14 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
                           drive.getRotation().getRadians(), heading.getRadians()),
                       -2.4,
                       2.4);
-              drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(0.0, 0.0, omega, drive.getRotation()));
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(0.0, 0.0, omega, drive.getRotation()));
               Logger.recordOutput("AutoRebuilt2026/FinalHeadingTargetDeg", heading.getDegrees());
             },
             drive)
         .until(
             () ->
-                Math.abs(
-                        MathUtil.angleModulus(
-                            drive.getRotation().minus(heading).getRadians()))
+                Math.abs(MathUtil.angleModulus(drive.getRotation().minus(heading).getRadians()))
                     < Math.toRadians(2.0))
         .withTimeout(timeoutSeconds)
         .finallyDo(drive::stop);

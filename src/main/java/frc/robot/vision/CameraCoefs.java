@@ -2,8 +2,6 @@ package frc.robot.vision;
 
 import java.util.ArrayList;
 
-import frc.robot.math.Matrix3d;
-
 public class CameraCoefs {
   private int camId;
   private ArrayList<Double> camMat;
@@ -12,7 +10,7 @@ public class CameraCoefs {
   public CameraCoefs(int camId, ArrayList<Double> camMat, ArrayList<Double> distCoef) {
     this.camId = camId;
     this.camMat = camMat;
-    this.distCoef = distCoef;    
+    this.distCoef = distCoef;
   }
 
   public int getCamId() {
@@ -24,6 +22,6 @@ public class CameraCoefs {
   }
 
   public ArrayList<Double> getDistCoef() {
-    return  distCoef;
+    return distCoef;
   }
 }

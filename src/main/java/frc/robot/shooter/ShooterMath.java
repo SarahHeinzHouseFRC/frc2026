@@ -21,7 +21,8 @@ public class ShooterMath {
   Vector3d robotVelocity;
   double theta;
 
-  public ShooterMath(Vector3d target, Transformation robotPosition, Vector3d robotVelocity, double theta) {
+  public ShooterMath(
+      Vector3d target, Transformation robotPosition, Vector3d robotVelocity, double theta) {
     this.target = target;
     this.robotPosition = robotPosition;
     this.robotVelocity = robotVelocity;
