@@ -2,28 +2,38 @@ package frc.robot.vision;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
-import frc.robot.commands.CommandScheduler;
-import frc.robot.commands.SubsystemBase;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.drive.Drive;
 import frc.robot.shooter.Shooter;
-
 import java.io.IOException;
-
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
-  private Transform3d turretCamTransform =
+  private final Transform3d turretCamTransform =
       new Transform3d(.18, 0, .5, new Rotation3d(0, -Math.PI / 6, 0));
-  private CameraIO turretCam =
-      new PhotonCameraIO("camera-4", turretCamTransform);
+  private final CameraIO turretCam = new PhotonCameraIO("turretCam", turretCamTransform);
+  //  private CameraIO turretCam =
+  //      new AdvVisionServerIO(turretCamTransform, "camera-2");
   private CameraIOInputsAutoLogged turretCamInputs = new CameraIOInputsAutoLogged();
 
   // VisionSystem handles updates from coprocessors and calls drive.addVisionMeasurement directly.
   private AdvVisionServerIO2 visionSystem = new AdvVisionServerIO2();
 
-  public Vision(CommandScheduler commandScheduler) {
-    super(commandScheduler);
+  private boolean isVisionInit = false;
 
+  private static Vision instance;
+
+  public static void init() {
+    instance = new Vision();
+  }
+
+  public static Vision getInstance() {
+    return instance;
+  }
+
+  private Vision() {
     System.out.println("Starting vision server");
     try {
       visionSystem.start();
@@ -33,6 +43,11 @@ public class Vision extends SubsystemBase {
     }
   }
 
+  @AutoLogOutput
+  public boolean isVisionInit() {
+    return isVisionInit;
+  }
+
   @Override
   public void periodic() {
     turretCam.updateInputs(turretCamInputs);
@@ -40,17 +55,24 @@ public class Vision extends SubsystemBase {
 
     Drive drive = Drive.getInstance();
     Shooter shooter = Shooter.getInstance();
-    for (CameraIO.PoseObservation obs : turretCamInputs.results) {
-      double stddev = 0.9;
-      drive.addVisionMeasurement(
-          obs.pose()
-              .toPose2d()
-              .plus(
-                  (new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp())))
-                      .inverse()))
-              .plus(new Transform2d(0d, 0d, Rotation2d.kPi)),
-          obs.timestamp(),
-          VecBuilder.fill(stddev, stddev, stddev));
+    if (shooter.isTurretInit()) {
+      for (CameraIO.PoseObservation obs : turretCamInputs.results) {
+        double stddev = 0.9;
+        Pose2d pose =
+            obs.pose()
+                .toPose2d()
+                .plus(
+                    (new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp())))
+                        .inverse()))
+                .plus(new Transform2d(0d, 0d, Rotation2d.kPi));
+        if (!isVisionInit) {
+          double start = Timer.getFPGATimestamp();
+          drive.setPose(pose);
+          System.out.println("vision init took " + (Timer.getFPGATimestamp() - start));
+          isVisionInit = true;
+        }
+        drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(stddev, stddev, stddev));
+      }
     }
   }
 }

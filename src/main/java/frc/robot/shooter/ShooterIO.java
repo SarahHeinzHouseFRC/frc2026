@@ -1,5 +1,6 @@
 package frc.robot.shooter;
 
+import com.revrobotics.AbsoluteEncoder;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ShooterIO {
@@ -11,6 +12,7 @@ public interface ShooterIO {
     public double flywheelVelocityRotationsPerMinute = 0.0;
     public double linearActuatorSetpointMm = 0.0;
     public double timestamp = 0.0;
+    public boolean isTurretInit = false;
   }
 
   default void updateInputs(ShooterIOInputs inputs) {}
@@ -33,4 +35,8 @@ public interface ShooterIO {
   default void setFlywheelOpenLoop(double voltage) {}
 
   default void zeroYaw() {}
+
+  default void recalibrateYaw() {}
+
+  default void set28TurretAngleSupplier(AbsoluteEncoder enc) {}
 }

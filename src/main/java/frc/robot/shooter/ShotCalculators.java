@@ -1,43 +1,72 @@
 package frc.robot.shooter;
 
+import frc.robot.Robot;
+import frc.robot.utils.Utils;
+
 public class ShotCalculators {
 
   private ShotCalculators() {}
 
-  // starts at 2m center to center, increment .5m
-  // rpm, mm, rpm, mm, etc.
-  private static float[] lut =
-      new float[] {
-        2950f, 15f,
-        3200f, 25f,
-        3300f, 30f,
-        3500f, 35f,
-        3600f, 45f,
-        3800f, 45f,
-        3950f, 55f,
-        4150f, 60f
+  private static final double[] rpmLut =
+      switch (Robot.VERSION) {
+        case V1 -> new double[] {2950, 2950, 2950, 3200, 3300, 3500, 3600, 3800, 3950, 4150};
+        case V2 -> new double[] {2800, 3300, 3750, 3950, 3950, 4000, 4000, 4300, 4300};
+      };
+  private static final double[] linearLut =
+      switch (Robot.VERSION) {
+        case V1 -> new double[] {15, 15, 15, 25, 30, 35, 45, 45, 55, 60};
+        case V2 -> new double[] {0, 0, 0, 0, 10, 15, 20, 20, 22.5};
+      };
+  private static final double[] timeLut =
+      switch (Robot.VERSION) {
+        case V1 -> null;
+        case V2 -> new double[] {0.83, 1.12, 1.32, 1.39, 1.37, 1.34, 1.37, 1.49, 1.48};
+      };
+
+  private static final double timeDelay =
+      switch (Robot.VERSION) {
+        case V1 -> 0.0f;
+        case V2 -> 0.1f;
+      };
+
+  private static final double lutStart = 1.5;
+  private static final double lutStep = .5;
+
+  public static final ShotCalculator iterativeShotCalculator =
+      (distanceMeters, velocityRadialMetersPerSecond, velocityTangentialMetersPerSecond) -> {
+        double distanceRadial = distanceMeters;
+        double distanceTangential = 0;
+        double rpm = 0;
+        double linear = 15;
+        double iMax = 64;
+        double lastTime = 0;
+        for (int i = 0; i < iMax; i++) {
+          float distance = (float) Math.hypot(distanceRadial, distanceTangential);
+
+          rpm = Utils.lutLerp(rpmLut, lutStart, lutStep, distance);
+          linear = Utils.lutLerp(linearLut, lutStart, lutStep, distance);
+          if (timeLut == null) {
+            System.out.println("[WARNING] timeLut is null");
+            break;
+          }
+          double time = Utils.lutLerp(timeLut, lutStart, lutStep, distance) + timeDelay;
+          if (Math.abs(lastTime - time) > .01 && i == iMax - 1) {
+            System.out.println("[WARNING] did not converge iter");
+          }
+          lastTime = time;
+
+          // move robot and calc new params
+          distanceRadial = distanceMeters + velocityRadialMetersPerSecond * time;
+          distanceTangential = velocityTangentialMetersPerSecond * time;
+        }
+
+        return new ShotParams(rpm, linear, Math.atan2(distanceTangential, distanceRadial));
       };
 
   public static final ShotCalculator lutShotCalculator =
       (distanceMeters, velocityRadialMetersPerSecond, velocityTangentialMetersPerSecond) -> {
-        int n = (int) ((distanceMeters - 2) * 2);
-        if (n < 0) {
-          n = 0;
-        } else if (n >= 6) {
-          n = 6;
-        }
-        int idx = n * 2;
-        double rpmLow = lut[idx];
-        double linearLow = lut[idx + 1];
-        double rpmHigh = lut[idx + 2];
-        double linearHigh = lut[idx + 3];
-        double rpmRange = rpmHigh - rpmLow;
-        double linearRange = linearHigh - linearLow;
-        double distanceLow = (double) n / 2 + 2;
-        double distanceRange = 0.5;
-        double t = (distanceMeters - distanceLow) / distanceRange;
-        double lerpRpm = rpmLow + t * rpmRange;
-        double lerpLinear = linearLow + t * linearRange;
+        double lerpRpm = Utils.lutLerp(rpmLut, lutStart, lutStep, distanceMeters);
+        double lerpLinear = Utils.lutLerp(linearLut, lutStart, lutStep, distanceMeters);
 
         // xy plane is field
         // z is up
@@ -58,7 +87,7 @@ public class ShotCalculators {
             yawOffsetRadians);
       };
 
-  private static double pitchFromLinearActuator(double linearActuatorExtensionMillimeters) {
+  public static double pitchFromLinearActuator(double linearActuatorExtensionMillimeters) {
     double linearActuatorLength = 168 + linearActuatorExtensionMillimeters;
     double linearActuatorTopToPivot = 159;
     double linearActuatorBottomToPivot = 251;
@@ -73,7 +102,7 @@ public class ShotCalculators {
     return triangleAngle + angleOffsetRadians;
   }
 
-  private static double linearActuatorFromPitch(double pitchRadians) {
+  public static double linearActuatorFromPitch(double pitchRadians) {
     double angleOffsetRadians = 0.35;
     double linearActuatorExtensionOffset = -168;
     double triangleAngle = pitchRadians + angleOffsetRadians;
@@ -93,7 +122,7 @@ public class ShotCalculators {
 
   private static final double flywheelEfficiencyRatio = 0.5;
 
-  private static double velocityFromFlywheel(double flywheelVelocityRotationsPerMinute) {
+  public static double velocityFromFlywheel(double flywheelVelocityRotationsPerMinute) {
     return flywheelVelocityRotationsPerMinute
         / 60 /* -> rotations per second */
         * (2 * Math.PI) /* -> radians per second */
@@ -101,7 +130,7 @@ public class ShotCalculators {
         * flywheelEfficiencyRatio;
   }
 
-  private static double flywheelFromVelocity(double velocityMetersPerSecond) {
+  public static double flywheelFromVelocity(double velocityMetersPerSecond) {
     return velocityMetersPerSecond
         / flywheelEfficiencyRatio
         / 0.0508 /* radius in meters -> radians per second */

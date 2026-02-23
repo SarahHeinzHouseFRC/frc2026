@@ -1,15 +1,13 @@
 package frc.robot.flywheel;
 
-import frc.robot.commands.CommandScheduler;
-import frc.robot.commands.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
 
-  public Flywheel(CommandScheduler scheduler, FlywheelIO io) {
-    super(scheduler);
+  public Flywheel(FlywheelIO io) {
     this.io = io;
   }
 

@@ -8,10 +8,13 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.Command;
-import frc.robot.commands.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.climber.Climber;
+import frc.robot.drive.ControllerDriveCommand;
 import frc.robot.drive.Drive;
 import frc.robot.intake.Intake;
+import frc.robot.intake.IntakeControllerCommand;
 import frc.robot.math.Matrix4d;
 import frc.robot.math.Transformation;
 import frc.robot.math.Vector3d;
@@ -20,7 +23,6 @@ import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
 import frc.robot.simulator.Simulator;
 import frc.robot.vision.Vision;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -35,7 +37,13 @@ import org.littletonrobotics.urcl.URCL;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends LoggedRobot {
-  private static CommandScheduler commandScheduler;
+  public enum RobotVersion {
+    V1,
+    V2
+  }
+
+  public static final RobotVersion VERSION = RobotVersion.V2;
+  private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
   private RobotContainer robotContainer;
   private Command autonomousCommand;
   public static Simulator simulator;
@@ -44,17 +52,16 @@ public class Robot extends LoggedRobot {
   public Drive drive;
   public Intake intake;
   public Vision vision;
+  public Climber climber;
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public static XboxController xboxDriverController = new XboxController(0);
-  public static GenericController driverController = new GenericController(xboxDriverController);
+  public static XboxController driverController = new XboxController(0);
+  public static GenericController driverGenericController = new GenericController(driverController);
   public static XboxController operatorController = new XboxController(1);
   public static GenericController operatorGenericController =
       new GenericController(operatorController);
-  //    public static final SDMXController sdmxController = new SDMXController(new GenericHID(1));
-  //    public static final SDMXController sdmxController = new SDMXController(driverController);
 
   StructArrayTopic<Translation3d> ballPositionsTopic =
       NetworkTableInstance.getDefault()
@@ -87,17 +94,6 @@ public class Robot extends LoggedRobot {
       Simulator.init();
       simulator = Simulator.getInstance();
     }
-    //    poseGetter = new GetPose("10.32.60.200:50001");
-    commandScheduler = new CommandScheduler();
-    Shooter.init(operatorController, commandScheduler);
-    shooter = Shooter.getInstance();
-    Drive.init(commandScheduler);
-    drive = Drive.getInstance();
-    vision = new Vision(commandScheduler);
-    intake = new Intake(commandScheduler);
-    robotContainer =
-        new RobotContainer(
-            drive, shooter, intake, driverController, xboxDriverController, operatorController);
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -144,22 +140,32 @@ public class Robot extends LoggedRobot {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
+    intake.setDefaultCommand(
+        new IntakeControllerCommand(driverController, operatorController, intake));
+    climber.setDefaultCommand(
+        Climber.climbCommand(
+            () ->
+                (driverController.getAButton() ? 1 : 0)
+                    + (driverController.getYButton() ? -1 : 0)));
+  }
 
   private void configureSubsystems() {
-    switch (Robot.currentMode) {
-      case REAL:
-        // Real robot, instantiate hardware IO implementations
-        break;
-
-      case SIM:
-        // Sim robot, instantiate physics sim IO implementations
-        break;
-
-      default:
-        // Replayed robot, disable IO implementations
-        break;
-    }
+    //    poseGetter = new GetPose("10.32.60.200:50001");
+    Shooter.init(operatorController);
+    shooter = Shooter.getInstance();
+    Drive.init();
+    drive = Drive.getInstance();
+    Vision.init();
+    vision = Vision.getInstance();
+    Intake.init();
+    intake = Intake.getInstance();
+    Climber.init();
+    climber = Climber.getInstance();
+    robotContainer =
+        new RobotContainer(
+            drive, shooter, intake, driverGenericController, driverController, operatorController);
   }
 
   /**
@@ -207,6 +213,14 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
       autonomousCommand = null;
     }
+    // This makes sure that the autonomous stops running when
+    // teleop starts running. If you want the autonomous to
+    // continue until interrupted by another command, remove
+    // this line or comment it out.
+    //    if (autonomousCommand != null) {
+    //      autonomousCommand.cancel();
+    //    }
+    CommandScheduler.getInstance().schedule(shooter.autoAimCommand());
   }
 
   /** This function is called periodically during operator control. */
@@ -227,11 +241,15 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationInit() {}
 
+  public double solveQuad(double a, double b, double c) {
+    return (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+  }
+
   // private Pose3d robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
   // private int i = 0;
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {
+  public void simulationPeriodic() throws ClassCastException {
     // if (false) {
     // temporary
     // i++;
@@ -284,6 +302,9 @@ public class Robot extends LoggedRobot {
 
     Vector3d out = calc.solve(new double[] {speed, yaw, pitch});
 
+    System.out.println(out);
+
+    simulator.shootBallFromPosition(robotPose, pitch, yaw, speed);
     simulator.shootBallFromPosition(robotPose, out.z(), out.y(), out.x());
 
     ballPositionsPublisher.set(simulator.getBallPositions());

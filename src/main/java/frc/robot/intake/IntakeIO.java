@@ -24,4 +24,6 @@ public interface IntakeIO {
   default void setOBIPivotMotorOpenLoop(double voltage) {}
 
   default void setOBIPivotMotorClosedLoop(double voltage) {}
+
+  default void setAgitatorOpenLoop(double voltage) {}
 }

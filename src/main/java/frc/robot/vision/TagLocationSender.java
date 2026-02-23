@@ -2,8 +2,7 @@ package frc.robot.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.commands.CommandScheduler;
-import frc.robot.commands.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.protos.DataHandling.SetTagLocationsRequest;
 import frc.robot.protos.DataHandling.TagLocation;
 import frc.robot.protos.VisionSystemGrpc;
@@ -16,8 +15,7 @@ public class TagLocationSender extends SubsystemBase {
   private int cnt;
   private VisionSystemGrpc.VisionSystemBlockingStub visionSystem;
 
-  public TagLocationSender(CommandScheduler commandScheduler) {
-    super(commandScheduler);
+  public TagLocationSender() {
     cnt = 99;
 
     Channel channel =

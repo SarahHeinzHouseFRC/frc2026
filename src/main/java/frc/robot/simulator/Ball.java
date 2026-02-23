@@ -45,9 +45,16 @@ public class Ball {
   }
 
   private Vector3d calculateForces() {
-    Vector3d F_g = new Vector3d(0, 0, -9.80665 * mass);
+    final double DRAG = 0.00400605228;
 
-    Vector3d F_d = v.times(BallConstants.DRAG * v.magnitude());
+    Vector3d F_g = new Vector3d(0, 0, -9.80665 * mass);
+    // Vector3d F_d = v.times(-BallConstants.DRAG * v.magnitude());
+
+    Vector3d F_d =
+        new Vector3d(
+            DRAG * v.x() * v.x() * Math.signum((v.x())),
+            DRAG * v.y() * v.y() * Math.signum((v.y())),
+            DRAG * v.z() * v.z() * Math.signum((v.z())));
 
     Vector3d F_magnus = new Vector3d(0, 0, 0); // TODO
 

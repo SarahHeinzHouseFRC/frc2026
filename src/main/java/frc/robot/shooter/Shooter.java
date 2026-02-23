@@ -1,37 +1,44 @@
 package frc.robot.shooter;
 
+import static frc.robot.shooter.ShooterConstants.*;
+
+import com.revrobotics.AbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.Robot;
-import frc.robot.TimestampedDoubleBuffer;
-import frc.robot.commands.Command;
-import frc.robot.commands.CommandScheduler;
-import frc.robot.commands.Commands;
-import frc.robot.commands.SubsystemBase;
 import frc.robot.drive.Drive;
+import frc.robot.utils.TimestampedDoubleBuffer;
+import frc.robot.vision.Vision;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
   private final ShooterIO io;
   private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
   private double shooterSpeedSetpoint = 6000;
-
-  private final ShotCalculator shotCalculator = ShotCalculators.lutShotCalculator;
+  private double autoAimDirection = 0.05;
+  private final ShotCalculator shotCalculator = ShotCalculators.iterativeShotCalculator;
 
   public static Shooter instance;
-  private XboxController controller;
+  private final XboxController controller;
 
-  private final TimestampedDoubleBuffer yawBuffer = new TimestampedDoubleBuffer(100);
+  private final TimestampedDoubleBuffer yawBuffer = new TimestampedDoubleBuffer(10);
 
-  public static void init(XboxController controller, CommandScheduler scheduler) {
+  private boolean shooterIsInit = false;
+
+  public static void init(XboxController controller) {
     if (instance != null) {
       throw new IllegalStateException("Shooter instance already initialized.");
     }
-    instance = new Shooter(controller, scheduler);
+    instance = new Shooter(controller);
   }
 
   public static Shooter getInstance() {
@@ -41,8 +48,7 @@ public class Shooter extends SubsystemBase {
     return instance;
   }
 
-  private Shooter(XboxController controller, CommandScheduler scheduler) {
-    super(scheduler);
+  private Shooter(XboxController controller) {
     instance = this;
     io =
         switch (Robot.currentMode) {
@@ -50,8 +56,7 @@ public class Shooter extends SubsystemBase {
           case REAL -> new ShooterIOSpark();
           default -> new ShooterIO() {};
         };
-    //    setDefaultCommand(directDriveCommand());
-    setDefaultCommand(autoAimCommand());
+
     this.controller = controller;
   }
 
@@ -157,20 +162,31 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Shooter", inputs);
-    SmartDashboard.putNumber(
-        "shooter speed rpm", ((double) 13 / 9) * inputs.flywheelVelocityRotationsPerMinute);
     yawBuffer.add(inputs.turretYawRadians, inputs.timestamp);
+    if (controller.getAButtonPressed()) {
+      CommandScheduler.getInstance().schedule(autoAimCommand());
+    } else if (controller.getXButtonPressed()) {
+      CommandScheduler.getInstance().schedule(directDriveCommand());
+    }
+
+    if (!inputs.isTurretInit && DriverStation.isDisabled()) {
+      io.recalibrateYaw();
+    }
+  }
+
+  public boolean isTurretInit() {
+    return inputs.isTurretInit;
   }
 
   public double getYawAtTime(double time) {
     return yawBuffer.getValueAtTimestamp(time);
   }
 
-  private Command directDriveCommand() {
+  public Command directDriveCommand() {
     return Commands.run(
         () -> {
           if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
-            io.zeroYaw();
+            io.recalibrateYaw();
           }
           int pov = controller.getPOV();
           boolean right = pov == 45 || pov == 90 || pov == 135;
@@ -219,11 +235,11 @@ public class Shooter extends SubsystemBase {
         this);
   }
 
-  private Command autoAimCommand() {
+  public Command autoAimCommand() {
     return Commands.run(
         () -> {
           if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
-            io.zeroYaw();
+            io.recalibrateYaw();
           }
           Pose2d myPose = Drive.getInstance().getPose();
           Translation2d itsPose = FieldConstants.HUB.toTranslation2d();
@@ -242,9 +258,15 @@ public class Shooter extends SubsystemBase {
                   - speeds.vyMetersPerSecond * Math.cos(angleToHub);
           SmartDashboard.putNumber("vrad", vrad);
           SmartDashboard.putNumber("vtan", vtan);
+          double poseOffset =
+              switch (Robot.VERSION) {
+                case V1 -> .3;
+                case V2 -> 0;
+              };
           ShotParams shotParams =
               shotCalculator.calculateShotParams(
-                  itsPose.getDistance(myPose.getTranslation()) + .3, vrad, vtan);
+                  itsPose.getDistance(myPose.getTranslation()) + poseOffset, vrad, vtan);
+          //                  itsPose.getDistance(myPose.getTranslation()) + .3, vrad, vtan);
           io.setLinearActuatorPosition(shotParams.linearActuatorExtensionMillimeters());
           if (controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1) {
             io.setFlywheelVelocity(shotParams.flywheelVelocityRotationsPerMinute());
@@ -259,38 +281,26 @@ public class Shooter extends SubsystemBase {
                   .plus(Rotation2d.kPi)
                   .plus(Rotation2d.fromRadians(shotParams.yawOffsetRadians()));
           SmartDashboard.putNumber("Target Yaw Pos", MathUtil.angleModulus(angle.getRadians()));
-          io.setTurretYaw(MathUtil.angleModulus(angle.getRadians()));
+
           if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
-            io.zeroYaw();
+            io.recalibrateYaw();
+          }
+          if (!Vision.getInstance().isVisionInit()) {
+            double setpoint = getTurretYaw();
+            setpoint += autoAimDirection;
+            if (setpoint * Math.signum(autoAimDirection) > 1.57) {
+              autoAimDirection = -autoAimDirection;
+            }
+            io.setTurretYaw(setpoint);
+          } else {
+            double setpoint = MathUtil.inputModulus(angle.getRadians(), yawModuloMax, yawModuloMin);
+            io.setTurretYaw(setpoint);
           }
         },
         this);
   }
 
-  //    @SDMXAnalogInputEventHandler(2) // Left trigger
-  //    public static void shootEventHandler(byte value) {
-  //        Shooter.instance.io.setFlywheelOpenLoop(((int)value/256d)*12d);
-  //    }
-  //
-  //    @SDMXDigitalInputEventHandler(5) // Left bumper button
-  //    public static void aimLeftEventHandler(boolean value) {
-  //        Shooter.instance.io.setTurretYawOpenLoop(value ? 1d : 0d);
-  //    }
-  //
-  //    @SDMXDigitalInputEventHandler(6) // Right bumper button
-  //    public static void aimRightEventHandler(boolean value) {
-  //        Shooter.instance.io.setTurretYawOpenLoop(value ? -1d : 0d);
-  //    }
-  //
-  //    @SDMXDigitalInputEventHandler(4) // Y button
-  //    public static void tiltUpEventHandler(boolean value) {
-  //        // Shooter.instance.io.setTurretPitchOpenLoop(value ? 12d : 0d);
-  //        Shooter.instance.io.setTurretPitch((1d/4));
-  //    }
-  //
-  //    @SDMXDigitalInputEventHandler(3) // X button
-  //    public static void tiltDownEventHandler(boolean value) {
-  //        // Shooter.instance.io.setTurretPitchOpenLoop(value ? -6d : 0d);
-  //        Shooter.instance.io.setTurretPitch(0);
-  //    }
+  public void set28TurretAngleSupplier(AbsoluteEncoder enc) {
+    io.set28TurretAngleSupplier(enc);
+  }
 }

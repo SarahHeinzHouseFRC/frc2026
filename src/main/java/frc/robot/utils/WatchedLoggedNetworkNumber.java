@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.utils;
 
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 

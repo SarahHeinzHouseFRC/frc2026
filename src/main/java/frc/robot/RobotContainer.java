@@ -1,8 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoRebuilt2026;
-import frc.robot.commands.Command;
 import frc.robot.drive.ControllerDriveCommand;
 import frc.robot.drive.Drive;
 import frc.robot.intake.Intake;
@@ -42,7 +42,7 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommands() {
-    drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
+    drive.setDefaultCommand(new ControllerDriveCommand(driverXboxController, drive));
     intake.setDefaultCommand(
         new IntakeControllerCommand(driverXboxController, operatorXboxController, intake));
   }

@@ -1,6 +1,6 @@
 package frc.robot.flywheel;
 
-import frc.robot.commands.Command;
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class FlywheelVelocityCommand extends Command {
 

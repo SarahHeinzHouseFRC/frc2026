@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,12 +39,23 @@ public class PhotonCameraIO implements CameraIO {
   @Override
   public void updateInputs(CameraIOInputs inputs) {
     List<PoseObservation> results = new ArrayList<>();
+    double start = Timer.getFPGATimestamp();
     List<PhotonPipelineResult> photonResults = camera.getAllUnreadResults();
+    if (Timer.getFPGATimestamp() - start > 1) {
+      System.out.println("[WARNING] getAllUnreadResults took too long!");
+    }
 
     Pose3d latestCameraPose = null;
     double latestTimestamp = 0;
 
-    for (PhotonPipelineResult photonResult : photonResults) {
+    int length = photonResults.size();
+    int i = length - 10;
+    if (i < 0) {
+      i = 0;
+    }
+
+    for (; i < length; i++) {
+      PhotonPipelineResult photonResult = photonResults.get(i);
       Optional<MultiTargetPNPResult> multiTagResult = photonResult.getMultiTagResult();
       if (multiTagResult.isPresent()) {
         PnpResult pnpResult = multiTagResult.get().estimatedPose;

@@ -1,9 +1,8 @@
 package frc.robot.intake;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.commands.CommandScheduler;
-import frc.robot.commands.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -13,10 +12,23 @@ public class Intake extends SubsystemBase {
 
   @AutoLogOutput private double obiSetpoint = 0.0;
 
-  public static Intake instance;
+  public static Intake instance = null;
 
-  public Intake(CommandScheduler scheduler) {
-    super(scheduler);
+  public static void init() {
+    if (instance != null) {
+      throw new IllegalStateException("Intake instance already initialized.");
+    }
+    instance = new Intake();
+  }
+
+  public static Intake getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("Intake instance not initialized.");
+    }
+    return instance;
+  }
+
+  private Intake() {
     instance = this;
     io =
         switch (Robot.currentMode) {
@@ -64,5 +76,9 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
+  }
+
+  public void setAgitatorOpenLoop(double speed) {
+    io.setAgitatorOpenLoop(speed * 12.0);
   }
 }

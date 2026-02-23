@@ -7,7 +7,6 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -25,9 +24,7 @@ import frc.robot.protos.VisionSystemGrpc.VisionSystemImplBase;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +35,7 @@ public class AdvVisionServerIO2 {
   private static final int PORT = 50001;
 
   private Server server;
-  private List<CameraCoefs> cameras = Arrays.asList(
-    CameraCoefs.getDefaultCameraCoefs(2)
-  );
+  private List<CameraCoefs> cameras = Arrays.asList(CameraCoefs.getDefaultCameraCoefs(2));
 
   private AtomicBoolean isInitialized = new AtomicBoolean(false);
 
@@ -48,11 +43,11 @@ public class AdvVisionServerIO2 {
 
   public AdvVisionServerIO2() {
     server = ServerBuilder.forPort(PORT).addService(new VisionSystemImpl()).build();
-  
+
     publisher =
         NetworkTableInstance.getDefault()
             .getStructTopic("/SHARP/Vision/AdvVisionServerIO2", Pose2d.struct)
-            .publish();  
+            .publish();
   }
 
   public void start() throws IOException {
@@ -136,8 +131,7 @@ public class AdvVisionServerIO2 {
       List<TagInCamCoords> tags = e.getTagInCamCoordsList();
       for (TagInCamCoords a : tags) {
         int tagId = a.getTagId();
-        Optional<Pose3d> tagPose =
-              VisionConstants.aprilTagFieldLayout.getTagPose(tagId);
+        Optional<Pose3d> tagPose = VisionConstants.aprilTagFieldLayout.getTagPose(tagId);
 
         if (!tagPose.isPresent()) continue;
 
@@ -150,24 +144,23 @@ public class AdvVisionServerIO2 {
           Transform3d bestCameraToTarget = getTransformFromArray(a.getNwuBestPoseList());
           double distance = bestCameraToTarget.getTranslation().getNorm();
           // System.out.println("bestCameraToTarget: "+bestCameraToTarget);
-          Pose3d poseBest = 
-            tagPose.get().transformBy(bestCameraToTarget.inverse());
-            // TODO add .transformBy(robotToCamera.inverse())
+          Pose3d poseBest = tagPose.get().transformBy(bestCameraToTarget.inverse());
+          // TODO add .transformBy(robotToCamera.inverse())
 
           if (isInitialized.compareAndSet(false, true)) {
             drive.resetVisionMeasurement(poseBest.toPose2d());
           } else {
             double timestamp_seconds = Timer.getFPGATimestamp() - (a.getLatencyUs() * 1e-6);
-            System.out.println("addVisionMeasurement: "+
-              poseBest.toPose2d()+
-              " timestamp(sec): "+timestamp_seconds+
-              " ambiguity: "+ambiguity
-            );
+            System.out.println(
+                "addVisionMeasurement: "
+                    + poseBest.toPose2d()
+                    + " timestamp(sec): "
+                    + timestamp_seconds
+                    + " ambiguity: "
+                    + ambiguity);
             drive.addVisionMeasurement(
-              poseBest.toPose2d(), 
-              timestamp_seconds, 
-              getStdDevVector(distance));
-            System.out.println("Drive pose (requires odometry working): "+drive.getPose());
+                poseBest.toPose2d(), timestamp_seconds, getStdDevVector(distance));
+            System.out.println("Drive pose (requires odometry working): " + drive.getPose());
           }
           publisher.set(poseBest.toPose2d());
         }

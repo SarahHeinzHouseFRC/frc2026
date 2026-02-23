@@ -1,7 +1,7 @@
 package frc.robot.intake;
 
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.Command;
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class IntakeControllerCommand extends Command {
   private final Intake intake;
@@ -66,6 +66,7 @@ public class IntakeControllerCommand extends Command {
     intake.setIntakeOpenLoop(intakeMotor * 1);
     intake.setBeltStarOpenLoop(indexerMotor * 1);
     intake.setBeltOpenLoop(beltMotor * 1);
+    intake.setAgitatorOpenLoop(beltMotor * .5);
     //    System.out.println("intake: " + intakeMotor + ", index: " + indexerMotor + ", belt:" +
     // beltMotor);
 

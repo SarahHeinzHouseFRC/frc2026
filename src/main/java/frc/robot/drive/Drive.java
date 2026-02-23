@@ -23,9 +23,9 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.FieldConstants;
 import frc.robot.Robot;
-import frc.robot.commands.CommandScheduler;
-import frc.robot.commands.SubsystemBase;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -53,11 +53,11 @@ public class Drive extends SubsystemBase {
 
   private static Drive instance;
 
-  public static void init(CommandScheduler scheduler) {
+  public static void init() {
     if (instance != null) {
       throw new IllegalStateException("Drive instance already initialized.");
     }
-    instance = new Drive(scheduler);
+    instance = new Drive();
   }
 
   public static Drive getInstance() {
@@ -67,9 +67,7 @@ public class Drive extends SubsystemBase {
     return instance;
   }
 
-  private Drive(CommandScheduler scheduler) {
-    super(scheduler);
-
+  private Drive() {
     ModuleIO flModuleIO;
     ModuleIO frModuleIO;
     ModuleIO blModuleIO;
@@ -123,6 +121,10 @@ public class Drive extends SubsystemBase {
       Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
       Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
     }
+
+    Logger.recordOutput(
+        "Drive/DistanceToHub",
+        getPose().getTranslation().getDistance(FieldConstants.HUB.toTranslation2d()));
 
     // Update odometry
     double[] sampleTimestamps =
