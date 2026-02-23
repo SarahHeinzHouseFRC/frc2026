@@ -2,10 +2,17 @@ package frc.robot.vision;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N4;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.drive.Drive;
 import frc.robot.protos.DataHandling;
 import frc.robot.protos.DataHandling.CameraCoefficients;
@@ -18,18 +25,38 @@ import frc.robot.protos.VisionSystemGrpc.VisionSystemImplBase;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AdvVisionServerIO2 {
 
   private static final int PORT = 50001;
 
   private Server server;
-  private ArrayList<CameraCoefs> cameras;
+  private List<CameraCoefs> cameras = Arrays.asList(
+    CameraCoefs.getDefaultCameraCoefs(2)
+  );
+
+  private AtomicBoolean isInitialized = new AtomicBoolean(false);
+
+  private StructPublisher<Pose2d> publisher;
 
   public AdvVisionServerIO2() {
     server = ServerBuilder.forPort(PORT).addService(new VisionSystemImpl()).build();
+  
+    publisher =
+        NetworkTableInstance.getDefault()
+            .getStructTopic("/SHARP/Vision/AdvVisionServerIO2", Pose2d.struct)
+            .publish();  
+  }
+
+  public void start() throws IOException {
+    server.start();
   }
 
   private class VisionSystemImpl extends VisionSystemImplBase {
@@ -86,16 +113,22 @@ public class AdvVisionServerIO2 {
     }
   }
 
-  private Pose3d getPoseFromArray(List<Double> data) {
+  private Transform3d getTransformFromArray(List<Double> data) {
     double[] d = new double[data.size()];
     for (int i = 0; i < data.size(); ++i) {
       d[i] = data.get(i);
     }
-    return new Pose3d(new Matrix<N4, N4>(Nat.N4(), Nat.N4(), d));
+    return new Transform3d(new Matrix<N4, N4>(Nat.N4(), Nat.N4(), d));
+  }
+
+  private Vector<N3> getStdDevVector(double distance) {
+    // TODO compute std dev based on ambiguity and distance
+    double translationStdDev = 0.1 * distance * distance;
+    return VecBuilder.fill(translationStdDev, translationStdDev, 0.5);
   }
 
   private void reportCameraPositions(ClientRequest req) {
-    ArrayList<Pose3d> validPoses = new ArrayList<>();
+    Drive drive = Drive.getInstance();
 
     List<CameraPosition> pos = req.getReportCameraPositions().getCameraPositionList();
     for (CameraPosition e : pos) {
@@ -103,27 +136,42 @@ public class AdvVisionServerIO2 {
       List<TagInCamCoords> tags = e.getTagInCamCoordsList();
       for (TagInCamCoords a : tags) {
         int tagId = a.getTagId();
+        Optional<Pose3d> tagPose =
+              VisionConstants.aprilTagFieldLayout.getTagPose(tagId);
+
+        if (!tagPose.isPresent()) continue;
+
         double errorBest = a.getBestReprojectionError();
         double errorWorse = a.getWorseReprojectionError();
 
         double ambiguity = errorBest / errorWorse;
 
         if (ambiguity < 0.2) {
+          Transform3d bestCameraToTarget = getTransformFromArray(a.getNwuBestPoseList());
+          double distance = bestCameraToTarget.getTranslation().getNorm();
+          // System.out.println("bestCameraToTarget: "+bestCameraToTarget);
+          Pose3d poseBest = 
+            tagPose.get().transformBy(bestCameraToTarget.inverse());
+            // TODO add .transformBy(robotToCamera.inverse())
 
-          Pose3d poseBest = getPoseFromArray(a.getMat1List());
-          // Pose3d poseWorse = getPoseFromArray(a.getMat2List());
-
-          validPoses.add(poseBest);
+          if (isInitialized.compareAndSet(false, true)) {
+            drive.resetVisionMeasurement(poseBest.toPose2d());
+          } else {
+            double timestamp_seconds = Timer.getFPGATimestamp() - (a.getLatencyUs() * 1e-6);
+            System.out.println("addVisionMeasurement: "+
+              poseBest.toPose2d()+
+              " timestamp(sec): "+timestamp_seconds+
+              " ambiguity: "+ambiguity
+            );
+            drive.addVisionMeasurement(
+              poseBest.toPose2d(), 
+              timestamp_seconds, 
+              getStdDevVector(distance));
+            System.out.println("Drive pose (requires odometry working): "+drive.getPose());
+          }
+          publisher.set(poseBest.toPose2d());
         }
       }
     }
-
-    // Implement Math
-
-    Drive drive = Drive.getInstance();
-    drive.addVisionMeasurement(
-        validPoses.get(0).toPose2d(),
-        0,
-        new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {0, 0, 0}));
   }
 }

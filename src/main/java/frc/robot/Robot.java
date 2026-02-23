@@ -19,6 +19,8 @@ import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
 import frc.robot.simulator.Simulator;
+import frc.robot.vision.Vision;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -41,10 +43,7 @@ public class Robot extends LoggedRobot {
   public Shooter shooter;
   public Drive drive;
   public Intake intake;
-  // public Vision vision;
-  //  public TagLocationSender tagLocationSender;
-
-  public GetPose poseGetter;
+  public Vision vision;
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
@@ -94,8 +93,7 @@ public class Robot extends LoggedRobot {
     shooter = Shooter.getInstance();
     Drive.init(commandScheduler);
     drive = Drive.getInstance();
-    // vision = new Vision(commandScheduler);
-    // tagLocationSender = new TagLocationSender(commandScheduler);
+    vision = new Vision(commandScheduler);
     intake = new Intake(commandScheduler);
     robotContainer =
         new RobotContainer(

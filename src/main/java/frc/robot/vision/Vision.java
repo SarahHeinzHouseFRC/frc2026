@@ -6,18 +6,31 @@ import frc.robot.commands.CommandScheduler;
 import frc.robot.commands.SubsystemBase;
 import frc.robot.drive.Drive;
 import frc.robot.shooter.Shooter;
+
+import java.io.IOException;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
   private Transform3d turretCamTransform =
       new Transform3d(.18, 0, .5, new Rotation3d(0, -Math.PI / 6, 0));
-  // private CameraIO turretCam =
-  //     new PhotonCameraIO("camera-4", turretCamTransform); // TODO change to RobotVisionIO
-  private CameraIO turretCam = new AdvVisionServerIO(turretCamTransform, "camera-2");
+  private CameraIO turretCam =
+      new PhotonCameraIO("camera-4", turretCamTransform);
   private CameraIOInputsAutoLogged turretCamInputs = new CameraIOInputsAutoLogged();
+
+  // VisionSystem handles updates from coprocessors and calls drive.addVisionMeasurement directly.
+  private AdvVisionServerIO2 visionSystem = new AdvVisionServerIO2();
 
   public Vision(CommandScheduler commandScheduler) {
     super(commandScheduler);
+
+    System.out.println("Starting vision server");
+    try {
+      visionSystem.start();
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException("Cannot start vision server", e);
+    }
   }
 
   @Override
