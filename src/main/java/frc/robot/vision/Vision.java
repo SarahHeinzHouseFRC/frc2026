@@ -34,6 +34,14 @@ public class Vision extends SubsystemBase {
   }
 
   private Vision() {
+    // load bearing System.out.println btw. dont remove.
+    // forces the jvm to actually load the apriltag layout
+    // rather than waiting for first use (camera sees tag)
+    System.out.println(
+        "Using apriltag layout with "
+            + VisionConstants.aprilTagFieldLayout.getTags().size()
+            + " tags");
+
     System.out.println("Starting vision server");
     try {
       visionSystem.start();

@@ -3,12 +3,11 @@ package frc.robot.vision;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -19,8 +18,9 @@ public class PhotonCameraIO implements CameraIO {
   private PhotonCamera camera;
   private String cameraName;
   private Transform3d cameraToRobot;
+  private Pose3d latestCameraPose = Pose3d.kZero;
 
-  private StructPublisher<Pose3d> publisher;
+  //  private StructPublisher<Pose3d> publisher;
 
   public PhotonCameraIO(String cameraName) {
     this(cameraName, Transform3d.kZero);
@@ -30,10 +30,10 @@ public class PhotonCameraIO implements CameraIO {
     this.cameraToRobot = robotToCamera.inverse();
     this.cameraName = cameraName;
     camera = new PhotonCamera(cameraName);
-    publisher =
-        NetworkTableInstance.getDefault()
-            .getStructTopic("/SHARP/Vision" + cameraName, Pose3d.struct)
-            .publish();
+    //    publisher =
+    //        NetworkTableInstance.getDefault()
+    //            .getStructTopic("/SHARP/Vision" + cameraName, Pose3d.struct)
+    //            .publish();
   }
 
   @Override
@@ -45,7 +45,6 @@ public class PhotonCameraIO implements CameraIO {
       System.out.println("[WARNING] getAllUnreadResults took too long!");
     }
 
-    Pose3d latestCameraPose = null;
     double latestTimestamp = 0;
 
     int length = photonResults.size();
@@ -111,10 +110,6 @@ public class PhotonCameraIO implements CameraIO {
       }
     }
     inputs.results = results.toArray(new PoseObservation[0]);
-    if (latestCameraPose != null) {
-      publisher.set(latestCameraPose);
-    } else {
-      //      publisher.set(Pose3d.kZero);
-    }
+    Logger.recordOutput("/SHARP/Vision" + cameraName, latestCameraPose);
   }
 }

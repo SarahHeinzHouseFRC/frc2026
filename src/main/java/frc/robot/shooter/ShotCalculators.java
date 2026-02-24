@@ -25,8 +25,8 @@ public class ShotCalculators {
 
   private static final double timeDelay =
       switch (Robot.VERSION) {
-        case V1 -> 0.0f;
-        case V2 -> 0.1f;
+        case V1 -> 0.0;
+        case V2 -> 0.1;
       };
 
   private static final double lutStart = 1.5;
