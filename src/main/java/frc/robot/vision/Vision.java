@@ -13,9 +13,8 @@ import org.littletonrobotics.junction.Logger;
 public class Vision extends SubsystemBase {
   private final Transform3d turretCamTransform =
       new Transform3d(.18, 0, .5, new Rotation3d(0, -Math.PI / 6, 0));
-  // private CameraIO turretCam =
-  //     new PhotonCameraIO("camera-4", turretCamTransform);
-  // private CameraIOInputsAutoLogged turretCamInputs = new CameraIOInputsAutoLogged();
+  private CameraIO turretCam = new PhotonCameraIO("camera-4", turretCamTransform);
+  private CameraIOInputsAutoLogged turretCamInputs = new CameraIOInputsAutoLogged();
 
   // VisionSystem handles updates from coprocessors and calls drive.addVisionMeasurement directly.
   private AdvVisionServerIO2 visionSystem = new AdvVisionServerIO2();
@@ -57,22 +56,29 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // turretCam.updateInputs(turretCamInputs);
-    // Logger.processInputs("Vision/Turret Cam", turretCamInputs);
+    turretCam.updateInputs(turretCamInputs);
+    Logger.processInputs("Vision/Turret Cam", turretCamInputs);
 
-    // Drive drive = Drive.getInstance();
-    // Shooter shooter = Shooter.getInstance();
-    // for (CameraIO.PoseObservation obs : turretCamInputs.results) {
-    //   double stddev = 0.9;
-    //   drive.addVisionMeasurement(
-    //       obs.pose()
-    //           .toPose2d()
-    //           .plus(
-    //               (new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp())))
-    //                   .inverse()))
-    //           .plus(new Transform2d(0d, 0d, Rotation2d.kPi)),
-    //       obs.timestamp(),
-    //       VecBuilder.fill(stddev, stddev, stddev));
-    // }
+    Drive drive = Drive.getInstance();
+    Shooter shooter = Shooter.getInstance();
+    if (shooter.isTurretInit()) {
+      for (CameraIO.PoseObservation obs : turretCamInputs.results) {
+        double stddev = 0.9;
+        Pose2d pose =
+            obs.pose()
+                .toPose2d()
+                .plus(
+                    (new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp())))
+                        .inverse()))
+                .plus(new Transform2d(0d, 0d, Rotation2d.kPi));
+        if (!isVisionInit) {
+          double start = Timer.getFPGATimestamp();
+          drive.setPose(pose);
+          System.out.println("vision init took " + (Timer.getFPGATimestamp() - start));
+          isVisionInit = true;
+        }
+        drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(stddev, stddev, stddev));
+      }
+    }
   }
 }
