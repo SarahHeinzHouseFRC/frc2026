@@ -266,7 +266,8 @@ public class ShooterIOSpark implements ShooterIO {
     double setpoint = MathUtil.clamp(yawRadians, yawMin, yawMax);
     if (isTurretInit) {
       if (tuningMode) {
-        panMotor.setVoltage(MathUtil.clamp(yawPID.calculate(getYaw(), setpoint), -maxYawVolts, maxYawVolts));
+        panMotor.setVoltage(
+            MathUtil.clamp(yawPID.calculate(getYaw(), setpoint), -maxYawVolts, maxYawVolts));
       } else {
         panController.setSetpoint(setpoint, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }

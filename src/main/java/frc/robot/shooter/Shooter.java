@@ -266,9 +266,14 @@ public class Shooter extends SubsystemBase {
           ShotParams shotParams =
               shotCalculator.calculateShotParams(
                   itsPose.getDistance(myPose.getTranslation()) + poseOffset, vrad, vtan);
-          Logger.recordOutput("/Shooter/shotParams/yawOffsetRadians", shotParams.yawOffsetRadians());
-          Logger.recordOutput("/Shooter/shotParams/flywheelVelocityRotationsPerMinute", shotParams.flywheelVelocityRotationsPerMinute());
-          Logger.recordOutput("/Shooter/shotParams/linearActuatorExtensionMillimeters", shotParams.linearActuatorExtensionMillimeters());
+          Logger.recordOutput(
+              "/Shooter/shotParams/yawOffsetRadians", shotParams.yawOffsetRadians());
+          Logger.recordOutput(
+              "/Shooter/shotParams/flywheelVelocityRotationsPerMinute",
+              shotParams.flywheelVelocityRotationsPerMinute());
+          Logger.recordOutput(
+              "/Shooter/shotParams/linearActuatorExtensionMillimeters",
+              shotParams.linearActuatorExtensionMillimeters());
           //                  itsPose.getDistance(myPose.getTranslation()) + .3, vrad, vtan);
           io.setLinearActuatorPosition(shotParams.linearActuatorExtensionMillimeters());
           if (controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1) {
