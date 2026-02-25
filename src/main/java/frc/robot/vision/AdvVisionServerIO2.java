@@ -21,8 +21,9 @@ import frc.robot.protos.DataHandling.ServerRequest;
 import frc.robot.protos.DataHandling.SetCameraCoefficients;
 import frc.robot.protos.DataHandling.TagInCamCoords;
 import frc.robot.protos.VisionSystemGrpc.VisionSystemImplBase;
+import io.grpc.Grpc;
+import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,15 +36,19 @@ public class AdvVisionServerIO2 {
   private static final int PORT = 50001;
 
   private Server server;
-  private List<CameraCoefs> cameras = Arrays.asList(CameraCoefs.getDefaultCameraCoefs(2));
+  // TODO Add camera coefficients for other cameras
+  private List<CameraCoefs> cameras = Arrays.asList(
+    CameraCoefs.getDefaultCameraCoefs(2)
+  );
 
   private AtomicBoolean isInitialized = new AtomicBoolean(false);
 
   private StructPublisher<Pose2d> publisher;
 
   public AdvVisionServerIO2() {
-    server = ServerBuilder.forPort(PORT).addService(new VisionSystemImpl()).build();
-
+    // server = ServerBuilder.forPort(PORT).addService(new VisionSystemImpl()).build();
+    server = Grpc.newServerBuilderForPort(PORT, InsecureServerCredentials.create()).addService(new VisionSystemImpl()).build();
+  
     publisher =
         NetworkTableInstance.getDefault()
             .getStructTopic("/SHARP/Vision/AdvVisionServerIO2", Pose2d.struct)
@@ -151,16 +156,16 @@ public class AdvVisionServerIO2 {
             drive.resetVisionMeasurement(poseBest.toPose2d());
           } else {
             double timestamp_seconds = Timer.getFPGATimestamp() - (a.getLatencyUs() * 1e-6);
-            System.out.println(
-                "addVisionMeasurement: "
-                    + poseBest.toPose2d()
-                    + " timestamp(sec): "
-                    + timestamp_seconds
-                    + " ambiguity: "
-                    + ambiguity);
+            // System.out.println("addVisionMeasurement: "+
+            //   poseBest.toPose2d()+
+            //   " latency(ms): "+a.getLatencyUs()*1e-3+
+            //   " ambiguity: "+ambiguity
+            // );
             drive.addVisionMeasurement(
-                poseBest.toPose2d(), timestamp_seconds, getStdDevVector(distance));
-            System.out.println("Drive pose (requires odometry working): " + drive.getPose());
+              poseBest.toPose2d(), 
+              timestamp_seconds, 
+              getStdDevVector(distance));
+            // System.out.println("Drive pose (requires odometry working): "+drive.getPose());
           }
           publisher.set(poseBest.toPose2d());
         }

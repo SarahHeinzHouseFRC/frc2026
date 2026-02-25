@@ -26,6 +26,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.Robot;
+import frc.robot.Robot.Mode;
+import frc.robot.commands.CommandScheduler;
+import frc.robot.commands.SubsystemBase;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -156,6 +160,15 @@ public class Drive extends SubsystemBase {
 
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+    }
+
+    if (Robot.currentMode == Mode.SIM) {
+      poseEstimator.update(Rotation2d.kZero, new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+      });
     }
 
     // Update gyro alert

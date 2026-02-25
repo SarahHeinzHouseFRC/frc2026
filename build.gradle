@@ -35,6 +35,20 @@ deploy {
                     jvmArgs.add("-XX:+UseSerialGC")
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
 
+                    // Memory optimizations for high-frequency gRPC telemetry
+                    
+                    // 1. Force a single memory pool to prevent per-core memory duplication
+                    jvmArgs.add("-Dio.netty.allocator.numDirectArenas=1")
+                    // 2. Reduce pre-allocation chunk size from 16MB to ~2MB
+                    jvmArgs.add("-Dio.netty.allocator.maxOrder=8")
+                    // 3. Disable thread-local hoarding of memory buffers
+                    jvmArgs.add("-Dio.netty.allocator.useCacheForAllThreads=false")
+                    // 4. Shrink the cache for tiny messages (telemetry packets)
+                    jvmArgs.add("-Dio.netty.allocator.smallCacheSize=64")
+
+                    // Optional: Uncomment to see stack traces if buffers aren't being released
+                    // jvmArgs.add("-Dio.netty.leakDetection.level=advanced")
+
                     // The options below may improve performance, but should only be enabled on the RIO 2
                     //
                     // final MAX_JAVA_HEAP_SIZE_MB = 100;
@@ -99,7 +113,8 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:4.33.4")
     implementation("io.grpc:grpc-protobuf:1.78.0")
     implementation("io.grpc:grpc-stub:1.78.0")
-    implementation("io.grpc:grpc-netty:1.78.0")
+    implementation("io.grpc:grpc-okhttp:1.78.0")
+    // implementation("io.grpc:grpc-netty:1.78.0")
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
