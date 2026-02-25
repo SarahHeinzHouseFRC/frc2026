@@ -77,7 +77,7 @@ public class ShooterIOSpark implements ShooterIO {
     panConfig.softLimit.reverseSoftLimitEnabled(true);
     panConfig.absoluteEncoder.positionConversionFactor(2 * Math.PI);
     panConfig.absoluteEncoder.inverted(true);
-    panConfig.closedLoop.pid(yawP / 12, yawI / 12, yawD / 12, ClosedLoopSlot.kSlot0);
+    panConfig.closedLoop.pid(yawP, yawI, yawD, ClosedLoopSlot.kSlot0);
     panConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     panConfig.closedLoop.outputRange(-maxYawVolts / 12, maxYawVolts / 12, ClosedLoopSlot.kSlot0);
     panConfig.closedLoopRampRate(0.2);
@@ -265,9 +265,11 @@ public class ShooterIOSpark implements ShooterIO {
   public void setTurretYaw(double yawRadians) {
     double setpoint = MathUtil.clamp(yawRadians, yawMin, yawMax);
     if (isTurretInit) {
-      //      panMotor.setVoltage(MathUtil.clamp(yawPID.calculate(getYaw(), setpoint), -maxYawVolts,
-      // maxYawVolts));
-      panController.setSetpoint(setpoint, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0);
+      if (tuningMode) {
+        panMotor.setVoltage(MathUtil.clamp(yawPID.calculate(getYaw(), setpoint), -maxYawVolts, maxYawVolts));
+      } else {
+        panController.setSetpoint(setpoint, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0);
+      }
     } else {
       panMotor.setVoltage(0);
     }

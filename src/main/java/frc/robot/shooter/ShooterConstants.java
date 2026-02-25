@@ -46,9 +46,9 @@ public class ShooterConstants {
         flywheelI = 0.0;
         flywheelD = 0.000005;
         flywheelV = 0.00015;
-        yawP = 36;
+        yawP = 2.5;
         yawI = 0;
-        yawD = 0;
+        yawD = .025;
         yawReduction = 20d * (200d / 26d);
         maxYawVolts = 12;
         yawMax = Math.PI / 2;

@@ -169,7 +169,7 @@ public class Shooter extends SubsystemBase {
       CommandScheduler.getInstance().schedule(directDriveCommand());
     }
 
-    if (!inputs.isTurretInit && DriverStation.isDisabled()) {
+    if (!inputs.isTurretInit || DriverStation.isDisabled()) {
       io.recalibrateYaw();
     }
   }
@@ -252,9 +252,9 @@ public class Shooter extends SubsystemBase {
                   .getRadians();
           double vrad =
               -speeds.vxMetersPerSecond * Math.cos(angleToHub)
-                  + speeds.vyMetersPerSecond * Math.sin(angleToHub);
+                  - speeds.vyMetersPerSecond * Math.sin(angleToHub);
           double vtan =
-              -speeds.vxMetersPerSecond * Math.sin(angleToHub)
+              speeds.vxMetersPerSecond * Math.sin(angleToHub)
                   - speeds.vyMetersPerSecond * Math.cos(angleToHub);
           SmartDashboard.putNumber("vrad", vrad);
           SmartDashboard.putNumber("vtan", vtan);
@@ -266,6 +266,9 @@ public class Shooter extends SubsystemBase {
           ShotParams shotParams =
               shotCalculator.calculateShotParams(
                   itsPose.getDistance(myPose.getTranslation()) + poseOffset, vrad, vtan);
+          Logger.recordOutput("/Shooter/shotParams/yawOffsetRadians", shotParams.yawOffsetRadians());
+          Logger.recordOutput("/Shooter/shotParams/flywheelVelocityRotationsPerMinute", shotParams.flywheelVelocityRotationsPerMinute());
+          Logger.recordOutput("/Shooter/shotParams/linearActuatorExtensionMillimeters", shotParams.linearActuatorExtensionMillimeters());
           //                  itsPose.getDistance(myPose.getTranslation()) + .3, vrad, vtan);
           io.setLinearActuatorPosition(shotParams.linearActuatorExtensionMillimeters());
           if (controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1) {

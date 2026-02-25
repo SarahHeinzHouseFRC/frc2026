@@ -1,5 +1,6 @@
 package frc.robot.shooter;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.utils.Utils;
 
@@ -26,7 +27,7 @@ public class ShotCalculators {
   private static final double timeDelay =
       switch (Robot.VERSION) {
         case V1 -> 0.0;
-        case V2 -> 0.1;
+        case V2 -> 0.0;
       };
 
   private static final double lutStart = 1.5;
@@ -41,7 +42,7 @@ public class ShotCalculators {
         double iMax = 64;
         double lastTime = 0;
         for (int i = 0; i < iMax; i++) {
-          float distance = (float) Math.hypot(distanceRadial, distanceTangential);
+          double distance = Math.hypot(distanceRadial, distanceTangential);
 
           rpm = Utils.lutLerp(rpmLut, lutStart, lutStep, distance);
           linear = Utils.lutLerp(linearLut, lutStart, lutStep, distance);
@@ -59,7 +60,9 @@ public class ShotCalculators {
           distanceRadial = distanceMeters + velocityRadialMetersPerSecond * time;
           distanceTangential = velocityTangentialMetersPerSecond * time;
         }
-
+        SmartDashboard.putNumber("time", lastTime);
+        SmartDashboard.putNumber("dtan", distanceTangential);
+        SmartDashboard.putNumber("drad", distanceRadial);
         return new ShotParams(rpm, linear, Math.atan2(distanceTangential, distanceRadial));
       };
 
