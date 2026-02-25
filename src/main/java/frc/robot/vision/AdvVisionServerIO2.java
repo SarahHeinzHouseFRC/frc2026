@@ -37,9 +37,7 @@ public class AdvVisionServerIO2 {
 
   private Server server;
   // TODO Add camera coefficients for other cameras
-  private List<CameraCoefs> cameras = Arrays.asList(
-    CameraCoefs.getDefaultCameraCoefs(2)
-  );
+  private List<CameraCoefs> cameras = Arrays.asList(CameraCoefs.getDefaultCameraCoefs(2));
 
   private AtomicBoolean isInitialized = new AtomicBoolean(false);
 
@@ -47,8 +45,11 @@ public class AdvVisionServerIO2 {
 
   public AdvVisionServerIO2() {
     // server = ServerBuilder.forPort(PORT).addService(new VisionSystemImpl()).build();
-    server = Grpc.newServerBuilderForPort(PORT, InsecureServerCredentials.create()).addService(new VisionSystemImpl()).build();
-  
+    server =
+        Grpc.newServerBuilderForPort(PORT, InsecureServerCredentials.create())
+            .addService(new VisionSystemImpl())
+            .build();
+
     publisher =
         NetworkTableInstance.getDefault()
             .getStructTopic("/SHARP/Vision/AdvVisionServerIO2", Pose2d.struct)
@@ -162,9 +163,7 @@ public class AdvVisionServerIO2 {
             //   " ambiguity: "+ambiguity
             // );
             drive.addVisionMeasurement(
-              poseBest.toPose2d(), 
-              timestamp_seconds, 
-              getStdDevVector(distance));
+                poseBest.toPose2d(), timestamp_seconds, getStdDevVector(distance));
             // System.out.println("Drive pose (requires odometry working): "+drive.getPose());
           }
           publisher.set(poseBest.toPose2d());

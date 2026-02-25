@@ -36,7 +36,7 @@ deploy {
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
 
                     // Memory optimizations for high-frequency gRPC telemetry
-                    
+
                     // 1. Force a single memory pool to prevent per-core memory duplication
                     jvmArgs.add("-Dio.netty.allocator.numDirectArenas=1")
                     // 2. Reduce pre-allocation chunk size from 16MB to ~2MB
