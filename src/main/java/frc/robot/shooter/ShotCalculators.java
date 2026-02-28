@@ -11,12 +11,12 @@ public class ShotCalculators {
   private static final double[] rpmLut =
       switch (Robot.VERSION) {
         case V1 -> new double[] {2950, 2950, 2950, 3200, 3300, 3500, 3600, 3800, 3950, 4150};
-        case V2 -> new double[] {2800, 3300, 3750, 3950, 3950, 4000, 4000, 4300, 4300};
+        case V2 -> new double[] {2800, 3300, 3750, 3950, 4000, 4100, 4500, 5000, 5000};
       };
   private static final double[] linearLut =
       switch (Robot.VERSION) {
         case V1 -> new double[] {15, 15, 15, 25, 30, 35, 45, 45, 55, 60};
-        case V2 -> new double[] {0, 0, 0, 0, 10, 15, 20, 20, 22.5};
+        case V2 -> new double[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
       };
   private static final double[] timeLut =
       switch (Robot.VERSION) {
