@@ -2,6 +2,7 @@ package frc.robot.intake;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
 
 public class IntakeControllerCommand extends Command {
   private final Intake intake;
@@ -71,8 +72,13 @@ public class IntakeControllerCommand extends Command {
     // beltMotor);
 
     if (driverController.getLeftTriggerAxis() > .1) {
+      switch (Robot.VERSION) {
+        case V1:
+          intake.setOBIClosedLoop(driverController.getLeftTriggerAxis() * 1600);
+        case V2:
+          intake.setOBIClosedLoop(driverController.getLeftTriggerAxis() * 2250 * (driverController.getLeftBumperButton() ? -1 : 1));
+      }
 
-      intake.setOBIClosedLoop(driverController.getLeftTriggerAxis() * 1600);
     } else {
       intake.setOBIOpenLoop(0);
     }

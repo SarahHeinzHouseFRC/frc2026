@@ -3,6 +3,7 @@ package frc.robot.intake;
 import frc.robot.Robot;
 
 public class IntakeConstants {
+  public static final boolean tuningMode = true;
   public static final int intakeMotorCanId = 20;
   public static final int beltStarMotorCanId = 22;
   public static final int beltMotorCanId = 23;
@@ -29,11 +30,11 @@ public class IntakeConstants {
         overBumperPivotD = 0.0;
         break;
       case V2:
-        overBumperP = 0.0001;
-        overBumperI = 0.0;
-        overBumperD = 0.0;
-        overBumperV = 0.0002;
-        overBumperPivotP = 6.0;
+        overBumperP = 0.001;
+        overBumperI = 0;
+        overBumperD = 0.00002;
+        overBumperV = 0.00185;
+        overBumperPivotP = 9.0;
         overBumperPivotI = 0.0;
         overBumperPivotD = 0.0;
         break;

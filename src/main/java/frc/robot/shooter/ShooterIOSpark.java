@@ -220,27 +220,32 @@ public class ShooterIOSpark implements ShooterIO {
 
   @Override
   public void setFlywheelVelocity(double speedRotationsPerMinute) {
-    double v = flywheelV;
-    if (tuningMode) {
-      v = tunableV.get();
+    if (Robot.VERSION == Robot.RobotVersion.V2) {
+      flywheelController.setSetpoint(speedRotationsPerMinute, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+      flywheelController2.setSetpoint(speedRotationsPerMinute, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    } else {
+      double v = flywheelV;
+      if (tuningMode) {
+        v = tunableV.get();
+      }
+      v *= 12;
+
+      //          flywheelController.setSetpoint(
+      //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
+      //     ClosedLoopSlot.kSlot0);
+      //          flywheelController2.setSetpoint(
+      //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
+      //     ClosedLoopSlot.kSlot0);
+
+      double flywheelVelocity1 = flywheelEncoder.getVelocity();
+      double flywheelVelocity2 = flywheelEncoder2.getVelocity();
+      double flywheelVelocity = (flywheelVelocity1 + flywheelVelocity2) / 2;
+
+      double output = flywheelPID.calculate(flywheelVelocity, speedRotationsPerMinute);
+      output += v * speedRotationsPerMinute;
+      flywheelMotor.setVoltage(output);
+      flywheelMotor2.setVoltage(output);
     }
-    v *= 12;
-
-    //          flywheelController.setSetpoint(
-    //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
-    //     ClosedLoopSlot.kSlot0);
-    //          flywheelController2.setSetpoint(
-    //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
-    //     ClosedLoopSlot.kSlot0);
-
-    double flywheelVelocity1 = flywheelEncoder.getVelocity();
-    double flywheelVelocity2 = flywheelEncoder2.getVelocity();
-    double flywheelVelocity = (flywheelVelocity1 + flywheelVelocity2) / 2;
-
-    double output = flywheelPID.calculate(flywheelVelocity, speedRotationsPerMinute);
-    output += v * speedRotationsPerMinute;
-    flywheelMotor.setVoltage(output);
-    flywheelMotor2.setVoltage(output);
   }
 
   //  @Override

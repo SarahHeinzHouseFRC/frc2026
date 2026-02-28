@@ -13,6 +13,7 @@ public class ClimberIOSpark implements ClimberIO {
   public ClimberIOSpark() {
     SparkMaxConfig climberConfig = new SparkMaxConfig();
     climberConfig.smartCurrentLimit(40).idleMode(SparkBaseConfig.IdleMode.kBrake);
+    climberConfig.openLoopRampRate(0.5);
     climberMotor.configure(
         climberConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
