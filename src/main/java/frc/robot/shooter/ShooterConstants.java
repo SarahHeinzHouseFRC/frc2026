@@ -3,7 +3,7 @@ package frc.robot.shooter;
 import frc.robot.Robot;
 
 public class ShooterConstants {
-  public static final boolean tuningMode = false;
+  public static final boolean tuningMode = true;
   public static final double motorToFlywheel;
   public static final double flywheelToMotor;
   public static final double flywheelP;
