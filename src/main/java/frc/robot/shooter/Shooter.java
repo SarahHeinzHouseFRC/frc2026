@@ -250,10 +250,15 @@ public class Shooter extends SubsystemBase {
           myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
           myPose = myPose.transformBy(robotToShooter);
 
-          Logger.recordOutput("/Shooter/distanceToHub", itsPose.getDistance(myPose.getTranslation()));
+          Logger.recordOutput(
+              "/Shooter/distanceToHub", itsPose.getDistance(myPose.getTranslation()));
 
-          double shooterVx = chassisSpeeds.vxMetersPerSecond - (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getY());
-          double shooterVy = chassisSpeeds.vyMetersPerSecond + (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getX());
+          double shooterVx =
+              chassisSpeeds.vxMetersPerSecond
+                  - (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getY());
+          double shooterVy =
+              chassisSpeeds.vyMetersPerSecond
+                  + (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getX());
 
           double angleToHub =
               itsPose
@@ -261,12 +266,8 @@ public class Shooter extends SubsystemBase {
                   .getAngle()
                   .minus(myPose.getRotation())
                   .getRadians();
-          double vrad =
-              -shooterVx * Math.cos(angleToHub)
-                  - shooterVy * Math.sin(angleToHub);
-          double vtan =
-              shooterVx * Math.sin(angleToHub)
-                  - shooterVy * Math.cos(angleToHub);
+          double vrad = -shooterVx * Math.cos(angleToHub) - shooterVy * Math.sin(angleToHub);
+          double vtan = shooterVx * Math.sin(angleToHub) - shooterVy * Math.cos(angleToHub);
           SmartDashboard.putNumber("vrad", vrad);
           SmartDashboard.putNumber("vtan", vtan);
           double poseOffset =
@@ -328,10 +329,15 @@ public class Shooter extends SubsystemBase {
           myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
           myPose = myPose.transformBy(robotToShooter);
 
-          Logger.recordOutput("/Shooter/distanceToHub", itsPose.getDistance(myPose.getTranslation()));
+          Logger.recordOutput(
+              "/Shooter/distanceToHub", itsPose.getDistance(myPose.getTranslation()));
 
-          double shooterVx = chassisSpeeds.vxMetersPerSecond - (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getY());
-          double shooterVy = chassisSpeeds.vyMetersPerSecond + (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getX());
+          double shooterVx =
+              chassisSpeeds.vxMetersPerSecond
+                  - (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getY());
+          double shooterVy =
+              chassisSpeeds.vyMetersPerSecond
+                  + (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getX());
 
           double angleToHub =
               itsPose
@@ -339,12 +345,8 @@ public class Shooter extends SubsystemBase {
                   .getAngle()
                   .minus(myPose.getRotation())
                   .getRadians();
-          double vrad =
-              -shooterVx * Math.cos(angleToHub)
-                  - shooterVy * Math.sin(angleToHub);
-          double vtan =
-              shooterVx * Math.sin(angleToHub)
-                  - shooterVy * Math.cos(angleToHub);
+          double vrad = -shooterVx * Math.cos(angleToHub) - shooterVy * Math.sin(angleToHub);
+          double vtan = shooterVx * Math.sin(angleToHub) - shooterVy * Math.cos(angleToHub);
           SmartDashboard.putNumber("vrad", vrad);
           SmartDashboard.putNumber("vtan", vtan);
           double poseOffset =

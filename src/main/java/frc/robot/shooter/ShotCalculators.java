@@ -1,6 +1,5 @@
 package frc.robot.shooter;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.utils.Utils;
 
@@ -30,14 +29,16 @@ public class ShotCalculators {
         case V2 -> 0.0;
       };
 
-  private static final double lutStart = switch (Robot.VERSION) {
-    case V1 -> 1.32;
-    case V2 -> 1.62;
-  };
-  private static final double lutStep = switch (Robot.VERSION) {
-    case V1 -> 0.5;
-    case V2 -> 0.5;
-  };
+  private static final double lutStart =
+      switch (Robot.VERSION) {
+        case V1 -> 1.32;
+        case V2 -> 1.62;
+      };
+  private static final double lutStep =
+      switch (Robot.VERSION) {
+        case V1 -> 0.5;
+        case V2 -> 0.5;
+      };
 
   public static final ShotCalculator iterativeShotCalculator =
       (distanceMeters, velocityRadialMetersPerSecond, velocityTangentialMetersPerSecond) -> {

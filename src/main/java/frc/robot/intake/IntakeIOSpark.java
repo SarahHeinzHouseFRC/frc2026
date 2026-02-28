@@ -176,7 +176,7 @@ public class IntakeIOSpark implements IntakeIO {
     double clampedPosition = MathUtil.clamp(position, -.5, .5);
     double theta = clampedPosition * 2 * Math.PI;
     double cos = Math.cos(theta);
-    double arbFF =.3 * cos;
+    double arbFF = .3 * cos;
     obiPivotController.setSetpoint(
         clampedPosition,
         SparkBase.ControlType.kPosition,

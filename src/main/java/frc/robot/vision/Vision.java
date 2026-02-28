@@ -10,7 +10,6 @@ import frc.robot.drive.Drive;
 import frc.robot.shooter.Shooter;
 import java.io.IOException;
 import java.util.Optional;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -19,8 +18,7 @@ public class Vision extends SubsystemBase {
       new Transform3d(.18, 0, .5, new Rotation3d(0, -Math.PI / 6, 0));
   private CameraIO turretCam = new PhotonCameraIO("turretCam", turretCamTransform);
   private CameraIOInputsAutoLogged turretCamInputs = new CameraIOInputsAutoLogged();
-  @AutoLogOutput
-  private boolean isBlue = true;
+  @AutoLogOutput private boolean isBlue = true;
 
   // VisionSystem handles updates from coprocessors and calls drive.addVisionMeasurement directly.
   private AdvVisionServerIO2 visionSystem = new AdvVisionServerIO2();
@@ -42,7 +40,10 @@ public class Vision extends SubsystemBase {
     if (allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red) {
       isBlue = false;
     }
-    VisionConstants.aprilTagFieldLayout.setOrigin(isBlue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+    VisionConstants.aprilTagFieldLayout.setOrigin(
+        isBlue
+            ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide
+            : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
     turretCam.setIsBlue(isBlue);
     // load bearing System.out.println btw. dont remove.
     // forces the jvm to actually load the apriltag layout
@@ -50,7 +51,9 @@ public class Vision extends SubsystemBase {
     System.out.println(
         "Using apriltag layout with "
             + VisionConstants.aprilTagFieldLayout.getTags().size()
-            + " tags on " + (isBlue ? "blue" : "red") + " side.");
+            + " tags on "
+            + (isBlue ? "blue" : "red")
+            + " side.");
 
     System.out.println("Starting vision server");
     try {
@@ -79,7 +82,10 @@ public class Vision extends SubsystemBase {
     if (localIsBlue != isBlue) {
       isBlue = localIsBlue;
       isVisionInit = false;
-      VisionConstants.aprilTagFieldLayout.setOrigin(isBlue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+      VisionConstants.aprilTagFieldLayout.setOrigin(
+          isBlue
+              ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide
+              : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
       turretCam.setIsBlue(isBlue);
     }
 

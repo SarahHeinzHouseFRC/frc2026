@@ -76,8 +76,10 @@ public class PhotonCameraIO implements CameraIO {
               target.bestCameraToTarget.getTranslation().getDistance(Translation3d.kZero);
         }
         targetDistance /= targetCount;
-        // Pose3d redPose = new Pose3d(new Translation3d(16.513, 8.043, 0), new Rotation3d(0,0,Math.PI));
-        Pose3d redPose = new Pose3d(new Translation3d(16.541, 8.069, 0), new Rotation3d(0,0,Math.PI));
+        // Pose3d redPose = new Pose3d(new Translation3d(16.513, 8.043, 0), new
+        // Rotation3d(0,0,Math.PI));
+        Pose3d redPose =
+            new Pose3d(new Translation3d(16.541, 8.069, 0), new Rotation3d(0, 0, Math.PI));
         Pose3d bluePose = Pose3d.kZero;
         Pose3d best = (invert ? redPose : bluePose).plus(pnpResult.best).plus(cameraToRobot);
         Pose3d alt = (invert ? redPose : bluePose).plus(pnpResult.best).plus(cameraToRobot);
@@ -103,7 +105,8 @@ public class PhotonCameraIO implements CameraIO {
           Optional<Pose3d> tagPose =
               VisionConstants.aprilTagFieldLayout.getTagPose(target.fiducialId);
           if (tagPose.isPresent()) {
-            Pose3d best = tagPose.get().plus(target.bestCameraToTarget.inverse()).plus(cameraToRobot);
+            Pose3d best =
+                tagPose.get().plus(target.bestCameraToTarget.inverse()).plus(cameraToRobot);
             Pose3d alt = tagPose.get().plus(target.altCameraToTarget.inverse()).plus(cameraToRobot);
             best = getBest(best, alt);
             results.add(

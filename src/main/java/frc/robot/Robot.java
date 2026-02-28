@@ -199,10 +199,10 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     autonomousCommand = AutoWeekZero.autoV1();
     commandScheduler.schedule(autonomousCommand);
-//    autonomousCommand = robotContainer.getAutonomousCommand();
-//    if (autonomousCommand != null) {
-//      commandScheduler.schedule(autonomousCommand);
-//    }
+    //    autonomousCommand = robotContainer.getAutonomousCommand();
+    //    if (autonomousCommand != null) {
+    //      commandScheduler.schedule(autonomousCommand);
+    //    }
   }
 
   /** This function is called periodically during autonomous. */

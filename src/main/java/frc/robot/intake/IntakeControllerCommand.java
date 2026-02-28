@@ -76,7 +76,10 @@ public class IntakeControllerCommand extends Command {
         case V1:
           intake.setOBIClosedLoop(driverController.getLeftTriggerAxis() * 1600);
         case V2:
-          intake.setOBIClosedLoop(driverController.getLeftTriggerAxis() * 2250 * (driverController.getLeftBumperButton() ? -1 : 1));
+          intake.setOBIClosedLoop(
+              driverController.getLeftTriggerAxis()
+                  * 2250
+                  * (driverController.getLeftBumperButton() ? -1 : 1));
       }
 
     } else {

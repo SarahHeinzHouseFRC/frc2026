@@ -43,7 +43,8 @@ public class SmoothMoveCommand extends Command {
   public void execute() {
     Translation2d current = drive.getPose().getTranslation();
     Translation2d error = target.getTranslation().minus(current);
-    double headingError = target.getRotation().getRadians() - drive.getPose().getRotation().getRadians();
+    double headingError =
+        target.getRotation().getRadians() - drive.getPose().getRotation().getRadians();
     double distance = error.getNorm();
 
     if (distance < 1e-6) {
@@ -72,8 +73,7 @@ public class SmoothMoveCommand extends Command {
 
     drive.runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            new ChassisSpeeds(currentVx, currentVy, headingError),
-            drive.getRotation()));
+            new ChassisSpeeds(currentVx, currentVy, headingError), drive.getRotation()));
   }
 
   @Override
