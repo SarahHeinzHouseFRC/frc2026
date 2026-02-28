@@ -18,5 +18,6 @@ public interface CameraIO {
       double averageTagDistance) {}
 
   public default void updateInputs(CameraIOInputs inputs) {}
-  ;
+
+  default void setIsBlue(boolean blue) {}
 }

@@ -13,8 +13,11 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.shooter.Shooter;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class IntakeIOSpark implements IntakeIO {
   private final SparkMax beltMotor = new SparkMax(beltMotorCanId, kBrushless);
@@ -35,6 +38,13 @@ public class IntakeIOSpark implements IntakeIO {
         case V1 -> null;
         case V2 -> new SparkMax(agitatorMotorCanId, kBrushless);
       };
+
+  private final LoggedNetworkNumber tunableP;
+  private final LoggedNetworkNumber tunableI;
+  private final LoggedNetworkNumber tunableD;
+  private final LoggedNetworkNumber tunableV;
+  private final PIDController obiPID = new PIDController(overBumperP, overBumperI, overBumperD);
+  private double obiAppliedOupt = 0.0;
 
   public IntakeIOSpark() {
     SparkMaxConfig config = new SparkMaxConfig();
@@ -60,6 +70,9 @@ public class IntakeIOSpark implements IntakeIO {
           case V2 -> new SparkFlexConfig();
         };
     obiMotorConfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake).inverted(true);
+    if (Robot.VERSION == Robot.RobotVersion.V2) {
+      obiMotorConfig.smartCurrentLimit(60);
+    }
     obiMotorConfig.closedLoop.pid(overBumperP, overBumperI, overBumperD, ClosedLoopSlot.kSlot0);
     obiMotorConfig.closedLoop.feedForward.kV(overBumperV, ClosedLoopSlot.kSlot0);
     obiMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
@@ -97,12 +110,34 @@ public class IntakeIOSpark implements IntakeIO {
     if (Robot.VERSION == Robot.RobotVersion.V2) {
       Shooter.getInstance().set28TurretAngleSupplier(beltStarMotor.getAbsoluteEncoder());
     }
+
+    if (tuningMode) {
+      tunableP = new LoggedNetworkNumber("/Tuning/OBI/P", overBumperP);
+      tunableI = new LoggedNetworkNumber("/Tuning/OBI/I", overBumperI);
+      tunableD = new LoggedNetworkNumber("/Tuning/OBI/D", overBumperD);
+      tunableV = new LoggedNetworkNumber("/Tuning/OBI/V", overBumperV);
+    } else {
+      tunableP = null;
+      tunableI = null;
+      tunableD = null;
+      tunableV = null;
+    }
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
+    if (tuningMode) {
+      tunableP.periodic();
+      tunableI.periodic();
+      tunableD.periodic();
+      tunableV.periodic();
+      obiPID.setPID(tunableP.get(), tunableI.get(), tunableD.get());
+    }
     inputs.obiPosition = obiPivotEncoder.getPosition();
     inputs.obiSpeed = obiMotorEncoder.getVelocity();
+    inputs.obiAppliedOput = obiAppliedOupt;
+    SmartDashboard.putNumber("obi I accum", obiMotorController.getIAccum());
+    SmartDashboard.putNumber("obi I accum max", 1.5 / overBumperI);
   }
 
   @Override
@@ -127,6 +162,7 @@ public class IntakeIOSpark implements IntakeIO {
 
   @Override
   public void setOBIOpenLoop(double voltage) {
+    obiAppliedOupt = voltage;
     obiMotor.setVoltage(voltage);
   }
 
@@ -140,11 +176,12 @@ public class IntakeIOSpark implements IntakeIO {
     double clampedPosition = MathUtil.clamp(position, -.5, .5);
     double theta = clampedPosition * 2 * Math.PI;
     double cos = Math.cos(theta);
+    double arbFF =.3 * cos;
     obiPivotController.setSetpoint(
         clampedPosition,
         SparkBase.ControlType.kPosition,
         ClosedLoopSlot.kSlot0,
-        .3 * cos,
+        arbFF,
         SparkClosedLoopController.ArbFFUnits.kVoltage);
   }
 
@@ -152,5 +189,24 @@ public class IntakeIOSpark implements IntakeIO {
   public void setAgitatorOpenLoop(double voltage) {
     if (agitatorMotor == null) return;
     agitatorMotor.setVoltage(voltage);
+  }
+
+  @Override
+  public void setOBIClosedLoopWithJamDetect(double speed) {
+    if (Robot.VERSION != Robot.RobotVersion.V2) {
+      setOBIClosedLoop(speed);
+      return;
+    }
+    double vel = obiMotorEncoder.getVelocity();
+    if (Math.abs(vel) < Math.abs(Math.min(60, speed * .03))) {
+      // full send
+      setOBIOpenLoop(12 * Math.signum(speed));
+    } else {
+      double v = overBumperV;
+      if (tuningMode) {
+        v = tunableV.get();
+      }
+      setOBIOpenLoop(obiPID.calculate(vel, speed) + v * speed);
+    }
   }
 }

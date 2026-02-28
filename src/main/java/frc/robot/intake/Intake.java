@@ -10,7 +10,7 @@ public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
-  @AutoLogOutput private double obiSetpoint = 0.0;
+  @AutoLogOutput private double obiSetpoint = -0.036;
 
   public static Intake instance = null;
 
@@ -51,11 +51,11 @@ public class Intake extends SubsystemBase {
   }
 
   public void setOBIClosedLoop(double rpm) {
-    io.setOBIClosedLoop(rpm);
+    io.setOBIClosedLoopWithJamDetect(rpm);
   }
 
   public void setOBIOpenLoop(double speed) {
-    io.setOBIOpenLoop(speed);
+    io.setOBIOpenLoop(speed * 12);
   }
 
   public void editObiSetpoint(double change) {

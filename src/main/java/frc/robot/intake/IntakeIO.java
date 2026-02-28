@@ -7,6 +7,7 @@ public interface IntakeIO {
   public static class IntakeIOInputs {
     public double obiPosition = 0.0;
     public double obiSpeed = 0.0;
+    public double obiAppliedOput = 0.0;
   }
 
   default void updateInputs(IntakeIOInputs inputs) {}
@@ -26,4 +27,8 @@ public interface IntakeIO {
   default void setOBIPivotMotorClosedLoop(double voltage) {}
 
   default void setAgitatorOpenLoop(double voltage) {}
+
+  default void setOBIClosedLoopWithJamDetect(double speed) {
+    setOBIClosedLoop(speed);
+  }
 }

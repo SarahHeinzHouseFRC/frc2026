@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.auto.AutoWeekZero;
 import frc.robot.climber.Climber;
 import frc.robot.drive.ControllerDriveCommand;
 import frc.robot.drive.Drive;
@@ -42,7 +43,7 @@ public class Robot extends LoggedRobot {
     V2
   }
 
-  public static final RobotVersion VERSION = RobotVersion.V2;
+  public static final RobotVersion VERSION = RobotVersion.V1;
   private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
   private RobotContainer robotContainer;
   private Command autonomousCommand;
@@ -196,10 +197,12 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
-    if (autonomousCommand != null) {
-      commandScheduler.schedule(autonomousCommand);
-    }
+    autonomousCommand = AutoWeekZero.autoV1();
+    commandScheduler.schedule(autonomousCommand);
+//    autonomousCommand = robotContainer.getAutonomousCommand();
+//    if (autonomousCommand != null) {
+//      commandScheduler.schedule(autonomousCommand);
+//    }
   }
 
   /** This function is called periodically during autonomous. */

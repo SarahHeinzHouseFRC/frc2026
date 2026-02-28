@@ -89,7 +89,7 @@ public class ShooterIOSpark implements ShooterIO {
     SparkFlexConfig flywheelConfig = new SparkFlexConfig();
     flywheelConfig.smartCurrentLimit(40).idleMode(kCoast).inverted(true);
     flywheelConfig.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
-    flywheelConfig.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
+//    flywheelConfig.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
     flywheelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     flywheelConfig.openLoopRampRate(0.2);
     flywheelConfig.closedLoopRampRate(0.2);
@@ -102,7 +102,7 @@ public class ShooterIOSpark implements ShooterIO {
     SparkFlexConfig flywheel2Config = new SparkFlexConfig();
     flywheel2Config.smartCurrentLimit(40).idleMode(kCoast).inverted(false);
     flywheel2Config.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
-    flywheel2Config.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
+//    flywheel2Config.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
     flywheel2Config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     flywheel2Config.openLoopRampRate(0.2);
     flywheel2Config.closedLoopRampRate(0.2);
@@ -176,8 +176,21 @@ public class ShooterIOSpark implements ShooterIO {
           System.out.println("[WARNING] Recalibrating yaw failed (NaN), falling back to zero");
           newPosition = 0;
         }
-        isTurretInit = newPosition != 0;
-        panEncoderRelative.setPosition(newPosition);
+        if (newPosition == 0) {
+          if (isTurretInit) {
+            System.out.println("ENCODER COULD NOT SOLVE! PLS FIX!");
+          }
+          isTurretInit = false;
+        } else {
+          double currentPos = panEncoderRelative.getPosition();
+          if (isTurretInit && Math.abs(currentPos - newPosition) > .1) {
+            isTurretInit = false;
+            System.out.println("ENCODER DIFFERENCE TOO BIG! IT PROB SKIPPED A GEAR!");
+          } else {
+            isTurretInit = true;
+            panEncoderRelative.setPosition(newPosition);
+          }
+        }
         break;
       default:
         throw new IllegalStateException("Invalid robot version");
@@ -225,22 +238,28 @@ public class ShooterIOSpark implements ShooterIO {
       v = tunableV.get();
     }
     v *= 12;
+    if (Robot.VERSION == Robot.RobotVersion.V2) {
+      flywheelController.setSetpoint(speedRotationsPerMinute, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0, v * speedRotationsPerMinute, SparkClosedLoopController.ArbFFUnits.kVoltage);
+      flywheelController2.setSetpoint(speedRotationsPerMinute, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0, v * speedRotationsPerMinute, SparkClosedLoopController.ArbFFUnits.kVoltage);
+    } else {
 
-    //          flywheelController.setSetpoint(
-    //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
-    //     ClosedLoopSlot.kSlot0);
-    //          flywheelController2.setSetpoint(
-    //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
-    //     ClosedLoopSlot.kSlot0);
 
-    double flywheelVelocity1 = flywheelEncoder.getVelocity();
-    double flywheelVelocity2 = flywheelEncoder2.getVelocity();
-    double flywheelVelocity = (flywheelVelocity1 + flywheelVelocity2) / 2;
+      //          flywheelController.setSetpoint(
+      //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
+      //     ClosedLoopSlot.kSlot0);
+      //          flywheelController2.setSetpoint(
+      //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
+      //     ClosedLoopSlot.kSlot0);
 
-    double output = flywheelPID.calculate(flywheelVelocity, speedRotationsPerMinute);
-    output += v * speedRotationsPerMinute;
-    flywheelMotor.setVoltage(output);
-    flywheelMotor2.setVoltage(output);
+      double flywheelVelocity1 = flywheelEncoder.getVelocity();
+      double flywheelVelocity2 = flywheelEncoder2.getVelocity();
+      double flywheelVelocity = (flywheelVelocity1 + flywheelVelocity2) / 2;
+
+      double output = flywheelPID.calculate(flywheelVelocity, speedRotationsPerMinute);
+      output += v * speedRotationsPerMinute;
+      flywheelMotor.setVoltage(output);
+      flywheelMotor2.setVoltage(output);
+    }
   }
 
   //  @Override

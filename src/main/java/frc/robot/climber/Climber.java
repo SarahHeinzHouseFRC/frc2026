@@ -29,6 +29,8 @@ public class Climber extends SubsystemBase {
   private Climber() {
     if (Robot.currentMode == Robot.Mode.REAL) {
       io = new ClimberIOSpark();
+    } else {
+      io = new ClimberIO() {};
     }
   }
 

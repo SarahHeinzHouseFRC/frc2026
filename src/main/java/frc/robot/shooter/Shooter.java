@@ -243,7 +243,18 @@ public class Shooter extends SubsystemBase {
           }
           Pose2d myPose = Drive.getInstance().getPose();
           Translation2d itsPose = FieldConstants.HUB.toTranslation2d();
-          ChassisSpeeds speeds = Drive.getInstance().getChassisSpeeds();
+          ChassisSpeeds chassisSpeeds = Drive.getInstance().getChassisSpeeds();
+          Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
+
+          double delaySeconds = 0.1;
+          myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
+          myPose = myPose.transformBy(robotToShooter);
+
+          Logger.recordOutput("/Shooter/distanceToHub", itsPose.getDistance(myPose.getTranslation()));
+
+          double shooterVx = chassisSpeeds.vxMetersPerSecond - (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getY());
+          double shooterVy = chassisSpeeds.vyMetersPerSecond + (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getX());
+
           double angleToHub =
               itsPose
                   .minus(myPose.getTranslation())
@@ -251,17 +262,17 @@ public class Shooter extends SubsystemBase {
                   .minus(myPose.getRotation())
                   .getRadians();
           double vrad =
-              -speeds.vxMetersPerSecond * Math.cos(angleToHub)
-                  - speeds.vyMetersPerSecond * Math.sin(angleToHub);
+              -shooterVx * Math.cos(angleToHub)
+                  - shooterVy * Math.sin(angleToHub);
           double vtan =
-              speeds.vxMetersPerSecond * Math.sin(angleToHub)
-                  - speeds.vyMetersPerSecond * Math.cos(angleToHub);
+              shooterVx * Math.sin(angleToHub)
+                  - shooterVy * Math.cos(angleToHub);
           SmartDashboard.putNumber("vrad", vrad);
           SmartDashboard.putNumber("vtan", vtan);
           double poseOffset =
               switch (Robot.VERSION) {
-                case V1 -> .3;
-                case V2 -> 0;
+                case V1 -> 0.0;
+                case V2 -> 0.0;
               };
           ShotParams shotParams =
               shotCalculator.calculateShotParams(
@@ -281,14 +292,8 @@ public class Shooter extends SubsystemBase {
           } else {
             io.setFlywheelOpenLoop(0);
           }
-          Rotation2d angle =
-              itsPose
-                  .minus(myPose.getTranslation())
-                  .getAngle()
-                  .minus(myPose.getRotation())
-                  .plus(Rotation2d.kPi)
-                  .plus(Rotation2d.fromRadians(shotParams.yawOffsetRadians()));
-          SmartDashboard.putNumber("Target Yaw Pos", MathUtil.angleModulus(angle.getRadians()));
+          double angle = angleToHub + Math.PI + shotParams.yawOffsetRadians();
+          SmartDashboard.putNumber("Target Yaw Pos", MathUtil.angleModulus(angle));
 
           if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
             io.recalibrateYaw();
@@ -301,7 +306,85 @@ public class Shooter extends SubsystemBase {
             }
             io.setTurretYaw(setpoint);
           } else {
-            double setpoint = MathUtil.inputModulus(angle.getRadians(), yawModuloMax, yawModuloMin);
+            double setpoint = MathUtil.inputModulus(angle, yawModuloMax, yawModuloMin);
+            io.setTurretYaw(setpoint);
+          }
+        },
+        this);
+  }
+
+  public Command autoAimCommandAuto() {
+    return Commands.run(
+        () -> {
+          if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
+            io.recalibrateYaw();
+          }
+          Pose2d myPose = Drive.getInstance().getPose();
+          Translation2d itsPose = FieldConstants.HUB.toTranslation2d();
+          ChassisSpeeds chassisSpeeds = Drive.getInstance().getChassisSpeeds();
+          Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
+
+          double delaySeconds = 0.1;
+          myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
+          myPose = myPose.transformBy(robotToShooter);
+
+          Logger.recordOutput("/Shooter/distanceToHub", itsPose.getDistance(myPose.getTranslation()));
+
+          double shooterVx = chassisSpeeds.vxMetersPerSecond - (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getY());
+          double shooterVy = chassisSpeeds.vyMetersPerSecond + (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getX());
+
+          double angleToHub =
+              itsPose
+                  .minus(myPose.getTranslation())
+                  .getAngle()
+                  .minus(myPose.getRotation())
+                  .getRadians();
+          double vrad =
+              -shooterVx * Math.cos(angleToHub)
+                  - shooterVy * Math.sin(angleToHub);
+          double vtan =
+              shooterVx * Math.sin(angleToHub)
+                  - shooterVy * Math.cos(angleToHub);
+          SmartDashboard.putNumber("vrad", vrad);
+          SmartDashboard.putNumber("vtan", vtan);
+          double poseOffset =
+              switch (Robot.VERSION) {
+                case V1 -> 0.0;
+                case V2 -> 0.0;
+              };
+          ShotParams shotParams =
+              shotCalculator.calculateShotParams(
+                  itsPose.getDistance(myPose.getTranslation()) + poseOffset, vrad, vtan);
+          Logger.recordOutput(
+              "/Shooter/shotParams/yawOffsetRadians", shotParams.yawOffsetRadians());
+          Logger.recordOutput(
+              "/Shooter/shotParams/flywheelVelocityRotationsPerMinute",
+              shotParams.flywheelVelocityRotationsPerMinute());
+          Logger.recordOutput(
+              "/Shooter/shotParams/linearActuatorExtensionMillimeters",
+              shotParams.linearActuatorExtensionMillimeters());
+          //                  itsPose.getDistance(myPose.getTranslation()) + .3, vrad, vtan);
+          io.setLinearActuatorPosition(shotParams.linearActuatorExtensionMillimeters());
+          if (controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1 || true) {
+            io.setFlywheelVelocity(shotParams.flywheelVelocityRotationsPerMinute());
+          } else {
+            io.setFlywheelOpenLoop(0);
+          }
+          double angle = angleToHub + Math.PI + shotParams.yawOffsetRadians();
+          SmartDashboard.putNumber("Target Yaw Pos", MathUtil.angleModulus(angle));
+
+          if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
+            io.recalibrateYaw();
+          }
+          if (!Vision.getInstance().isVisionInit()) {
+            double setpoint = getTurretYaw();
+            setpoint += autoAimDirection;
+            if (setpoint * Math.signum(autoAimDirection) > 1.57) {
+              autoAimDirection = -autoAimDirection;
+            }
+            io.setTurretYaw(setpoint);
+          } else {
+            double setpoint = MathUtil.inputModulus(angle, yawModuloMax, yawModuloMin);
             io.setTurretYaw(setpoint);
           }
         },

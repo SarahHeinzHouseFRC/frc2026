@@ -3,7 +3,7 @@ package frc.robot.shooter;
 import frc.robot.Robot;
 
 public class ShooterConstants {
-  public static final boolean tuningMode = false;
+  public static final boolean tuningMode = true;
   public static final double motorToFlywheel;
   public static final double flywheelToMotor;
   public static final double flywheelP;
@@ -42,9 +42,9 @@ public class ShooterConstants {
       case V2:
         motorToFlywheel = 1.0;
         flywheelToMotor = 1.0;
-        flywheelP = 0.00012;
+        flywheelP = 0.00025;
         flywheelI = 0.0;
-        flywheelD = 0.000005;
+        flywheelD = 0.0;
         flywheelV = 0.00015;
         yawP = 2.5;
         yawI = 0;
