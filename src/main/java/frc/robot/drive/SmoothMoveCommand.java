@@ -1,12 +1,13 @@
 package frc.robot.drive;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SmoothMoveCommand extends Command {
   private final Drive drive = Drive.getInstance();
-  private final Translation2d target;
+  private final Pose2d target;
   private double accelerationLimit = 5;
   private double velocityLimit = 5;
 
@@ -17,7 +18,7 @@ public class SmoothMoveCommand extends Command {
   private double currentVx = 0;
   private double currentVy = 0;
 
-  public SmoothMoveCommand(Translation2d target) {
+  public SmoothMoveCommand(Pose2d target) {
     this.target = target;
     addRequirements(drive);
   }
@@ -41,7 +42,8 @@ public class SmoothMoveCommand extends Command {
   @Override
   public void execute() {
     Translation2d current = drive.getPose().getTranslation();
-    Translation2d error = target.minus(current);
+    Translation2d error = target.getTranslation().minus(current);
+    double headingError = target.getRotation().getRadians() - drive.getPose().getRotation().getRadians();
     double distance = error.getNorm();
 
     if (distance < 1e-6) {
@@ -70,7 +72,7 @@ public class SmoothMoveCommand extends Command {
 
     drive.runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            new ChassisSpeeds(currentVx, currentVy, 0),
+            new ChassisSpeeds(currentVx, currentVy, headingError),
             drive.getRotation()));
   }
 

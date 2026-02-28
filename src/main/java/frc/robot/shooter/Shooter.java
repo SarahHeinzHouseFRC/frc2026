@@ -246,7 +246,7 @@ public class Shooter extends SubsystemBase {
           ChassisSpeeds chassisSpeeds = Drive.getInstance().getChassisSpeeds();
           Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
 
-          double delaySeconds = 0.05;
+          double delaySeconds = 0.1;
           myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
           myPose = myPose.transformBy(robotToShooter);
 
@@ -322,7 +322,7 @@ public class Shooter extends SubsystemBase {
           ChassisSpeeds chassisSpeeds = Drive.getInstance().getChassisSpeeds();
           Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
 
-          double delaySeconds = 0.05;
+          double delaySeconds = 0.1;
           myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
           myPose = myPose.transformBy(robotToShooter);
 
