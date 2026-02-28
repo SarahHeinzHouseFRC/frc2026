@@ -250,6 +250,8 @@ public class Shooter extends SubsystemBase {
           myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
           myPose = myPose.transformBy(robotToShooter);
 
+          Logger.recordOutput("/Shooter/distanceToHub", itsPose.getDistance(myPose.getTranslation()));
+
           double shooterVx = chassisSpeeds.vxMetersPerSecond - (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getY());
           double shooterVy = chassisSpeeds.vyMetersPerSecond + (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getX());
 
