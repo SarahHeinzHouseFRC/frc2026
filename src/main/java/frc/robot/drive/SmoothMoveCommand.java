@@ -84,7 +84,7 @@ public class SmoothMoveCommand extends Command {
   @Override
   public boolean isFinished() {
     Translation2d current = drive.getPose().getTranslation();
-    return current.getDistance(target) < POSITION_TOLERANCE;
+    return current.getDistance(target.getTranslation()) < POSITION_TOLERANCE;
   }
 
   /** Steps {@code current} toward {@code desired} by at most {@code maxDelta}. */
