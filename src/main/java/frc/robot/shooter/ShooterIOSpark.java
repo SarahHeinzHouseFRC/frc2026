@@ -89,7 +89,7 @@ public class ShooterIOSpark implements ShooterIO {
     SparkFlexConfig flywheelConfig = new SparkFlexConfig();
     flywheelConfig.smartCurrentLimit(40).idleMode(kCoast).inverted(true);
     flywheelConfig.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
-    flywheelConfig.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
+//    flywheelConfig.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
     flywheelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     flywheelConfig.openLoopRampRate(0.2);
     flywheelConfig.closedLoopRampRate(0.2);
@@ -102,7 +102,7 @@ public class ShooterIOSpark implements ShooterIO {
     SparkFlexConfig flywheel2Config = new SparkFlexConfig();
     flywheel2Config.smartCurrentLimit(40).idleMode(kCoast).inverted(false);
     flywheel2Config.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
-    flywheel2Config.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
+//    flywheel2Config.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
     flywheel2Config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     flywheel2Config.openLoopRampRate(0.2);
     flywheel2Config.closedLoopRampRate(0.2);
