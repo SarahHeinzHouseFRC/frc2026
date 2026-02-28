@@ -220,15 +220,16 @@ public class ShooterIOSpark implements ShooterIO {
 
   @Override
   public void setFlywheelVelocity(double speedRotationsPerMinute) {
+    double v = flywheelV;
+    if (tuningMode) {
+      v = tunableV.get();
+    }
+    v *= 12;
     if (Robot.VERSION == Robot.RobotVersion.V2) {
-      flywheelController.setSetpoint(speedRotationsPerMinute, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-      flywheelController2.setSetpoint(speedRotationsPerMinute, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+      flywheelController.setSetpoint(speedRotationsPerMinute, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0, v * speedRotationsPerMinute, SparkClosedLoopController.ArbFFUnits.kVoltage);
+      flywheelController2.setSetpoint(speedRotationsPerMinute, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0, v * speedRotationsPerMinute, SparkClosedLoopController.ArbFFUnits.kVoltage);
     } else {
-      double v = flywheelV;
-      if (tuningMode) {
-        v = tunableV.get();
-      }
-      v *= 12;
+
 
       //          flywheelController.setSetpoint(
       //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
