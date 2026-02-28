@@ -176,8 +176,21 @@ public class ShooterIOSpark implements ShooterIO {
           System.out.println("[WARNING] Recalibrating yaw failed (NaN), falling back to zero");
           newPosition = 0;
         }
-        isTurretInit = newPosition != 0;
-        panEncoderRelative.setPosition(newPosition);
+        if (newPosition == 0) {
+          if (isTurretInit) {
+            System.out.println("ENCODER COULD NOT SOLVE! PLS FIX!");
+          }
+          isTurretInit = false;
+        } else {
+          double currentPos = panEncoderRelative.getPosition();
+          if (isTurretInit && Math.abs(currentPos - newPosition) > .1) {
+            isTurretInit = false;
+            System.out.println("ENCODER DIFFERENCE TOO BIG! IT PROB SKIPPED A GEAR!");
+          } else {
+            isTurretInit = true;
+            panEncoderRelative.setPosition(newPosition);
+          }
+        }
         break;
       default:
         throw new IllegalStateException("Invalid robot version");
