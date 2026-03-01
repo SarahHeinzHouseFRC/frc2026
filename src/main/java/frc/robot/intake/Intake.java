@@ -61,6 +61,7 @@ public class Intake extends SubsystemBase {
   public void editObiSetpoint(double change) {
     obiSetpoint += change;
     io.setOBIPivotMotorClosedLoop(obiSetpoint);
+    SmartDashboard.putNumber("obi setpoint", obiSetpoint);
   }
 
   public void setObiSetpoint(double setpoint) {

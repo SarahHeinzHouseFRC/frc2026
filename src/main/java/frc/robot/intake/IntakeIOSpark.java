@@ -91,6 +91,8 @@ public class IntakeIOSpark implements IntakeIO {
     if (Robot.VERSION == Robot.RobotVersion.V2) {
       pivconfig.closedLoop.outputRange(-.3, .3, ClosedLoopSlot.kSlot0);
     }
+    // This prevents the intake from slamming when using preset setpoints
+    pivconfig.closedLoopRampRate(2);
     // NOT working??? todo
     //    pivconfig.closedLoop.feedForward.kCos(.3, ClosedLoopSlot.kSlot0);
     pivconfig.closedLoop.positionWrappingEnabled(true);

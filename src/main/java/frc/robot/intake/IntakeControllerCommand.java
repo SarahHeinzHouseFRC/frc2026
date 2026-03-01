@@ -86,9 +86,16 @@ public class IntakeControllerCommand extends Command {
       intake.setOBIOpenLoop(0);
     }
 
-    double change = 0;
-    if (driverController.getPOV() == 0) change -= 0.001;
-    if (driverController.getPOV() == 180) change += 0.001;
-    intake.editObiSetpoint(change);
+    // Value of the encoder when the intake is stowed away
+    final double presetStowed = -0.247;
+    // Value of the encoder when the intake is in the engaged position
+    final double presetEngaged = -0.014;
+    // How fast the intake should change position when using fine adjustment
+    final double changeSpeed = 0.001;
+
+    if (driverController.getPOV() == 0) intake.setObiSetpoint(presetStowed);
+    if (driverController.getPOV() == 90) intake.editObiSetpoint(-changeSpeed);
+    if (driverController.getPOV() == 180) intake.setObiSetpoint(presetEngaged);
+    if (driverController.getPOV() == 270) intake.editObiSetpoint(changeSpeed);
   }
 }
