@@ -42,7 +42,7 @@ public class Robot extends LoggedRobot {
     V2
   }
 
-  public static final RobotVersion VERSION = RobotVersion.V2;
+  public static final RobotVersion VERSION = RobotVersion.V1;
   private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
   private RobotContainer robotContainer;
   private Command autonomousCommand;
