@@ -81,6 +81,5 @@ public class IntakeControllerCommand extends Command {
     if (driverController.getPOV() == 90) intake.editObiSetpoint(-0.001);
     if (driverController.getPOV() == 180) intake.setObiSetpoint(-0.014);
     if (driverController.getPOV() == 270) intake.editObiSetpoint(0.001);
-
   }
 }
