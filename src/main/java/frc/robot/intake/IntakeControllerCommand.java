@@ -1,5 +1,7 @@
 package frc.robot.intake;
 
+import static frc.robot.intake.IntakeConstants.*;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
@@ -85,13 +87,6 @@ public class IntakeControllerCommand extends Command {
     } else {
       intake.setOBIOpenLoop(0);
     }
-
-    // Value of the encoder when the intake is stowed away
-    final double presetStowed = -0.247;
-    // Value of the encoder when the intake is in the engaged position
-    final double presetEngaged = -0.014;
-    // How fast the intake should change position when using fine adjustment
-    final double changeSpeed = 0.001;
 
     if (driverController.getPOV() == 0) intake.setObiSetpoint(presetStowed);
     if (driverController.getPOV() == 90) intake.editObiSetpoint(-changeSpeed);
