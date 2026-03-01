@@ -77,9 +77,10 @@ public class IntakeControllerCommand extends Command {
       intake.setOBIOpenLoop(0);
     }
 
-    double change = 0;
-    if (driverController.getPOV() == 0) change -= 0.001;
-    if (driverController.getPOV() == 180) change += 0.001;
-    intake.editObiSetpoint(change);
+    if (driverController.getPOV() == 0) intake.setObiSetpoint(-0.247);
+    if (driverController.getPOV() == 90) intake.editObiSetpoint(-0.001);
+    if (driverController.getPOV() == 180) intake.setObiSetpoint(-0.014);
+    if (driverController.getPOV() == 270) intake.editObiSetpoint(0.001);
+
   }
 }
