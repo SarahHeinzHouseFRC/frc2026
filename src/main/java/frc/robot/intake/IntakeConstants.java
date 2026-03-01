@@ -48,7 +48,7 @@ public class IntakeConstants {
         overBumperPivotP = 9.0;
         overBumperPivotI = 0.0;
         overBumperPivotD = 0.0;
-        presetStowed = -0.247;  // TODO: needs tuning
+        presetStowed = -0.247; // TODO: needs tuning
         presetEngaged = -0.014; // TODO: needs tuning
         break;
       default:
