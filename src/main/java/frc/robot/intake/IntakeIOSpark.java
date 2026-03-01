@@ -76,7 +76,7 @@ public class IntakeIOSpark implements IntakeIO {
         overBumperPivotP, overBumperPivotI, overBumperPivotD, ClosedLoopSlot.kSlot0);
     pivconfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     if (Robot.VERSION == Robot.RobotVersion.V2) {
-      pivconfig.closedLoop.outputRange(-.01, .01, ClosedLoopSlot.kSlot0);
+      pivconfig.closedLoop.outputRange(-.3, .3, ClosedLoopSlot.kSlot0);
     }
     pivconfig.closedLoopRampRate(2);
     // NOT working??? todo
