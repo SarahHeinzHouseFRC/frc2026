@@ -19,6 +19,8 @@ import frc.robot.intake.IntakeControllerCommand;
 import frc.robot.math.Matrix4d;
 import frc.robot.math.Transformation;
 import frc.robot.math.Vector3d;
+import frc.robot.overbumper.OverBumper;
+import frc.robot.overbumper.OverBumperControllerCommand;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
@@ -45,35 +47,24 @@ public class Robot extends LoggedRobot {
 
   public static final RobotVersion VERSION = RobotVersion.V1;
   private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
-  private RobotContainer robotContainer;
   private Command autonomousCommand;
-  public static Simulator simulator;
 
   public Shooter shooter;
   public Drive drive;
   public Intake intake;
   public Vision vision;
   public Climber climber;
+  public OverBumper overBumper;
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public static XboxController driverController = new XboxController(0);
-  public static GenericController driverGenericController = new GenericController(driverController);
-  public static XboxController operatorController = new XboxController(1);
-  public static GenericController operatorGenericController =
-      new GenericController(operatorController);
+  public XboxController driverController;
+  public XboxController operatorController;
 
-  StructArrayTopic<Translation3d> ballPositionsTopic =
-      NetworkTableInstance.getDefault()
-          .getStructArrayTopic("/SHARP/ballPositions", Translation3d.struct);
-  private final StructArrayPublisher<Translation3d> ballPositionsPublisher =
-      ballPositionsTopic.publish();
-
-  private final StructPublisher<Pose3d> robotPositionPublisher =
-      NetworkTableInstance.getDefault()
-          .getStructTopic("/SHARP/robotPosition", Pose3d.struct)
-          .publish();
+  public Simulator simulator = null;
+  private StructArrayPublisher<Translation3d> ballPositionsPublisherSim = null;
+  private StructPublisher<Pose3d> robotPositionPublisherSim = null;
 
   public enum Mode {
     /** Running on a real robot. */
@@ -92,10 +83,31 @@ public class Robot extends LoggedRobot {
    */
   public Robot() {
     if (currentMode == Mode.SIM) {
-      Simulator.init();
-      simulator = Simulator.getInstance();
+      setupSim();
     }
-    // Record metadata
+
+    setupAdvantagekit();
+
+    configureControllers();
+
+    configureSubsystems();
+    configureBindings();
+  }
+
+  private void setupSim() {
+    Simulator.init();
+    simulator = Simulator.getInstance();
+    ballPositionsPublisherSim =
+        NetworkTableInstance.getDefault()
+            .getStructArrayTopic("/SHARP/ballPositions", Translation3d.struct)
+            .publish();
+    robotPositionPublisherSim =
+        NetworkTableInstance.getDefault()
+            .getStructTopic("/SHARP/robotPosition", Pose3d.struct)
+            .publish();
+  }
+
+  private void setupAdvantagekit() {
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -136,9 +148,26 @@ public class Robot extends LoggedRobot {
     Logger.registerURCL(URCL.startExternal());
     // Start AdvantageKit logger
     Logger.start();
+  }
 
-    configureSubsystems();
-    configureBindings();
+  private void configureControllers() {
+    driverController = new XboxController(0);
+    operatorController = new XboxController(1);
+  }
+
+  private void configureSubsystems() {
+    Shooter.init(operatorController);
+    shooter = Shooter.getInstance();
+    Drive.init();
+    drive = Drive.getInstance();
+    Vision.init();
+    vision = Vision.getInstance();
+    Intake.init();
+    intake = Intake.getInstance();
+    Climber.init();
+    climber = Climber.getInstance();
+    OverBumper.init();
+    overBumper = OverBumper.getInstance();
   }
 
   private void configureBindings() {
@@ -150,23 +179,7 @@ public class Robot extends LoggedRobot {
             () ->
                 (driverController.getAButton() ? 1 : 0)
                     + (driverController.getYButton() ? -1 : 0)));
-  }
-
-  private void configureSubsystems() {
-    //    poseGetter = new GetPose("10.32.60.200:50001");
-    Shooter.init(operatorController);
-    shooter = Shooter.getInstance();
-    Drive.init();
-    drive = Drive.getInstance();
-    Vision.init();
-    vision = Vision.getInstance();
-    Intake.init();
-    intake = Intake.getInstance();
-    Climber.init();
-    climber = Climber.getInstance();
-    robotContainer =
-        new RobotContainer(
-            drive, shooter, intake, driverGenericController, driverController, operatorController);
+    overBumper.setDefaultCommand(new OverBumperControllerCommand(driverController, overBumper));
   }
 
   /**
@@ -178,8 +191,6 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotPeriodic() {
-    //    poseGetter.writePose();
-    //    System.out.println(poseGetter.readPose());
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -216,13 +227,7 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
       autonomousCommand = null;
     }
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    //    if (autonomousCommand != null) {
-    //      autonomousCommand.cancel();
-    //    }
+
     CommandScheduler.getInstance().schedule(shooter.autoAimCommand());
   }
 
@@ -243,10 +248,6 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {}
-
-  public double solveQuad(double a, double b, double c) {
-    return (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
-  }
 
   // private Pose3d robotPoseSimTestingDontUse = moveRobotToRandomPositionTestingDontUse();
   // private int i = 0;
@@ -310,8 +311,8 @@ public class Robot extends LoggedRobot {
     simulator.shootBallFromPosition(robotPose, pitch, yaw, speed);
     simulator.shootBallFromPosition(robotPose, out.z(), out.y(), out.x());
 
-    ballPositionsPublisher.set(simulator.getBallPositions());
-    robotPositionPublisher.set(robotPose);
+    ballPositionsPublisherSim.set(simulator.getBallPositions());
+    robotPositionPublisherSim.set(robotPose);
   }
 
   // private Pose3d moveRobotToRandomPositionTestingDontUse() {

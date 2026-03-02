@@ -1,7 +1,8 @@
 package frc.robot.vision;
 
+import static frc.robot.vision.VisionConstants.*;
+
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Timer;
@@ -76,20 +77,16 @@ public class PhotonCameraIO implements CameraIO {
               target.bestCameraToTarget.getTranslation().getDistance(Translation3d.kZero);
         }
         targetDistance /= targetCount;
-        // Pose3d redPose = new Pose3d(new Translation3d(16.513, 8.043, 0), new
-        // Rotation3d(0,0,Math.PI));
-        Pose3d redPose =
-            new Pose3d(new Translation3d(16.541, 8.069, 0), new Rotation3d(0, 0, Math.PI));
         Pose3d bluePose = Pose3d.kZero;
         Pose3d best = (invert ? redPose : bluePose).plus(pnpResult.best).plus(cameraToRobot);
         Pose3d alt = (invert ? redPose : bluePose).plus(pnpResult.best).plus(cameraToRobot);
-        best = getBest(best, alt);
+        Pose3d chosen = getBest(best, alt);
         results.add(
             new PoseObservation(
                 photonResult.getTimestampSeconds(),
                 best,
                 pnpResult.ambiguity,
-                pnpResult.bestReprojErr,
+                chosen.equals(best) ? pnpResult.bestReprojErr : pnpResult.altReprojErr,
                 targetCount,
                 targetDistance));
         if (photonResult.getTimestampSeconds() > latestTimestamp) {
@@ -128,7 +125,7 @@ public class PhotonCameraIO implements CameraIO {
       }
     }
     inputs.results = results.toArray(new PoseObservation[0]);
-    Logger.recordOutput("/SHARP/Vision" + cameraName, latestCameraPose);
+    Logger.recordOutput("/SHARP/Vision/" + cameraName, latestCameraPose);
   }
 
   private static Pose3d getBest(Pose3d best, Pose3d alternate) {
