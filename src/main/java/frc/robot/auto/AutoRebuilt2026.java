@@ -62,7 +62,7 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
               shooter.setFlywheelVelocityRpm(0.0);
               intake.setIntakeOpenLoop(0.0);
               intake.setBeltOpenLoop(0.0);
-              intake.setBeltStarOpenLoop(0.0);
+              intake.setIndexerOpenLoop(0.0);
               SmartDashboard.putBoolean(
                   "AutoRebuilt2026/PathPlannerAvailable", pathPlannerAvailable);
               Logger.recordOutput("AutoRebuilt2026/StartPose", kStartPose);
@@ -96,7 +96,7 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
               shooter.setFlywheelVelocityRpm(0.0);
               intake.setIntakeOpenLoop(0.0);
               intake.setBeltOpenLoop(0.0);
-              intake.setBeltStarOpenLoop(0.0);
+              intake.setIndexerOpenLoop(0.0);
               Logger.recordOutput("AutoRebuilt2026/FinalPose", drive.getPose());
             },
             drive,
@@ -211,7 +211,7 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
                     () -> {
                       intake.setIntakeOpenLoop(0.50);
                       intake.setBeltOpenLoop(0.85);
-                      intake.setBeltStarOpenLoop(0.85);
+                      intake.setIndexerOpenLoop(0.85);
                       shooter.setFlywheelVelocityRpm(kShooterRpm);
                     },
                     intake,
@@ -220,7 +220,7 @@ public class AutoRebuilt2026 extends SequentialCommandGroup {
                 () -> {
                   intake.setIntakeOpenLoop(0.0);
                   intake.setBeltOpenLoop(0.0);
-                  intake.setBeltStarOpenLoop(0.0);
+                  intake.setIndexerOpenLoop(0.0);
                   shooter.setFlywheelVelocityRpm(0.0);
                   Logger.recordOutput("AutoRebuilt2026/FedBalls", true);
                 });

@@ -1,16 +1,14 @@
 package frc.robot.intake;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import static frc.robot.intake.IntakeConstants.*;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-
-  @AutoLogOutput private double obiSetpoint = -0.036;
 
   public static Intake instance = null;
 
@@ -37,40 +35,60 @@ public class Intake extends SubsystemBase {
         };
   }
 
+  public void intakeAndShoot() {
+    io.setIntakeOpenLoop(-12.0);
+    io.setIndexerOpenLoop(6.0);
+    io.setBeltOpenLoop(-12.0);
+    io.setAgitatorOpenLoop(0.0);
+  }
+
+  public void intake() {
+    io.setIntakeOpenLoop(-12.0);
+    io.setIndexerOpenLoop(-12.0);
+    io.setBeltOpenLoop(-12.0);
+    io.setAgitatorOpenLoop(-12.0);
+  }
+
+  public void shoot() {
+    io.setIntakeOpenLoop(0.0);
+    io.setIndexerOpenLoop(12.0);
+    io.setBeltOpenLoop(-12.0);
+    io.setAgitatorOpenLoop(-12.0);
+  }
+
+  // "Pulling out is positive" - Max Choset
+  public void outtake() {
+    io.setIntakeOpenLoop(12.0);
+    io.setIndexerOpenLoop(12.0);
+    io.setBeltOpenLoop(12.0);
+    io.setAgitatorOpenLoop(12.0);
+  }
+
+  // only to be used when one is certain that no balls will be caught in intake
+  public void autoShoot() {
+    io.setIntakeOpenLoop(-1);
+    io.setIndexerOpenLoop(-1);
+    io.setBeltOpenLoop(1);
+    io.setAgitatorOpenLoop(.5);
+  }
+
+  public void stop() {
+    io.setIntakeOpenLoop(0.0);
+    io.setIndexerOpenLoop(0.0);
+    io.setBeltOpenLoop(0.0);
+    io.setAgitatorOpenLoop(0.0);
+  }
+
   public void setBeltOpenLoop(double speed) {
     io.setBeltOpenLoop(speed * 12.0);
   }
 
   public void setIntakeOpenLoop(double speed) {
     io.setIntakeOpenLoop(speed * 12.0);
-    SmartDashboard.putNumber("intake speed", speed);
   }
 
-  public void setBeltStarOpenLoop(double speed) {
-    io.setBeltStarOpenLoop(speed * 12.0);
-  }
-
-  public void setOBIClosedLoop(double rpm) {
-    io.setOBIClosedLoopWithJamDetect(rpm);
-  }
-
-  public void setOBIOpenLoop(double speed) {
-    io.setOBIOpenLoop(speed * 12);
-  }
-
-  public void editObiSetpoint(double change) {
-    obiSetpoint += change;
-    io.setOBIPivotMotorClosedLoop(obiSetpoint);
-    SmartDashboard.putNumber("obi setpoint", obiSetpoint);
-  }
-
-  public void setObiSetpoint(double setpoint) {
-    obiSetpoint = setpoint;
-    io.setOBIPivotMotorClosedLoop(obiSetpoint);
-  }
-
-  public double getObiSetpoint() {
-    return obiSetpoint;
+  public void setIndexerOpenLoop(double speed) {
+    io.setIndexerOpenLoop(speed * 12.0);
   }
 
   @Override

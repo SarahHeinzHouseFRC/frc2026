@@ -10,7 +10,8 @@ public class AutoWeekZero {
   public static Command autoV1() {
     return Commands.sequence(
         Commands.parallel(
-                new IntakeAutoCommand(Intake.getInstance()),
+                Commands.sequence(
+                    Commands.waitSeconds(2), new IntakeAutoCommand(Intake.getInstance())),
                 Shooter.getInstance().autoAimCommandAuto())
             .withDeadline(Commands.waitSeconds(10))
         //        new SmoothMoveCommand(new Pose2d(1.160, 4.448,

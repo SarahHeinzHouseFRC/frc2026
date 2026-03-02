@@ -4,11 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO {
   @AutoLog
-  public static class IntakeIOInputs {
-    public double obiPosition = 0.0;
-    public double obiSpeed = 0.0;
-    public double obiAppliedOput = 0.0;
-  }
+  class IntakeIOInputs {}
 
   default void updateInputs(IntakeIOInputs inputs) {}
 
@@ -16,19 +12,7 @@ public interface IntakeIO {
 
   default void setIntakeOpenLoop(double voltage) {}
 
-  default void setBeltStarOpenLoop(double voltage) {}
-
-  default void setOBIClosedLoop(double speed) {}
-
-  default void setOBIOpenLoop(double voltage) {}
-
-  default void setOBIPivotMotorOpenLoop(double voltage) {}
-
-  default void setOBIPivotMotorClosedLoop(double voltage) {}
+  default void setIndexerOpenLoop(double voltage) {}
 
   default void setAgitatorOpenLoop(double voltage) {}
-
-  default void setOBIClosedLoopWithJamDetect(double speed) {
-    setOBIClosedLoop(speed);
-  }
 }
