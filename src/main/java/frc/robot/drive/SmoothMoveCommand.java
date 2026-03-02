@@ -11,7 +11,7 @@ public class SmoothMoveCommand extends Command {
   private double accelerationLimit = 5;
   private double velocityLimit = 5;
 
-  private final double dt = 1.0 / 50;
+  private final double dt = 1.0 / 100;
   private static final double POSITION_TOLERANCE = 0.05; // meters
 
   // Track current velocity for smooth acceleration
