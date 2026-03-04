@@ -238,37 +238,18 @@ public class ShooterIOSpark implements ShooterIO {
       v = tunableV.get();
     }
     v *= 12;
-    if (Robot.VERSION == Robot.RobotVersion.V2) {
-      flywheelController.setSetpoint(
-          speedRotationsPerMinute,
-          SparkBase.ControlType.kVelocity,
-          ClosedLoopSlot.kSlot0,
-          v * speedRotationsPerMinute,
-          SparkClosedLoopController.ArbFFUnits.kVoltage);
-      flywheelController2.setSetpoint(
-          speedRotationsPerMinute,
-          SparkBase.ControlType.kVelocity,
-          ClosedLoopSlot.kSlot0,
-          v * speedRotationsPerMinute,
-          SparkClosedLoopController.ArbFFUnits.kVoltage);
-    } else {
-
-      //          flywheelController.setSetpoint(
-      //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
-      //     ClosedLoopSlot.kSlot0);
-      //          flywheelController2.setSetpoint(
-      //                  speedRotationsPerMinute, SparkBase.ControlType.kVelocity,
-      //     ClosedLoopSlot.kSlot0);
-
-      double flywheelVelocity1 = flywheelEncoder.getVelocity();
-      double flywheelVelocity2 = flywheelEncoder2.getVelocity();
-      double flywheelVelocity = (flywheelVelocity1 + flywheelVelocity2) / 2;
-
-      double output = flywheelPID.calculate(flywheelVelocity, speedRotationsPerMinute);
-      output += v * speedRotationsPerMinute;
-      flywheelMotor.setVoltage(output);
-      flywheelMotor2.setVoltage(output);
-    }
+    flywheelController.setSetpoint(
+        speedRotationsPerMinute,
+        SparkBase.ControlType.kVelocity,
+        ClosedLoopSlot.kSlot0,
+        v * speedRotationsPerMinute,
+        SparkClosedLoopController.ArbFFUnits.kVoltage);
+    flywheelController2.setSetpoint(
+        speedRotationsPerMinute,
+        SparkBase.ControlType.kVelocity,
+        ClosedLoopSlot.kSlot0,
+        v * speedRotationsPerMinute,
+        SparkClosedLoopController.ArbFFUnits.kVoltage);
   }
 
   //  @Override
