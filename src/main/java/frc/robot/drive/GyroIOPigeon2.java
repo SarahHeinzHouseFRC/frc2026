@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import frc.robot.Robot;
+
 import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
@@ -32,7 +34,7 @@ public class GyroIOPigeon2 implements GyroIO {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
     yaw.setUpdateFrequency(odometryFrequency);
-    yawVelocity.setUpdateFrequency(100.0);
+    yawVelocity.setUpdateFrequency(Robot.loopFrequency);
     pigeon.optimizeBusUtilization();
     yawTimestampQueue = OdometryThread.getInstance().makeTimestampQueue();
     var yawClone = yaw.clone(); // Status signals are not thread-safe

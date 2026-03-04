@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
 
 public class SmoothMoveCommand extends Command {
   private final Drive drive = Drive.getInstance();
@@ -11,7 +12,7 @@ public class SmoothMoveCommand extends Command {
   private double accelerationLimit = 5;
   private double velocityLimit = 5;
 
-  private final double dt = 1.0 / 100;
+  private final double dt = 1d / Robot.loopFrequency;
   private static final double POSITION_TOLERANCE = 0.05; // meters
 
   // Track current velocity for smooth acceleration

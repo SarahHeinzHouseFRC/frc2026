@@ -49,6 +49,8 @@ public class Robot extends LoggedRobot {
   private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
   private Command autonomousCommand;
 
+  public static final double loopFrequency = 50.0; // Hz
+
   public Shooter shooter;
   public Drive drive;
   public Intake intake;
@@ -82,7 +84,7 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
-    super(.01);
+    super(1/loopFrequency);
 
     if (currentMode == Mode.SIM) {
       setupSim();
