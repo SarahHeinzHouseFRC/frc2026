@@ -8,6 +8,7 @@
 package frc.robot.drive;
 
 import static frc.robot.drive.DriveConstants.*;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -18,6 +19,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
 import java.util.Queue;
 
@@ -28,12 +31,18 @@ public class GyroIOPigeon2 implements GyroIO {
   private final Queue<Double> yawPositionQueue;
   private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
+  private double lastYawVelocity = 0.0;
+  private double lastYawVelocityTimestamp = 0.0;
+  private final StatusSignal<LinearAcceleration> xAcceleration = pigeon.getAccelerationX();
+  private final StatusSignal<LinearAcceleration> yAcceleration = pigeon.getAccelerationY();
 
   public GyroIOPigeon2() {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
     yaw.setUpdateFrequency(odometryFrequency);
     yawVelocity.setUpdateFrequency(Robot.loopFrequency);
+    xAcceleration.setUpdateFrequency(Robot.loopFrequency);
+    yAcceleration.setUpdateFrequency(Robot.loopFrequency);
     pigeon.optimizeBusUtilization();
     yawTimestampQueue = OdometryThread.getInstance().makeTimestampQueue();
     var yawClone = yaw.clone(); // Status signals are not thread-safe
@@ -48,9 +57,24 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity, xAcceleration, yAcceleration).equals(StatusCode.OK);
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+
+    double yawVelocityTimestamp = yawVelocity.getTimestamp().getTime();
+    double yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+    inputs.yawVelocityRadPerSec = yawVelocityRadPerSec;
+    double d_omega = (yawVelocityRadPerSec - lastYawVelocity);
+    double dt = (yawVelocityTimestamp - lastYawVelocityTimestamp);
+    inputs.yawAccelerationRadPerSecSq = dt == 0 ? 0 : d_omega / dt;
+    lastYawVelocity = yawVelocityRadPerSec;
+    lastYawVelocityTimestamp = yawVelocityTimestamp;
+
+    // what an intuitive interface, wpilib! and why not name two classes,
+    // edu.wpi.first.units.Units and edu.wpi.first.math.util.Units, "Units"
+    // just for the fun of it! "ah yes give me one acceleration.getvalue()
+    // .in(meterspersecondpersecond) please!"
+    inputs.xAccelerationMetersPerSecondSq = xAcceleration.getValue().in(MetersPerSecondPerSecond);
+    inputs.yAccelerationMetersPerSecondSq = yAcceleration.getValue().in(MetersPerSecondPerSecond);
 
     inputs.odometryYawTimestamps =
         yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();

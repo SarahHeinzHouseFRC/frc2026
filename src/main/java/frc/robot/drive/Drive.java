@@ -43,11 +43,11 @@ public class Drive extends SubsystemBase {
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleTranslations);
   private Rotation2d rawGyroRotation = Rotation2d.kZero;
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
-      new SwerveModulePosition[] {
-        new SwerveModulePosition(),
-        new SwerveModulePosition(),
-        new SwerveModulePosition(),
-        new SwerveModulePosition()
+      new SwerveModulePosition[]{
+          new SwerveModulePosition(),
+          new SwerveModulePosition(),
+          new SwerveModulePosition(),
+          new SwerveModulePosition()
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
@@ -80,11 +80,16 @@ public class Drive extends SubsystemBase {
       brModuleIO = new ModuleIOSpark(3);
       this.gyroIO = new GyroIOPigeon2();
     } else {
-      flModuleIO = new ModuleIO() {};
-      frModuleIO = new ModuleIO() {};
-      blModuleIO = new ModuleIO() {};
-      brModuleIO = new ModuleIO() {};
-      this.gyroIO = new GyroIO() {};
+      flModuleIO = new ModuleIO() {
+      };
+      frModuleIO = new ModuleIO() {
+      };
+      blModuleIO = new ModuleIO() {
+      };
+      brModuleIO = new ModuleIO() {
+      };
+      this.gyroIO = new GyroIO() {
+      };
     }
 
     modules[0] = new Module(flModuleIO, 0);
@@ -119,8 +124,8 @@ public class Drive extends SubsystemBase {
 
     // Log empty setpoint states when disabled
     if (DriverStation.isDisabled()) {
-      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
-      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
+      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[]{});
+      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[]{});
     }
 
     Logger.recordOutput(
@@ -162,11 +167,11 @@ public class Drive extends SubsystemBase {
     if (Robot.currentMode == Mode.SIM) {
       poseEstimator.update(
           Rotation2d.kZero,
-          new SwerveModulePosition[] {
-            new SwerveModulePosition(),
-            new SwerveModulePosition(),
-            new SwerveModulePosition(),
-            new SwerveModulePosition()
+          new SwerveModulePosition[]{
+              new SwerveModulePosition(),
+              new SwerveModulePosition(),
+              new SwerveModulePosition(),
+              new SwerveModulePosition()
           });
     }
 
@@ -198,14 +203,18 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
   }
 
-  /** Runs the drive in a straight line with the specified drive output. */
+  /**
+   * Runs the drive in a straight line with the specified drive output.
+   */
   public void runCharacterization(double output) {
     for (int i = 0; i < 4; i++) {
       modules[i].runCharacterization(output);
     }
   }
 
-  /** Stops the drive. */
+  /**
+   * Stops the drive.
+   */
   public void stop() {
     runVelocity(new ChassisSpeeds());
   }
@@ -223,7 +232,9 @@ public class Drive extends SubsystemBase {
     stop();
   }
 
-  /** Returns the module states (turn angles and drive velocities) for all of the modules. */
+  /**
+   * Returns the module states (turn angles and drive velocities) for all of the modules.
+   */
   @AutoLogOutput(key = "SwerveStates/Measured")
   private SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = new SwerveModuleState[4];
@@ -233,7 +244,9 @@ public class Drive extends SubsystemBase {
     return states;
   }
 
-  /** Returns the module positions (turn angles and drive positions) for all of the modules. */
+  /**
+   * Returns the module positions (turn angles and drive positions) for all of the modules.
+   */
   private SwerveModulePosition[] getModulePositions() {
     SwerveModulePosition[] states = new SwerveModulePosition[4];
     for (int i = 0; i < 4; i++) {
@@ -242,13 +255,17 @@ public class Drive extends SubsystemBase {
     return states;
   }
 
-  /** Returns the measured chassis speeds of the robot. */
+  /**
+   * Returns the measured chassis speeds of the robot.
+   */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
   public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
-  /** Returns the position of each module in radians. */
+  /**
+   * Returns the position of each module in radians.
+   */
   public double[] getWheelRadiusCharacterizationPositions() {
     double[] values = new double[4];
     for (int i = 0; i < 4; i++) {
@@ -257,7 +274,9 @@ public class Drive extends SubsystemBase {
     return values;
   }
 
-  /** Returns the average velocity of the modules in rad/sec. */
+  /**
+   * Returns the average velocity of the modules in rad/sec.
+   */
   public double getFFCharacterizationVelocity() {
     double output = 0.0;
     for (int i = 0; i < 4; i++) {
@@ -266,23 +285,31 @@ public class Drive extends SubsystemBase {
     return output;
   }
 
-  /** Returns the current odometry pose. */
+  /**
+   * Returns the current odometry pose.
+   */
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
   }
 
-  /** Returns the current odometry rotation. */
+  /**
+   * Returns the current odometry rotation.
+   */
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }
 
-  /** Resets the current odometry pose. */
+  /**
+   * Resets the current odometry pose.
+   */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
-  /** Adds a new timestamped vision measurement. */
+  /**
+   * Adds a new timestamped vision measurement.
+   */
   public synchronized void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
@@ -295,13 +322,33 @@ public class Drive extends SubsystemBase {
     poseEstimator.resetPose(visionRonotPoseMeters);
   }
 
-  /** Returns the maximum linear speed in meters per sec. */
+  /**
+   * Returns the maximum linear speed in meters per sec.
+   */
   public double getMaxLinearSpeedMetersPerSec() {
     return maxSpeedMetersPerSec;
   }
 
-  /** Returns the maximum angular speed in radians per sec. */
+  /**
+   * Returns the maximum angular speed in radians per sec.
+   */
   public double getMaxAngularSpeedRadPerSec() {
     return maxSpeedMetersPerSec / driveBaseRadius;
+  }
+
+  public double getXAccelerationMetersPerSecondSquared() {
+    return gyroInputs.connected ? gyroInputs.xAccelerationMetersPerSecondSq : 0;
+  }
+
+  public double getYAccelerationMetersPerSecondSquared() {
+    return gyroInputs.connected ? gyroInputs.yAccelerationMetersPerSecondSq : 0;
+  }
+
+  public double getYawVelocityRadiansPerSecond() {
+    return gyroInputs.connected ? gyroInputs.yawVelocityRadPerSec : getChassisSpeeds().omegaRadiansPerSecond;
+  }
+
+  public double getYawAccelerationRadiansPerSecondSquared() {
+    return gyroInputs.connected ? gyroInputs.yawAccelerationRadPerSecSq : 0;
   }
 }
