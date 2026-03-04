@@ -84,7 +84,7 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
-    super(1/loopFrequency);
+    super(1 / loopFrequency);
 
     if (currentMode == Mode.SIM) {
       setupSim();

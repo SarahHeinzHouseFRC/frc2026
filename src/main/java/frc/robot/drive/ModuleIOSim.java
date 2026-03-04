@@ -63,8 +63,8 @@ public class ModuleIOSim implements ModuleIO {
     // Update simulation state
     driveSim.setInputVoltage(MathUtil.clamp(driveAppliedVolts, -12.0, 12.0));
     turnSim.setInputVoltage(MathUtil.clamp(turnAppliedVolts, -12.0, 12.0));
-    driveSim.update(1d/Robot.loopFrequency);
-    turnSim.update(1d/Robot.loopFrequency);
+    driveSim.update(1d / Robot.loopFrequency);
+    turnSim.update(1d / Robot.loopFrequency);
 
     // Update drive inputs
     inputs.driveConnected = true;
