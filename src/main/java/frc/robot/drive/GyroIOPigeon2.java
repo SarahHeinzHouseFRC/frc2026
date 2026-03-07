@@ -7,8 +7,8 @@
 
 package frc.robot.drive;
 
-import static frc.robot.drive.DriveConstants.*;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static frc.robot.drive.DriveConstants.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -20,7 +20,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
 import java.util.Queue;
 
@@ -57,7 +56,9 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity, xAcceleration, yAcceleration).equals(StatusCode.OK);
+    inputs.connected =
+        BaseStatusSignal.refreshAll(yaw, yawVelocity, xAcceleration, yAcceleration)
+            .equals(StatusCode.OK);
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
 
     double yawVelocityTimestamp = yawVelocity.getTimestamp().getTime();

@@ -68,6 +68,14 @@ public class OverBumper extends SubsystemBase {
     return obiSetpoint;
   }
 
+  public void stopPivot() {
+    io.setOBIPivotMotorOpenLoop(0);
+  }
+
+  public void stopIntake() {
+    io.setOBIOpenLoop(0);
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);

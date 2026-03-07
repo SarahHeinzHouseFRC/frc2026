@@ -17,6 +17,11 @@ public class OverBumperControllerCommand extends Command {
   }
 
   @Override
+  public void initialize() {
+    overBumper.editObiSetpoint(0);
+  }
+
+  @Override
   public void execute() {
     if (driverController.getLeftTriggerAxis() > .1) {
       switch (Robot.VERSION) {

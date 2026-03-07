@@ -57,16 +57,26 @@ public class OverBumperIOSpark implements OverBumperIO {
 
     SparkMaxConfig pivconfig = new SparkMaxConfig();
     pivconfig.smartCurrentLimit(40).idleMode(SparkBaseConfig.IdleMode.kBrake).inverted(false);
+    pivconfig.absoluteEncoder.inverted(false);
+    if (Robot.VERSION == Robot.RobotVersion.V2) {
+      pivconfig.inverted(true);
+    }
     pivconfig.closedLoop.pid(
         overBumperPivotP, overBumperPivotI, overBumperPivotD, ClosedLoopSlot.kSlot0);
     pivconfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     if (Robot.VERSION == Robot.RobotVersion.V2) {
-      pivconfig.closedLoop.outputRange(-.3, .3, ClosedLoopSlot.kSlot0);
+      pivconfig.closedLoop.outputRange(-.5, .5, ClosedLoopSlot.kSlot0);
     }
+    pivconfig
+        .closedLoop
+        .maxMotion
+        .allowedProfileError(.5, ClosedLoopSlot.kSlot0)
+        .cruiseVelocity(.5, ClosedLoopSlot.kSlot0)
+        .maxAcceleration(1, ClosedLoopSlot.kSlot0);
     // NOT working??? todo
     //    pivconfig.closedLoop.feedForward.kCos(.3, ClosedLoopSlot.kSlot0);
     pivconfig.closedLoop.positionWrappingEnabled(true);
-    pivconfig.closedLoop.positionWrappingInputRange(-.5, .5);
+    pivconfig.closedLoop.positionWrappingInputRange(-.75, .25);
     obiPivotMotor.configure(
         pivconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

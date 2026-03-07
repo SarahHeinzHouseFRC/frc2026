@@ -215,7 +215,7 @@ public class Shooter extends SubsystemBase {
                   shooterSpeedSetpoint - 50 * MathUtil.applyDeadband(controller.getRightY(), .1),
                   0,
                   6000);
-          SmartDashboard.putNumber("shooterSpeedSetpoint", shooterSpeedSetpoint);
+          Logger.recordOutput("/Shooter/directSpeedSetpoint", shooterSpeedSetpoint);
           if (controller.getRightBumperButton()) {
             io.setFlywheelVelocity(shooterSpeedSetpoint);
           } else {

@@ -13,6 +13,4 @@ public interface IntakeIO {
   default void setIntakeOpenLoop(double voltage) {}
 
   default void setIndexerOpenLoop(double voltage) {}
-
-  default void setAgitatorOpenLoop(double voltage) {}
 }

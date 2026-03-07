@@ -21,6 +21,9 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class ShooterIOSpark implements ShooterIO {
   private final Servo linearActuator;
+  private final Servo linearActuator2;
+
+  private double turretYawSetpointRadians;
 
   private boolean isTurretInit = false;
 
@@ -42,6 +45,7 @@ public class ShooterIOSpark implements ShooterIO {
   private final int flywheelMotorCanId = 32;
   private final int flywheelMotor2CanId = 33;
   private final int linearActuatorServoPwmId = 0;
+  private final int linearActuatorServoPwmId2 = 1;
 
   private final double linearActuatorMinExtension =
       switch (Robot.VERSION) {
@@ -68,8 +72,11 @@ public class ShooterIOSpark implements ShooterIO {
     linearActuator = new Servo(linearActuatorServoPwmId);
     linearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
 
+    linearActuator2 = new Servo(linearActuatorServoPwmId2);
+    linearActuator2.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+
     SparkMaxConfig panConfig = new SparkMaxConfig();
-    panConfig.smartCurrentLimit(20).idleMode(kCoast).inverted(true);
+    panConfig.smartCurrentLimit(10).idleMode(kCoast).inverted(true);
     panConfig.encoder.positionConversionFactor(2 * Math.PI / yawReduction);
     panConfig.softLimit.forwardSoftLimit(yawMax);
     panConfig.softLimit.reverseSoftLimit(yawMin);
@@ -94,6 +101,12 @@ public class ShooterIOSpark implements ShooterIO {
     flywheelConfig.openLoopRampRate(0.2);
     flywheelConfig.closedLoopRampRate(0.2);
     flywheelConfig.encoder.velocityConversionFactor(motorToFlywheel);
+    flywheelConfig
+        .encoder
+        .uvwAverageDepth(2)
+        .quadratureAverageDepth(2)
+        .uvwMeasurementPeriod(10)
+        .quadratureMeasurementPeriod(10);
     flywheelMotor = new SparkFlex(flywheelMotorCanId, kBrushless);
     flywheelMotor.configure(flywheelConfig, kResetSafeParameters, kPersistParameters);
     flywheelEncoder = flywheelMotor.getEncoder();
@@ -107,6 +120,12 @@ public class ShooterIOSpark implements ShooterIO {
     flywheel2Config.openLoopRampRate(0.2);
     flywheel2Config.closedLoopRampRate(0.2);
     flywheel2Config.encoder.velocityConversionFactor(motorToFlywheel);
+    flywheel2Config
+        .encoder
+        .uvwAverageDepth(2)
+        .quadratureAverageDepth(2)
+        .uvwMeasurementPeriod(10)
+        .quadratureMeasurementPeriod(10);
     flywheelMotor2 = new SparkFlex(flywheelMotor2CanId, kBrushless);
     flywheelMotor2.configure(flywheel2Config, kResetSafeParameters, kPersistParameters);
     flywheelEncoder2 = flywheelMotor2.getEncoder();
@@ -225,6 +244,7 @@ public class ShooterIOSpark implements ShooterIO {
     inputs.timestamp = Timer.getFPGATimestamp();
     inputs.linearActuatorSetpointMm = ((linearActuatorSetpoint + 1) / 2) * linearActuatorLengthMm;
     inputs.isTurretInit = isTurretInit;
+    inputs.turretYawSetpointRadians = turretYawSetpointRadians;
   }
 
   private double getYaw() {
@@ -268,11 +288,13 @@ public class ShooterIOSpark implements ShooterIO {
     double newSetpoint = (clamped / linearActuatorLengthMm) * 2 - 1;
     linearActuatorSetpoint = newSetpoint;
     linearActuator.setSpeed(newSetpoint);
+    linearActuator2.setSpeed(newSetpoint);
   }
 
   @Override
   public void setTurretYaw(double yawRadians) {
     double setpoint = MathUtil.clamp(yawRadians, yawMin, yawMax);
+    turretYawSetpointRadians = setpoint;
     if (isTurretInit) {
       if (tuningMode) {
         panMotor.setVoltage(
@@ -296,6 +318,7 @@ public class ShooterIOSpark implements ShooterIO {
             1);
     linearActuatorSetpoint = newSetpoint;
     linearActuator.setSpeed(newSetpoint);
+    linearActuator2.setSpeed(newSetpoint);
   }
 
   @Override

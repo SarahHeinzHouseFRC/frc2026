@@ -44,7 +44,7 @@ yes i understand that different device classes can share a can id but i like it 
 
 ## Shooter (`30`-`39`)
 
-**Tilt Servo:** `PWM 0`
+**Tilt Servos:** `PWM 0 & 1`
 
 **Pan Motor:** `31`
 
