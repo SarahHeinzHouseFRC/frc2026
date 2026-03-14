@@ -24,6 +24,7 @@ import frc.robot.overbumper.OverBumperControllerCommand;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
+import frc.robot.sid_vision.AutoIntake;
 import frc.robot.simulator.Simulator;
 import frc.robot.vision.Vision;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -68,6 +69,8 @@ public class Robot extends LoggedRobot {
   private StructArrayPublisher<Translation3d> ballPositionsPublisherSim = null;
   private StructPublisher<Pose3d> robotPositionPublisherSim = null;
 
+  private AutoIntake autoIntake;
+
   public enum Mode {
     /** Running on a real robot. */
     REAL,
@@ -96,6 +99,7 @@ public class Robot extends LoggedRobot {
 
     configureSubsystems();
     configureBindings();
+
   }
 
   private void setupSim() {
@@ -172,6 +176,7 @@ public class Robot extends LoggedRobot {
     climber = Climber.getInstance();
     OverBumper.init();
     overBumper = OverBumper.getInstance();
+    autoIntake = new AutoIntake(driverController);
   }
 
   private void configureBindings() {
