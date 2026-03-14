@@ -78,6 +78,11 @@ public class Shooter extends SubsystemBase {
     io.setFlywheelVelocity(rpm);
   }
 
+  /** Sets flywheel open loop */
+  public void setFlywheelOpenLoop(double voltage) {
+      io.setFlywheelOpenLoop(voltage);
+  }
+
   /** Returns measured shooter speed in RPM. */
   public double getFlywheelVelocityRpm() {
     return inputs.flywheelVelocityRotationsPerMinute;
