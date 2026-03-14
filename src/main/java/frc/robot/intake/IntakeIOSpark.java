@@ -31,6 +31,7 @@ public class IntakeIOSpark implements IntakeIO {
       indexerConfig.inverted(true);
     }
     indexerConfig.absoluteEncoder.positionConversionFactor(2 * Math.PI);
+    indexerConfig.absoluteEncoder.velocityConversionFactor(2 * Math.PI / 60);
     indexerConfig.absoluteEncoder.inverted(true);
     indexerMotor.configure(
         indexerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

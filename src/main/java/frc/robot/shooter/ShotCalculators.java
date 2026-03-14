@@ -10,17 +10,17 @@ public class ShotCalculators {
   private static final double[] rpmLut =
       switch (Robot.VERSION) {
         case V1 -> new double[] {2950, 2950, 2950, 3200, 3300, 3500, 3600, 3800, 3950, 4150};
-        case V2 -> new double[] {2800, 3300, 3750, 3950, 4000, 4100, 4500, 5000, 5000};
+        case V2 -> new double[] {2800, 3200, 3400, 3900, 4000, 4200, 5000, 5500};
       };
   private static final double[] linearLut =
       switch (Robot.VERSION) {
         case V1 -> new double[] {15, 15, 15, 25, 30, 35, 45, 45, 55, 60};
-        case V2 -> new double[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+        case V2 -> new double[] {0, 0, 0, 0, 0, 5, 15, 25};
       };
   private static final double[] timeLut =
       switch (Robot.VERSION) {
         case V1 -> null;
-        case V2 -> new double[] {0.83, 1.12, 1.32, 1.39, 1.37, 1.34, 1.37, 1.49, 1.48};
+        case V2 -> new double[] {0.83, 1.12, 1.32, 1.36, 1.37, 1.38, 1.40, 1.49, 1.50};
       };
 
   private static final double timeDelay =
@@ -32,7 +32,7 @@ public class ShotCalculators {
   private static final double lutStart =
       switch (Robot.VERSION) {
         case V1 -> 1.32;
-        case V2 -> 1.62;
+        case V2 -> 1.5;
       };
   private static final double lutStep =
       switch (Robot.VERSION) {

@@ -22,6 +22,7 @@ import frc.robot.math.Vector3d;
 import frc.robot.overbumper.OverBumper;
 import frc.robot.overbumper.OverBumperControllerCommand;
 import frc.robot.shooter.Shooter;
+import frc.robot.shooter.ShooterControllerCommand;
 import frc.robot.shooter.ShooterCurveFit;
 import frc.robot.shooter.ShooterMath;
 import frc.robot.sid_vision.AutoIntake;
@@ -189,6 +190,7 @@ public class Robot extends LoggedRobot {
                 (driverController.getAButton() ? 1 : 0)
                     + (driverController.getYButton() ? -1 : 0)));
     overBumper.setDefaultCommand(new OverBumperControllerCommand(driverController, overBumper));
+    shooter.setDefaultCommand(new ShooterControllerCommand(operatorController, shooter));
   }
 
   /**
@@ -236,8 +238,6 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
       autonomousCommand = null;
     }
-
-    CommandScheduler.getInstance().schedule(shooter.autoAimCommand());
   }
 
   /** This function is called periodically during operator control. */

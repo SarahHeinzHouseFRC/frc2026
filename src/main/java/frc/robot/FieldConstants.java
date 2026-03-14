@@ -20,6 +20,9 @@ public class FieldConstants {
   public static final Translation3d TRENCH_L;
   public static final Translation3d TRENCH_R;
 
+  public static final Translation3d SHOT_TARGET_L;
+  public static final Translation3d SHOT_TARGET_R;
+
   static {
     if (TYPE == FieldType.WELDED) {
       TOWER = fromInches(0, 0, 0);
@@ -30,6 +33,8 @@ public class FieldConstants {
       HUB = fromInches(182.11, 158.845, 72);
       TRENCH_L = fromInches(0, 0, 0);
       TRENCH_R = fromInches(0, 0, 0);
+      SHOT_TARGET_R = fromInches(91, 79, 0);
+      SHOT_TARGET_L = fromInches(91, 238, 0);
     } else if (TYPE == FieldType.ANDYMARK) {
       TOWER = fromInches(0, 0, 0);
       TOWER_L1 = fromInches(0, 0, 0);
@@ -39,6 +44,8 @@ public class FieldConstants {
       HUB = fromInches(181.56, 158.32, 72);
       TRENCH_L = fromInches(0, 0, 0);
       TRENCH_R = fromInches(0, 0, 0);
+      SHOT_TARGET_R = fromInches(91, 79, 0);
+      SHOT_TARGET_L = fromInches(91, 238, 0);
     } else {
       throw new IllegalStateException("Invalid field type");
     }

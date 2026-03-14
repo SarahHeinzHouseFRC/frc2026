@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Robot;
 
 public class DriveConstants {
   public static final double maxSpeedMetersPerSec = 4.8;
@@ -27,10 +28,11 @@ public class DriveConstants {
       };
 
   // Zeroed rotation values for each module, see setup instructions
-  public static final Rotation2d frontLeftZeroRotation = new Rotation2d(Math.PI / 2);
-  public static final Rotation2d frontRightZeroRotation = new Rotation2d(Math.PI);
-  public static final Rotation2d backLeftZeroRotation = new Rotation2d(0.0);
-  public static final Rotation2d backRightZeroRotation = new Rotation2d(3 * Math.PI / 2);
+  public static final Rotation2d frontLeftZeroRotation = new Rotation2d(3 * Math.PI / 2);
+  public static final Rotation2d frontRightZeroRotation = new Rotation2d(0);
+  public static final Rotation2d backLeftZeroRotation = new Rotation2d(Math.PI);
+  public static final Rotation2d backRightZeroRotation = new Rotation2d(Math.PI / 2);
+
 
   // Device CAN IDs
   public static final int pigeonCanId = 9;

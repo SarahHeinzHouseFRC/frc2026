@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
 import frc.robot.utils.DoubleEncoder;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class ShooterIOSpark implements ShooterIO {
@@ -24,8 +25,6 @@ public class ShooterIOSpark implements ShooterIO {
   private final Servo linearActuator2;
 
   private double turretYawSetpointRadians;
-
-  private boolean isTurretInit = false;
 
   private final SparkMax panMotor;
   private AbsoluteEncoder panEncoder26;
@@ -40,6 +39,7 @@ public class ShooterIOSpark implements ShooterIO {
   private final SparkFlex flywheelMotor2;
   private final RelativeEncoder flywheelEncoder2;
   private final SparkClosedLoopController flywheelController2;
+
 
   private final int panMotorCanId = 31;
   private final int flywheelMotorCanId = 32;
@@ -61,6 +61,8 @@ public class ShooterIOSpark implements ShooterIO {
   private final LoggedNetworkNumber tunableI;
   private final LoggedNetworkNumber tunableD;
   private final LoggedNetworkNumber tunableV;
+  private final LoggedNetworkBoolean flywheel1On;
+  private final LoggedNetworkBoolean flywheel2On;
   private final PIDController flywheelPID = new PIDController(flywheelP, flywheelI, flywheelD);
 
   private final LoggedNetworkNumber yawTunableP;
@@ -83,6 +85,7 @@ public class ShooterIOSpark implements ShooterIO {
     panConfig.softLimit.forwardSoftLimitEnabled(true);
     panConfig.softLimit.reverseSoftLimitEnabled(true);
     panConfig.absoluteEncoder.positionConversionFactor(2 * Math.PI);
+    panConfig.absoluteEncoder.velocityConversionFactor(2 * Math.PI / 60);
     panConfig.absoluteEncoder.inverted(true);
     panConfig.closedLoop.pid(yawP, yawI, yawD, ClosedLoopSlot.kSlot0);
     panConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
@@ -93,39 +96,31 @@ public class ShooterIOSpark implements ShooterIO {
     panEncoderRelative = panMotor.getEncoder();
     panController = panMotor.getClosedLoopController();
 
-    SparkFlexConfig flywheelConfig = new SparkFlexConfig();
-    flywheelConfig.smartCurrentLimit(40).idleMode(kCoast).inverted(true);
-    flywheelConfig.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
+    SparkFlexConfig baseFlywheelConfig = new SparkFlexConfig();
+    baseFlywheelConfig.smartCurrentLimit(40).idleMode(kCoast);
+    baseFlywheelConfig.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
     //    flywheelConfig.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
-    flywheelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    flywheelConfig.openLoopRampRate(0.2);
-    flywheelConfig.closedLoopRampRate(0.2);
-    flywheelConfig.encoder.velocityConversionFactor(motorToFlywheel);
-    flywheelConfig
+    baseFlywheelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    baseFlywheelConfig.openLoopRampRate(0.2);
+    baseFlywheelConfig.closedLoopRampRate(0.2);
+    baseFlywheelConfig.encoder.velocityConversionFactor(motorToFlywheel);
+    baseFlywheelConfig
         .encoder
         .uvwAverageDepth(2)
         .quadratureAverageDepth(2)
         .uvwMeasurementPeriod(10)
         .quadratureMeasurementPeriod(10);
+    SparkFlexConfig flywheel1Config = new SparkFlexConfig();
+    flywheel1Config.apply(baseFlywheelConfig).inverted(true);
     flywheelMotor = new SparkFlex(flywheelMotorCanId, kBrushless);
-    flywheelMotor.configure(flywheelConfig, kResetSafeParameters, kPersistParameters);
+//    flywheel1Config.signals.appliedOutputPeriodMs(5);
+    flywheelMotor.configure(flywheel1Config, kResetSafeParameters, kPersistParameters);
     flywheelEncoder = flywheelMotor.getEncoder();
     flywheelController = flywheelMotor.getClosedLoopController();
 
     SparkFlexConfig flywheel2Config = new SparkFlexConfig();
-    flywheel2Config.smartCurrentLimit(40).idleMode(kCoast).inverted(false);
-    flywheel2Config.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
-    //    flywheel2Config.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
-    flywheel2Config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    flywheel2Config.openLoopRampRate(0.2);
-    flywheel2Config.closedLoopRampRate(0.2);
-    flywheel2Config.encoder.velocityConversionFactor(motorToFlywheel);
-    flywheel2Config
-        .encoder
-        .uvwAverageDepth(2)
-        .quadratureAverageDepth(2)
-        .uvwMeasurementPeriod(10)
-        .quadratureMeasurementPeriod(10);
+    flywheel2Config.apply(baseFlywheelConfig).inverted(false);
+//    flywheel2Config.follow(flywheelMotorCanId, true);
     flywheelMotor2 = new SparkFlex(flywheelMotor2CanId, kBrushless);
     flywheelMotor2.configure(flywheel2Config, kResetSafeParameters, kPersistParameters);
     flywheelEncoder2 = flywheelMotor2.getEncoder();
@@ -139,6 +134,8 @@ public class ShooterIOSpark implements ShooterIO {
       yawTunableP = new LoggedNetworkNumber("/Tuning/Shooter/Yaw/P", yawP);
       yawTunableI = new LoggedNetworkNumber("/Tuning/Shooter/Yaw/I", yawI);
       yawTunableD = new LoggedNetworkNumber("/Tuning/Shooter/Yaw/D", yawD);
+      flywheel1On = new LoggedNetworkBoolean("/Tuning/Shooter/flywheel1On", true);
+      flywheel2On = new LoggedNetworkBoolean("/Tuning/Shooter/flywheel2On", true);
     } else {
       tunableP = null;
       tunableI = null;
@@ -147,6 +144,8 @@ public class ShooterIOSpark implements ShooterIO {
       yawTunableP = null;
       yawTunableI = null;
       yawTunableD = null;
+      flywheel2On = null;
+      flywheel1On = null;
     }
 
     switch (Robot.VERSION) {
@@ -164,57 +163,10 @@ public class ShooterIOSpark implements ShooterIO {
   }
 
   @Override
-  public void zeroYaw() {
-    panEncoderRelative.setPosition(0);
+  public void zeroYaw(double position) {
+    panEncoderRelative.setPosition(position);
   }
 
-  // returns NaN if could not find
-  private double calculateDoubleEncoderPosition() {
-    return DoubleEncoder.processEncoderValues(
-        2 * Math.PI - panEncoder28.getPosition(), 2 * Math.PI - panEncoder26.getPosition());
-  }
-
-  @Override
-  public void recalibrateYaw() {
-    switch (Robot.VERSION) {
-      case V1:
-        panEncoderRelative.setPosition(0);
-        if (!isTurretInit) {
-          isTurretInit = true;
-        }
-        break;
-      case V2:
-        double newPosition;
-        if (panEncoder28 != null && panEncoder26 != null) {
-          newPosition = calculateDoubleEncoderPosition();
-        } else {
-          System.out.println("[WARNING] Recalibrating yaw failed (no 26), falling back to zero");
-          newPosition = 0;
-        }
-        if (!Double.isFinite(newPosition)) {
-          System.out.println("[WARNING] Recalibrating yaw failed (NaN), falling back to zero");
-          newPosition = 0;
-        }
-        if (newPosition == 0) {
-          if (isTurretInit) {
-            System.out.println("ENCODER COULD NOT SOLVE! PLS FIX!");
-          }
-          isTurretInit = false;
-        } else {
-          double currentPos = panEncoderRelative.getPosition();
-          if (isTurretInit && Math.abs(currentPos - newPosition) > .1) {
-            isTurretInit = false;
-            System.out.println("ENCODER DIFFERENCE TOO BIG! IT PROB SKIPPED A GEAR!");
-          } else {
-            isTurretInit = true;
-            panEncoderRelative.setPosition(newPosition);
-          }
-        }
-        break;
-      default:
-        throw new IllegalStateException("Invalid robot version");
-    }
-  }
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
@@ -226,6 +178,8 @@ public class ShooterIOSpark implements ShooterIO {
       yawTunableP.periodic();
       yawTunableI.periodic();
       yawTunableD.periodic();
+      flywheel1On.periodic();
+      flywheel2On.periodic();
       yawPID.setPID(yawTunableP.get() * 12, yawTunableI.get() * 12, yawTunableD.get() * 12);
       flywheelPID.setPID(tunableP.get() * 12, tunableI.get() * 12, tunableD.get() * 12);
     }
@@ -243,8 +197,15 @@ public class ShooterIOSpark implements ShooterIO {
     inputs.turretYawRadians = getYaw();
     inputs.timestamp = Timer.getFPGATimestamp();
     inputs.linearActuatorSetpointMm = ((linearActuatorSetpoint + 1) / 2) * linearActuatorLengthMm;
-    inputs.isTurretInit = isTurretInit;
     inputs.turretYawSetpointRadians = turretYawSetpointRadians;
+
+    inputs.position26Radians = 2 * Math.PI - panEncoder26.getPosition();
+    inputs.velocity26RadiansPerSecond = -panEncoder26.getVelocity();
+    inputs.position28Radians = 2 * Math.PI - panEncoder28.getPosition();
+    inputs.velocity28RadiansPerSecond = -panEncoder28.getVelocity();
+
+    inputs.encoder26Connected = panEncoder26 != null;
+    inputs.encoder28Connected = panEncoder28 != null;
   }
 
   private double getYaw() {
@@ -258,28 +219,19 @@ public class ShooterIOSpark implements ShooterIO {
       v = tunableV.get();
     }
     v *= 12;
-    flywheelController.setSetpoint(
-        speedRotationsPerMinute,
-        SparkBase.ControlType.kVelocity,
-        ClosedLoopSlot.kSlot0,
-        v * speedRotationsPerMinute,
-        SparkClosedLoopController.ArbFFUnits.kVoltage);
-    flywheelController2.setSetpoint(
-        speedRotationsPerMinute,
-        SparkBase.ControlType.kVelocity,
-        ClosedLoopSlot.kSlot0,
-        v * speedRotationsPerMinute,
-        SparkClosedLoopController.ArbFFUnits.kVoltage);
+//    flywheelController.setSetpoint(
+//        speedRotationsPerMinute,
+//        SparkBase.ControlType.kVelocity,
+//        ClosedLoopSlot.kSlot0,
+//        v * speedRotationsPerMinute,
+//        SparkClosedLoopController.ArbFFUnits.kVoltage);
+    double flywheelVelocity1 = motorToFlywheel * flywheelEncoder.getVelocity();
+    double flywheelVelocity2 = motorToFlywheel * flywheelEncoder2.getVelocity();
+    double flywheelVelocity = (flywheelVelocity1 + flywheelVelocity2) / 2;
+    double output = flywheelPID.calculate(flywheelVelocity, speedRotationsPerMinute) + v * speedRotationsPerMinute;
+    flywheelMotor2.setVoltage(tuningMode && !flywheel2On.get() ? 0 : output);
+    flywheelMotor.setVoltage(tuningMode && !flywheel1On.get() ? 0 : output);
   }
-
-  //  @Override
-  //  public void setTurretAngle(double yawRadians, double pitchRadians) {
-  //    setTurretYaw(yawRadians);
-  //    setTurretPitch(pitchRadians);
-  //  }
-
-  //  @Override
-  //  public void setTurretPitch(double pitchRadians) {}
 
   @Override
   public void setLinearActuatorPosition(double extensionMm) {
@@ -295,16 +247,12 @@ public class ShooterIOSpark implements ShooterIO {
   public void setTurretYaw(double yawRadians) {
     double setpoint = MathUtil.clamp(yawRadians, yawMin, yawMax);
     turretYawSetpointRadians = setpoint;
-    if (isTurretInit) {
       if (tuningMode) {
         panMotor.setVoltage(
             MathUtil.clamp(yawPID.calculate(getYaw(), setpoint), -maxYawVolts, maxYawVolts));
       } else {
         panController.setSetpoint(setpoint, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0);
       }
-    } else {
-      panMotor.setVoltage(0);
-    }
   }
 
   @Override

@@ -42,15 +42,15 @@ public class ShooterConstants {
       case V2:
         motorToFlywheel = 1.0;
         flywheelToMotor = 1.0;
-        flywheelP = 0.00025;
+        flywheelP = 0.001;
         flywheelI = 0.0;
         flywheelD = 0.0;
         flywheelV = 0.00015;
-        yawP = 2.5;
+        yawP = 3.5;
         yawI = 0;
         yawD = .025;
         yawReduction = 20d * (200d / 26d);
-        maxYawVolts = 6;
+        maxYawVolts = 12;
         yawMax = Math.PI / 2;
         yawMin = -5 * Math.PI / 4;
         yawModuloMax = Math.PI / 2;

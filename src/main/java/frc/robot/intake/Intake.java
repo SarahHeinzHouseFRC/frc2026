@@ -64,7 +64,7 @@ public class Intake extends SubsystemBase {
 
   public void shoot(double speed) {
     speed = MathUtil.clamp(speed, 0, 1);
-    io.setIntakeOpenLoop(0.0 * speed);
+    io.setIntakeOpenLoop(-2.0 * speed);
     io.setIndexerOpenLoop(12.0 * speed);
     io.setBeltOpenLoop(12.0 * speed);
   }

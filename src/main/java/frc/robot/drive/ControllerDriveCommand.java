@@ -19,7 +19,7 @@ public class ControllerDriveCommand extends Command {
   public void execute() {
     double vx = Utils.scaleAxis(Utils.deadband(-controller.getLeftY() * 3, .1), 2);
     double vy = Utils.scaleAxis(Utils.deadband(-controller.getLeftX() * 3, .1), 2);
-    double omega = Utils.scaleAxis(Utils.deadband(controller.getRightX() * 3, .1), 2);
+    double omega = Utils.scaleAxis(Utils.deadband(-controller.getRightX() * 3, .1), 2);
     ChassisSpeeds speeds = new ChassisSpeeds(vx, vy, omega);
     drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
 

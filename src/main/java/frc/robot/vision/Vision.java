@@ -99,8 +99,7 @@ public class Vision extends SubsystemBase {
                 .toPose2d()
                 .plus(
                     (new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp())))
-                        .inverse()))
-                .plus(new Transform2d(0d, 0d, Rotation2d.kPi));
+                        .inverse()));
         if (!isVisionInit) {
           double start = Timer.getFPGATimestamp();
           drive.setPose(pose);
