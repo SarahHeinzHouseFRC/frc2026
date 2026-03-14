@@ -1,35 +1,39 @@
 package frc.robot.drive;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.ImmutableAngle;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Robot;
-import frc.robot.intake.Intake;
-
-import java.util.function.DoubleSupplier;
-
 import static frc.robot.Robot.VERSION;
 
-public class BallChaserCommand extends Command {
-    private Drive drive;
-    private DoubleSupplier steer;
-    public BallChaserCommand(Drive drive, DoubleSupplier steer) {
-        this.drive = drive;
-        addRequirements(drive);
-        this.steer = steer;
-    }
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
+import java.util.function.DoubleSupplier;
 
-    @Override
-    public void initialize() {
-        drive.stop();
-    }
-    @Override
-    public void execute() {
-        drive.runVelocity(ChassisSpeeds.fromRobotRelativeSpeeds(VERSION == Robot.RobotVersion.V1 ? -1 : -1, 0, steer.getAsDouble() * (VERSION == Robot.RobotVersion.V2 ? 1 : 1), drive.getRotation()));
-    }
-    @Override
-    public void end(boolean interrupted) {
-        drive.stop();
-    }
+public class BallChaserCommand extends Command {
+  private Drive drive;
+  private DoubleSupplier steer;
+
+  public BallChaserCommand(Drive drive, DoubleSupplier steer) {
+    this.drive = drive;
+    addRequirements(drive);
+    this.steer = steer;
+  }
+
+  @Override
+  public void initialize() {
+    drive.stop();
+  }
+
+  @Override
+  public void execute() {
+    drive.runVelocity(
+        ChassisSpeeds.fromRobotRelativeSpeeds(
+            VERSION == Robot.RobotVersion.V1 ? -1 : -1,
+            0,
+            steer.getAsDouble() * (VERSION == Robot.RobotVersion.V2 ? 1 : 1),
+            drive.getRotation()));
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    drive.stop();
+  }
 }

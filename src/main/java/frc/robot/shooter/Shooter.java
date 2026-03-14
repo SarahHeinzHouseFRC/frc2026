@@ -4,15 +4,11 @@ import static frc.robot.shooter.ShooterConstants.*;
 
 import com.revrobotics.AbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
@@ -20,11 +16,9 @@ import frc.robot.Robot;
 import frc.robot.drive.Drive;
 import frc.robot.utils.DoubleEncoder;
 import frc.robot.utils.TimestampedDoubleBuffer;
-import frc.robot.vision.Vision;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-
-import java.util.function.BooleanSupplier;
 
 public class Shooter extends SubsystemBase {
   private final ShooterIO io;
@@ -38,11 +32,9 @@ public class Shooter extends SubsystemBase {
 
   private final TimestampedDoubleBuffer yawBuffer = new TimestampedDoubleBuffer(10);
 
-  @AutoLogOutput
-  private boolean isTurretInit = false;
+  @AutoLogOutput private boolean isTurretInit = false;
 
-  @AutoLogOutput
-  private boolean limpMode = false;
+  @AutoLogOutput private boolean limpMode = false;
 
   private double lastNonLimpTime = 0.0;
 
@@ -118,13 +110,17 @@ public class Shooter extends SubsystemBase {
     autoAim(FieldConstants.HUB.toTranslation2d());
   }
 
-
   public double getYawAtTime(double time) {
     return yawBuffer.getValueAtTimestamp(time);
   }
 
   public void autoAim(Translation2d itsPose) {
-    autoAim(itsPose, Drive.getInstance().getPose(), Drive.getInstance().getChassisSpeeds(), false, false);
+    autoAim(
+        itsPose,
+        Drive.getInstance().getPose(),
+        Drive.getInstance().getChassisSpeeds(),
+        false,
+        false);
   }
 
   public void autoAim(Translation2d itsPose, Pose2d myPose, ChassisSpeeds chassisSpeeds) {
@@ -132,10 +128,16 @@ public class Shooter extends SubsystemBase {
   }
 
   public void autoAim(Translation2d itsPose, boolean flywheel) {
-    autoAim(itsPose, Drive.getInstance().getPose(), Drive.getInstance().getChassisSpeeds(), flywheel, false);
+    autoAim(
+        itsPose,
+        Drive.getInstance().getPose(),
+        Drive.getInstance().getChassisSpeeds(),
+        flywheel,
+        false);
   }
 
-  public void autoAim(Translation2d itsPose, Pose2d myPose, ChassisSpeeds chassisSpeeds, boolean flywheel) {
+  public void autoAim(
+      Translation2d itsPose, Pose2d myPose, ChassisSpeeds chassisSpeeds, boolean flywheel) {
     autoAim(itsPose, myPose, chassisSpeeds, flywheel, false);
   }
 
@@ -144,10 +146,20 @@ public class Shooter extends SubsystemBase {
   }
 
   public void autoAimDry(Translation2d itsPose) {
-    autoAim(itsPose, Drive.getInstance().getPose(), Drive.getInstance().getChassisSpeeds(), false, true);
+    autoAim(
+        itsPose,
+        Drive.getInstance().getPose(),
+        Drive.getInstance().getChassisSpeeds(),
+        false,
+        true);
   }
 
-  public void autoAim(Translation2d itsPose, Pose2d myPose, ChassisSpeeds chassisSpeeds, boolean flywheel, boolean dryRun) {
+  public void autoAim(
+      Translation2d itsPose,
+      Pose2d myPose,
+      ChassisSpeeds chassisSpeeds,
+      boolean flywheel,
+      boolean dryRun) {
     Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
 
     double delaySeconds = 0.05;
@@ -166,11 +178,7 @@ public class Shooter extends SubsystemBase {
             + (chassisSpeeds.omegaRadiansPerSecond * robotToShooter.getX());
 
     double angleToHub =
-        itsPose
-            .minus(myPose.getTranslation())
-            .getAngle()
-            .minus(myPose.getRotation())
-            .getRadians();
+        itsPose.minus(myPose.getTranslation()).getAngle().minus(myPose.getRotation()).getRadians();
 
     double vrad = -shooterVx * Math.cos(angleToHub) - shooterVy * Math.sin(angleToHub);
     double vtan = shooterVx * Math.sin(angleToHub) - shooterVy * Math.cos(angleToHub);
@@ -180,15 +188,13 @@ public class Shooter extends SubsystemBase {
     ShotParams shotParams =
         shotCalculator.calculateShotParams(
             itsPose.getDistance(myPose.getTranslation()), vrad, vtan);
-    Logger.recordOutput(
-        "/Shooter/shotParams/yawOffsetRadians", shotParams.yawOffsetRadians());
+    Logger.recordOutput("/Shooter/shotParams/yawOffsetRadians", shotParams.yawOffsetRadians());
     Logger.recordOutput(
         "/Shooter/shotParams/flywheelVelocityRotationsPerMinute",
         shotParams.flywheelVelocityRotationsPerMinute());
     Logger.recordOutput(
         "/Shooter/shotParams/linearActuatorExtensionMillimeters",
         shotParams.linearActuatorExtensionMillimeters());
-
 
     double angle = angleToHub + shotParams.yawOffsetRadians();
     double angleSetpoint = MathUtil.inputModulus(angle, yawModuloMax, yawModuloMin);
@@ -246,9 +252,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command autoAimCommandAuto() {
-    return Commands.run(
-        () -> autoAim(getShotTarget(), true),
-        this);
+    return Commands.run(() -> autoAim(getShotTarget(), true), this);
+  }
+
+  public Command autoAimCommandAutoDryish() {
+    return Commands.run(() -> autoAim(getShotTarget(), false), this);
   }
 
   public void set28TurretAngleSupplier(AbsoluteEncoder enc) {
@@ -256,8 +264,7 @@ public class Shooter extends SubsystemBase {
   }
 
   private double calculateDoubleEncoderPosition() {
-    return DoubleEncoder.processEncoderValues(
-        inputs.position28Radians, inputs.position26Radians);
+    return DoubleEncoder.processEncoderValues(inputs.position28Radians, inputs.position26Radians);
   }
 
   public void recalibrateYaw() {
@@ -277,8 +284,8 @@ public class Shooter extends SubsystemBase {
   }
 
   public void checkForLimpMode() {
-    double sunGearVelocity26 = inputs.velocity26RadiansPerSecond * 26.0/200.0;
-    double sunGearVelocity28 = inputs.velocity28RadiansPerSecond * 28.0/200.0;
+    double sunGearVelocity26 = inputs.velocity26RadiansPerSecond * 26.0 / 200.0;
+    double sunGearVelocity28 = inputs.velocity28RadiansPerSecond * 28.0 / 200.0;
 
     double avgVelocity = (sunGearVelocity26 + sunGearVelocity28) / 2;
 
@@ -286,7 +293,7 @@ public class Shooter extends SubsystemBase {
 
     double percentDifference = Math.abs(difference / avgVelocity);
 
-    boolean shouldLimpMode = (difference > .02 && percentDifference > .2) || difference  > .1;
+    boolean shouldLimpMode = (difference > .02 && percentDifference > .2) || difference > .1;
 
     double currentTime = inputs.timestamp;
 
@@ -300,8 +307,6 @@ public class Shooter extends SubsystemBase {
       isTurretInit = false;
       limpMode = true;
     }
-
-
 
     Logger.recordOutput("/Shooter/limpModeChecker/difference", difference);
     Logger.recordOutput("/Shooter/limpModeChecker/percentDifference", percentDifference);

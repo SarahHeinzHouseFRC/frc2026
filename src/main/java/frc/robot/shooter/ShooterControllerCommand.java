@@ -3,7 +3,6 @@ package frc.robot.shooter;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.FieldConstants;
 import frc.robot.vision.Vision;
 import org.littletonrobotics.junction.Logger;
 
@@ -12,6 +11,7 @@ public class ShooterControllerCommand extends Command {
     AUTO,
     MANUAL
   }
+
   private ShooterMode mode = ShooterMode.AUTO;
 
   private final XboxController controller;
@@ -40,7 +40,8 @@ public class ShooterControllerCommand extends Command {
   }
 
   public void handleRecalibration() {
-    shooter.handleRecalibrationRequest(() -> controller.getLeftBumperButton() && controller.getRightBumperButton());
+    shooter.handleRecalibrationRequest(
+        () -> controller.getLeftBumperButton() && controller.getRightBumperButton());
   }
 
   public void handleModeSwitch() {

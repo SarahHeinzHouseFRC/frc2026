@@ -1,5 +1,6 @@
 package frc.robot.drive;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -12,6 +13,12 @@ public class SmoothMoveCommand extends Command {
   private double accelerationLimit = 5;
   private double velocityLimit = 5;
 
+  private double headingP = 1;
+  private double headingI = 0;
+  private double headingD = 0;
+
+  private PIDController headingPidController = new PIDController(headingP, headingI, headingD);
+
   private final double dt = 1d / Robot.loopFrequency;
   private static final double POSITION_TOLERANCE = 0.05; // meters
 
@@ -21,6 +28,7 @@ public class SmoothMoveCommand extends Command {
 
   public SmoothMoveCommand(Pose2d target) {
     this.target = target;
+    headingPidController.enableContinuousInput(-Math.PI, Math.PI);
     addRequirements(drive);
   }
 
@@ -34,6 +42,14 @@ public class SmoothMoveCommand extends Command {
     return this;
   }
 
+  public SmoothMoveCommand withPID(double p, double i, double d) {
+    headingP = p;
+    headingI = i;
+    headingD = d;
+    headingPidController.setPID(p, i, d);
+    return this;
+  }
+
   @Override
   public void initialize() {
     currentVx = 0;
@@ -44,8 +60,6 @@ public class SmoothMoveCommand extends Command {
   public void execute() {
     Translation2d current = drive.getPose().getTranslation();
     Translation2d error = target.getTranslation().minus(current);
-    double headingError =
-        target.getRotation().getRadians() - drive.getPose().getRotation().getRadians();
     double distance = error.getNorm();
 
     if (distance < 1e-6) {
@@ -64,17 +78,25 @@ public class SmoothMoveCommand extends Command {
     double rampedSpeed = Math.sqrt(2.0 * accelerationLimit * distance);
     double desiredSpeed = Math.min(velocityLimit, rampedSpeed);
 
+
     double desiredVx = dirX * desiredSpeed;
     double desiredVy = dirY * desiredSpeed;
 
     // Clamp acceleration step
     double maxDelta = accelerationLimit * dt;
+    if (rampedSpeed < velocityLimit) {//deceleration
+      maxDelta *= 1.5;
+    }
     currentVx = clampStep(currentVx, desiredVx, maxDelta);
     currentVy = clampStep(currentVy, desiredVy, maxDelta);
 
+    double omega =
+        headingPidController.calculate(
+            drive.getPose().getRotation().getRadians(), target.getRotation().getRadians());
+
     drive.runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            new ChassisSpeeds(currentVx, currentVy, headingError), drive.getRotation()));
+            new ChassisSpeeds(currentVx, currentVy, omega), drive.getRotation()));
   }
 
   @Override

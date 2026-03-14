@@ -100,7 +100,6 @@ public class Robot extends LoggedRobot {
 
     configureSubsystems();
     configureBindings();
-
   }
 
   private void setupSim() {
