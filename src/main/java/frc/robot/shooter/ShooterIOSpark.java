@@ -95,7 +95,7 @@ public class ShooterIOSpark implements ShooterIO {
     panController = panMotor.getClosedLoopController();
 
     SparkFlexConfig baseFlywheelConfig = new SparkFlexConfig();
-    baseFlywheelConfig.smartCurrentLimit(40).idleMode(kCoast);
+    baseFlywheelConfig.smartCurrentLimit(60).idleMode(kCoast);
     baseFlywheelConfig.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
     baseFlywheelConfig.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
     baseFlywheelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
@@ -112,14 +112,14 @@ public class ShooterIOSpark implements ShooterIO {
     SparkFlexConfig flywheel1Config = new SparkFlexConfig();
     flywheel1Config.apply(baseFlywheelConfig).inverted(true);
     flywheelMotor = new SparkFlex(flywheelMotorCanId, kBrushless);
-        flywheel1Config.signals.appliedOutputPeriodMs(5);
+    flywheel1Config.signals.appliedOutputPeriodMs(5);
     flywheelMotor.configure(flywheel1Config, kResetSafeParameters, kPersistParameters);
     flywheelEncoder = flywheelMotor.getEncoder();
     flywheelController = flywheelMotor.getClosedLoopController();
 
     SparkFlexConfig flywheel2Config = new SparkFlexConfig();
     flywheel2Config.apply(baseFlywheelConfig).inverted(false);
-        flywheel2Config.follow(flywheelMotorCanId, true);
+    flywheel2Config.follow(flywheelMotorCanId, true);
     flywheelMotor2 = new SparkFlex(flywheelMotor2CanId, kBrushless);
     flywheelMotor2.configure(flywheel2Config, kResetSafeParameters, kPersistParameters);
     flywheelEncoder2 = flywheelMotor2.getEncoder();
@@ -217,25 +217,28 @@ public class ShooterIOSpark implements ShooterIO {
       v = tunableV.get();
     }
     v *= 12;
-//    flywheelController.setSetpoint(
-//        speedRotationsPerMinute,
-//        SparkBase.ControlType.kMAXMotionVelocityControl,
-//        ClosedLoopSlot.kSlot0,
-//        v * speedRotationsPerMinute,
-//        SparkClosedLoopController.ArbFFUnits.kVoltage);
+
+    //    flywheelMotor.set(1);
+    //    flywheelController.setSetpoint(
+    //        speedRotationsPerMinute,
+    //        SparkBase.ControlType.kMAXMotionVelocityControl,
+    //        ClosedLoopSlot.kSlot0,
+    //        v * speedRotationsPerMinute,
+    //        SparkClosedLoopController.ArbFFUnits.kVoltage);
 
     flywheelController.setSetpoint(
         speedRotationsPerMinute,
         SparkBase.ControlType.kMAXMotionVelocityControl,
         ClosedLoopSlot.kSlot0);
-//    double flywheelVelocity1 = motorToFlywheel * flywheelEncoder.getVelocity();
-//    double flywheelVelocity2 = motorToFlywheel * flywheelEncoder2.getVelocity();
-//    double flywheelVelocity = (flywheelVelocity1 + flywheelVelocity2) / 2;
-//    double output =
-//        flywheelPID.calculate(flywheelVelocity, speedRotationsPerMinute)
-//            + v * speedRotationsPerMinute;
-//    flywheelMotor2.setVoltage(tuningMode && !flywheel2On.get() ? 0 : output);
-//    flywheelMotor.setVoltage(tuningMode && !flywheel1On.get() ? 0 : output);
+    //    double flywheelVelocity1 = motorToFlywheel * flywheelEncoder.getVelocity();
+    //    double flywheelVelocity2 = motorToFlywheel * flywheelEncoder2.getVelocity();
+    //    double flywheelVelocity = (flywheelVelocity1 + flywheelVelocity2) / 2;
+    //    double output =
+    //        flywheelPID.calculate(flywheelVelocity, speedRotationsPerMinute)
+    //            + v * speedRotationsPerMinute;
+    //    flywheelMotor2.setVoltage(tuningMode && !flywheel2On.get() ? 0 : output);
+    //    flywheelMotor.setVoltage(tuningMode && !flywheel1On.get() ? 0 : output);
+
   }
 
   @Override
@@ -258,6 +261,7 @@ public class ShooterIOSpark implements ShooterIO {
     } else {
       panController.setSetpoint(setpoint, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0);
     }
+    //    setTurretYawOpenLoop(0.0);
   }
 
   @Override

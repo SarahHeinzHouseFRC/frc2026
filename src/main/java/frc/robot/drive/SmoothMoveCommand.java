@@ -1,5 +1,6 @@
 package frc.robot.drive;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,7 +21,8 @@ public class SmoothMoveCommand extends Command {
   private PIDController headingPidController = new PIDController(headingP, headingI, headingD);
 
   private final double dt = 1d / Robot.loopFrequency;
-  private static final double POSITION_TOLERANCE = 0.05; // meters
+  private double positionTolerance = 0.05; // meters
+  private double headingTolerance = .2;
 
   // Track current velocity for smooth acceleration
   private double currentVx = 0;
@@ -39,6 +41,16 @@ public class SmoothMoveCommand extends Command {
 
   public SmoothMoveCommand withVelocityLimit(double velocityLimit) {
     this.velocityLimit = velocityLimit;
+    return this;
+  }
+
+  public SmoothMoveCommand withPositionTolerance(double positionTolerance) {
+    this.positionTolerance = positionTolerance;
+    return this;
+  }
+
+  public SmoothMoveCommand withHeadingTolerance(double headingTolerance) {
+    this.headingTolerance = headingTolerance;
     return this;
   }
 
@@ -78,13 +90,12 @@ public class SmoothMoveCommand extends Command {
     double rampedSpeed = Math.sqrt(2.0 * accelerationLimit * distance);
     double desiredSpeed = Math.min(velocityLimit, rampedSpeed);
 
-
     double desiredVx = dirX * desiredSpeed;
     double desiredVy = dirY * desiredSpeed;
 
     // Clamp acceleration step
     double maxDelta = accelerationLimit * dt;
-    if (rampedSpeed < velocityLimit) {//deceleration
+    if (rampedSpeed < velocityLimit) { // deceleration
       maxDelta *= 1.5;
     }
     currentVx = clampStep(currentVx, desiredVx, maxDelta);
@@ -107,7 +118,11 @@ public class SmoothMoveCommand extends Command {
   @Override
   public boolean isFinished() {
     Translation2d current = drive.getPose().getTranslation();
-    return current.getDistance(target.getTranslation()) < POSITION_TOLERANCE;
+    return current.getDistance(target.getTranslation()) < positionTolerance
+        && MathUtil.isNear(
+            drive.getPose().getRotation().getRadians(),
+            target.getRotation().getRadians(),
+            headingTolerance);
   }
 
   /** Steps {@code current} toward {@code desired} by at most {@code maxDelta}. */

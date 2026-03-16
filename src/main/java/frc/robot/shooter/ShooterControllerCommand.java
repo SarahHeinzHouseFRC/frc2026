@@ -83,7 +83,7 @@ public class ShooterControllerCommand extends Command {
     Logger.recordOutput("/Shooter/directSpeedSetpoint", shooterSpeedSetpoint);
     if (controller.getRightBumperButton()) {
       shooter.setFlywheelVelocityRpm(shooterSpeedSetpoint);
-//        shooter.setFlywheelOpenLoop(12d);
+      //        shooter.setFlywheelOpenLoop(12d);
     } else {
       shooter.stopFlywheel();
     }

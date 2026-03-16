@@ -31,6 +31,7 @@ import frc.robot.vision.Vision;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -72,6 +73,8 @@ public class Robot extends LoggedRobot {
 
   private AutoIntake autoIntake;
 
+  private LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto");
+
   public enum Mode {
     /** Running on a real robot. */
     REAL,
@@ -100,6 +103,14 @@ public class Robot extends LoggedRobot {
 
     configureSubsystems();
     configureBindings();
+
+    configureAutoChooser();
+  }
+
+  private void configureAutoChooser() {
+    autoChooser.addDefaultOption("right side", AutoWeekZero.autoV1());
+    autoChooser.addOption("left side", AutoWeekZero.depot());
+    autoChooser.addOption("right sweep", AutoWeekZero.rightSweep());
   }
 
   private void setupSim() {
@@ -206,6 +217,7 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     commandScheduler.run();
+    autoChooser.periodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -218,7 +230,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    autonomousCommand = AutoWeekZero.autoV1();
+    autonomousCommand = autoChooser.get();
     commandScheduler.schedule(autonomousCommand);
     //    autonomousCommand = robotContainer.getAutonomousCommand();
     //    if (autonomousCommand != null) {

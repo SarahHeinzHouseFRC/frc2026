@@ -2,6 +2,8 @@ package frc.robot.overbumper;
 
 import static frc.robot.overbumper.OverBumperConstants.*;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -74,6 +76,15 @@ public class OverBumper extends SubsystemBase {
 
   public void stopIntake() {
     io.setOBIOpenLoop(0);
+  }
+
+  public Command intakeCommand() {
+    return Commands.run(
+        () -> {
+          setObiSetpoint(presetEngaged);
+          setOBIClosedLoop(2250);
+        },
+        this);
   }
 
   @Override
