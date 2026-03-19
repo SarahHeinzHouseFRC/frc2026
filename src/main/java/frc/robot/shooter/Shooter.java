@@ -101,6 +101,10 @@ public class Shooter extends SubsystemBase {
     io.setTurretPitchOpenLoop(value);
   }
 
+  public void setLinearMm(double value) {
+    io.setLinearActuatorPosition(value);
+  }
+
   public void setTurretYawOpenLoop(double value) {
     io.setTurretYawOpenLoop(value);
   }
@@ -165,6 +169,25 @@ public class Shooter extends SubsystemBase {
       ChassisSpeeds chassisSpeeds,
       boolean flywheel,
       boolean dryRun) {
+    autoAim(itsPose, myPose, chassisSpeeds, flywheel, dryRun, false);
+  }
+
+  public void autoAimYawOff(
+      Translation2d itsPose,
+      Pose2d myPose,
+      ChassisSpeeds chassisSpeeds,
+      boolean flywheel,
+      boolean dryRun) {
+    autoAim(itsPose, myPose, chassisSpeeds, flywheel, dryRun, true);
+  }
+
+  public void autoAim(
+      Translation2d itsPose,
+      Pose2d myPose,
+      ChassisSpeeds chassisSpeeds,
+      boolean flywheel,
+      boolean dryRun,
+      boolean yawDisabled) {
     Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
 
     double delaySeconds = 0.05;
@@ -207,7 +230,9 @@ public class Shooter extends SubsystemBase {
 
     if (!dryRun) {
       io.setLinearActuatorPosition(shotParams.linearActuatorExtensionMillimeters());
-      setTurretYaw(angleSetpoint);
+      if (!yawDisabled) {
+        setTurretYaw(angleSetpoint);
+      }
       if (flywheel) {
         io.setFlywheelVelocity(shotParams.flywheelVelocityRotationsPerMinute());
       } else {

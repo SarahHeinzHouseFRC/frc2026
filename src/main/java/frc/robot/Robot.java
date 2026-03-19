@@ -111,6 +111,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addDefaultOption("right side", AutoWeekZero.autoV1());
     autoChooser.addOption("left side", AutoWeekZero.depot());
     autoChooser.addOption("right sweep", AutoWeekZero.rightSweep());
+    autoChooser.addOption("center", AutoWeekZero.center());
   }
 
   private void setupSim() {

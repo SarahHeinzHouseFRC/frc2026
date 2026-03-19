@@ -3,13 +3,15 @@ package frc.robot.shooter;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.drive.Drive;
 import frc.robot.vision.Vision;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterControllerCommand extends Command {
   enum ShooterMode {
     AUTO,
-    MANUAL
+    MANUAL,
+    SEMIMANUAL,
   }
 
   private ShooterMode mode = ShooterMode.AUTO;
@@ -17,7 +19,7 @@ public class ShooterControllerCommand extends Command {
   private final XboxController controller;
   private final Shooter shooter;
 
-  private double shooterSpeedSetpoint = 6000;
+  private double shooterSpeedSetpoint = 3000;
 
   public ShooterControllerCommand(XboxController controller, Shooter shooter) {
     this.shooter = shooter;
@@ -33,10 +35,33 @@ public class ShooterControllerCommand extends Command {
       switch (mode) {
         case MANUAL -> executeManual();
         case AUTO -> executeAuto();
+        case SEMIMANUAL -> executeSemimanual();
       }
     } else {
       executeManual();
     }
+  }
+
+  public void executeSemimanual() {
+    int pov = controller.getPOV();
+    boolean right = pov == 45 || pov == 90 || pov == 135;
+    boolean left = pov == 225 || pov == 270 || pov == 315;
+
+    if (left) {
+      shooter.setTurretYawOpenLoop(1d);
+    } else if (right) {
+      shooter.setTurretYawOpenLoop(-1d);
+    } else {
+      shooter.setTurretYawOpenLoop(0d);
+    }
+
+    boolean flywheel = controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1;
+    shooter.autoAimYawOff(
+        shooter.getShotTarget(),
+        Drive.getInstance().getPose(),
+        Drive.getInstance().getChassisSpeeds(),
+        flywheel,
+        false);
   }
 
   public void handleRecalibration() {
@@ -47,8 +72,12 @@ public class ShooterControllerCommand extends Command {
   public void handleModeSwitch() {
     if (controller.getXButton()) {
       mode = ShooterMode.MANUAL;
+      shooterSpeedSetpoint = 3000;
+      shooter.setLinearMm(0);
     } else if (controller.getAButton()) {
       mode = ShooterMode.AUTO;
+    } else if (controller.getBButton()) {
+      mode = ShooterMode.SEMIMANUAL;
     }
   }
 
