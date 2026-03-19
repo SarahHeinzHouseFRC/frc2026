@@ -19,7 +19,7 @@ public class ShooterControllerCommand extends Command {
   private final XboxController controller;
   private final Shooter shooter;
 
-  private double shooterSpeedSetpoint = 3000;
+  private double shooterSpeedSetpoint = 3235;
 
   public ShooterControllerCommand(XboxController controller, Shooter shooter) {
     this.shooter = shooter;
@@ -73,7 +73,7 @@ public class ShooterControllerCommand extends Command {
   public void handleModeSwitch() {
     if (controller.getXButton()) {
       mode = ShooterMode.MANUAL;
-      shooterSpeedSetpoint = 3000;
+      shooterSpeedSetpoint = 3235;
       shooter.setLinearMm(0);
     } else if (controller.getAButton()) {
       mode = ShooterMode.AUTO;
