@@ -16,6 +16,7 @@ import frc.robot.Robot;
 import frc.robot.drive.Drive;
 import frc.robot.utils.DoubleEncoder;
 import frc.robot.utils.TimestampedDoubleBuffer;
+import frc.robot.vision.Vision;
 import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -36,7 +37,7 @@ public class Shooter extends SubsystemBase {
 
   @AutoLogOutput private boolean isTurretInit = false;
 
-  @AutoLogOutput private boolean limpMode = false;
+  @AutoLogOutput public boolean limpMode = false;
 
   private double lastNonLimpTime = 0.0;
 
@@ -301,7 +302,9 @@ public class Shooter extends SubsystemBase {
 
   public void forceZeroYaw() {
     wasZeroForced = true;
+    limpMode = false;
     io.zeroYaw();
+    Vision.getInstance().uninit();
   }
 
   public void recalibrateYaw() {

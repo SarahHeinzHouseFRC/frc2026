@@ -35,6 +35,10 @@ public class Vision extends SubsystemBase {
     return instance;
   }
 
+  public void uninit() {
+    isVisionInit = false;
+  }
+
   private Vision() {
     Optional<DriverStation.Alliance> allianceOptional = DriverStation.getAlliance();
     if (allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red) {
