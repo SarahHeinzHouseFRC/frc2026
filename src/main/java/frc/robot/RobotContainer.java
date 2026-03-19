@@ -6,7 +6,6 @@ import frc.robot.auto.AutoRebuilt2026;
 import frc.robot.drive.ControllerDriveCommand;
 import frc.robot.drive.Drive;
 import frc.robot.intake.Intake;
-import frc.robot.intake.IntakeControllerCommand;
 import frc.robot.shooter.Shooter;
 
 /**
@@ -43,8 +42,8 @@ public class RobotContainer {
 
   private void configureDefaultCommands() {
     drive.setDefaultCommand(new ControllerDriveCommand(driverXboxController, drive));
-    intake.setDefaultCommand(
-        new IntakeControllerCommand(driverXboxController, operatorXboxController, intake));
+    //    intake.setDefaultCommand(
+    //        new IntakeControllerCommand(driverXboxController, operatorXboxController, intake));
   }
 
   private void configureBindings() {}

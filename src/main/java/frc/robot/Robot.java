@@ -194,7 +194,11 @@ public class Robot extends LoggedRobot {
   private void configureBindings() {
     drive.setDefaultCommand(new ControllerDriveCommand(driverController, drive));
     intake.setDefaultCommand(
-        new IntakeControllerCommand(driverController, operatorController, intake));
+        new IntakeControllerCommand(
+            driverController,
+            operatorController,
+            () -> driverController.getLeftTriggerAxis() < .1,
+            intake));
     climber.setDefaultCommand(
         Climber.climbCommand(
             () ->
