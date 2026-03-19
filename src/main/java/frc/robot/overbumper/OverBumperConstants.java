@@ -45,7 +45,7 @@ public class OverBumperConstants {
         overBumperPivotI = 0.0;
         overBumperPivotD = 0.0;
         presetStowed = -0.247; // TODO: needs tuning
-        presetEngaged = -0.077;
+        presetEngaged = -0.06;
         break;
       default:
         throw new IllegalStateException("Invalid robot version");
