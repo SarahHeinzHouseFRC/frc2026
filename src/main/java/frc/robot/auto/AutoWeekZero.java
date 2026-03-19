@@ -21,17 +21,13 @@ public class AutoWeekZero {
                     Shooter.getInstance().autoAimCommandAuto())
                 .withDeadline(Commands.waitSeconds(5)),
             Commands.parallel(
-                Commands.parallel(
-                        new SmoothMoveCommand(new Pose2d(.65, .65, Rotation2d.kZero))
-                            .withAccelerationLimit(2)
-                            .withVelocityLimit(2),
-                        Shooter.getInstance().autoAimCommandAutoDryish())
+                new SmoothMoveCommand(new Pose2d(.65, .65, Rotation2d.kZero))
+                    .withAccelerationLimit(2)
+                    .withVelocityLimit(2)
                     .withDeadline(Commands.waitSeconds(5)),
-                Commands.parallel(
-                        new IntakeAutoCommand(Intake.getInstance()),
-                        new ShakeCommand(OverBumper.getInstance()),
-                        Shooter.getInstance().autoAimCommandAuto())
-                    .withDeadline(Commands.waitSeconds(15))))
+                new IntakeAutoCommand(Intake.getInstance()),
+                new ShakeCommand(OverBumper.getInstance()),
+                Shooter.getInstance().autoAimCommandAuto()))
         .withDeadline(Commands.waitSeconds(20));
   }
 
