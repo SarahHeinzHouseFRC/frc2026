@@ -65,8 +65,9 @@ public class ShooterControllerCommand extends Command {
   }
 
   public void handleRecalibration() {
-    shooter.handleRecalibrationRequest(
-        () -> controller.getLeftBumperButton() && controller.getRightBumperButton());
+    if (controller.getLeftBumperButton() && controller.getRightBumperButton()) {
+      shooter.forceZeroYaw();
+    }
   }
 
   public void handleModeSwitch() {

@@ -30,6 +30,8 @@ public class Shooter extends SubsystemBase {
   public static Shooter instance;
   private final XboxController controller;
 
+  private boolean wasZeroForced = false;
+
   private final TimestampedDoubleBuffer yawBuffer = new TimestampedDoubleBuffer(10);
 
   @AutoLogOutput private boolean isTurretInit = false;
@@ -297,6 +299,11 @@ public class Shooter extends SubsystemBase {
     return DoubleEncoder.processEncoderValues(inputs.position28Radians, inputs.position26Radians);
   }
 
+  public void forceZeroYaw() {
+    wasZeroForced = true;
+    io.zeroYaw();
+  }
+
   public void recalibrateYaw() {
     switch (Robot.VERSION) {
       case V1:
@@ -344,6 +351,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public void recalibrateYawV2() {
+    if (wasZeroForced) {
+      System.out.println("[WARNING] Zero was previously forced; restart robot code to reenable...");
+    }
     double newPosition;
     if (inputs.velocity26RadiansPerSecond > .01 || inputs.velocity28RadiansPerSecond > .01) {
       System.out.println("[WARNING] Recalibrating yaw failed (moving too quickly)");
