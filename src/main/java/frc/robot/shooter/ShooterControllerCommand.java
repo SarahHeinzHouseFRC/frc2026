@@ -48,9 +48,9 @@ public class ShooterControllerCommand extends Command {
     boolean left = pov == 225 || pov == 270 || pov == 315;
 
     if (left) {
-      shooter.setTurretYawOpenLoop(1d);
+      shooter.setTurretYawOpenLoop(2d);
     } else if (right) {
-      shooter.setTurretYawOpenLoop(-1d);
+      shooter.setTurretYawOpenLoop(-2d);
     } else {
       shooter.setTurretYawOpenLoop(0d);
     }
@@ -96,10 +96,10 @@ public class ShooterControllerCommand extends Command {
       shooter.setTurretPitchOpenLoop(-12);
     }
     if (left) {
-      shooter.setTurretYawOpenLoop(1d);
+      shooter.setTurretYawOpenLoop(2d);
     }
     if (right) {
-      shooter.setTurretYawOpenLoop(-1d);
+      shooter.setTurretYawOpenLoop(-2d);
     }
 
     if (!left && !right) {
