@@ -13,6 +13,8 @@ public class Intake extends SubsystemBase {
 
   public static Intake instance = null;
 
+  public final MotorOscillator beltOscillator = new MotorOscillator();
+
   public static void init() {
     if (instance != null) {
       throw new IllegalStateException("Intake instance already initialized.");
@@ -34,6 +36,14 @@ public class Intake extends SubsystemBase {
           case REAL -> new IntakeIOSpark();
           default -> new IntakeIO() {};
         };
+    beltOscillator.setAmplitude(9);
+    beltOscillator.setCenter(3);
+    beltOscillator.setPeriod(1);
+  }
+
+  public void oscillateBelt(double speed) {
+    if (!beltOscillator.isOn()) beltOscillator.on();
+    io.setBeltOpenLoop(beltOscillator.getValue() * speed);
   }
 
   public void intakeAndShoot() {
@@ -44,7 +54,8 @@ public class Intake extends SubsystemBase {
     speed = MathUtil.clamp(speed, 0, 1);
     io.setIntakeOpenLoop(-12.0 * speed);
     io.setIndexerOpenLoop(6.0 * speed);
-    io.setBeltOpenLoop(-12.0 * speed);
+    //    io.setBeltOpenLoop(-12.0 * speed);
+    oscillateBelt(-speed);
   }
 
   public void intake() {
@@ -55,7 +66,7 @@ public class Intake extends SubsystemBase {
     speed = MathUtil.clamp(speed, 0, 1);
     io.setIntakeOpenLoop(-12.0 * speed);
     io.setIndexerOpenLoop(-12.0 * speed);
-    io.setBeltOpenLoop(-12.0 * speed);
+    oscillateBelt(-speed);
   }
 
   public void shoot() {
@@ -66,7 +77,7 @@ public class Intake extends SubsystemBase {
     speed = MathUtil.clamp(speed, 0, 1);
     io.setIntakeOpenLoop(-2.0 * speed);
     io.setIndexerOpenLoop(12.0 * speed);
-    io.setBeltOpenLoop(12.0 * speed);
+    oscillateBelt(speed);
   }
 
   public void outtake() {
@@ -78,20 +89,21 @@ public class Intake extends SubsystemBase {
     speed = MathUtil.clamp(speed, 0, 1);
     io.setIntakeOpenLoop(12.0 * speed);
     io.setIndexerOpenLoop(12.0 * speed);
-    io.setBeltOpenLoop(12.0 * speed);
+    oscillateBelt(speed);
   }
 
   // only to be used when one is certain that no balls will be caught in intake
   public void autoShoot() {
     io.setIntakeOpenLoop(-12.0);
     io.setIndexerOpenLoop(12.0);
-    io.setBeltOpenLoop(12.0);
+    oscillateBelt(1);
   }
 
   public void stop() {
     io.setIntakeOpenLoop(0.0);
     io.setIndexerOpenLoop(0.0);
     io.setBeltOpenLoop(0.0);
+    beltOscillator.off();
   }
 
   public void setBeltOpenLoop(double speed) {

@@ -14,7 +14,7 @@ public class ShooterControllerCommand extends Command {
     SEMIMANUAL,
   }
 
-  private final static double OPEN_LOOP_TURRET_SPEED = 2.0;
+  private static final double OPEN_LOOP_TURRET_SPEED = 2.0;
 
   private ShooterMode mode = ShooterMode.AUTO;
 
@@ -98,7 +98,7 @@ public class ShooterControllerCommand extends Command {
       shooter.setTurretPitchOpenLoop(-12);
     }
     if (left) {
-      shooter.setTurretYawOpenLoop(OPEN_LOOP_TURRET_SPEED );
+      shooter.setTurretYawOpenLoop(OPEN_LOOP_TURRET_SPEED);
     }
     if (right) {
       shooter.setTurretYawOpenLoop(-OPEN_LOOP_TURRET_SPEED);
