@@ -18,6 +18,8 @@ public class ShooterControllerCommand extends Command {
 
   private ShooterMode mode = ShooterMode.AUTO;
 
+  private boolean scanForTargetEnabled = true;
+
   private final XboxController controller;
   private final Shooter shooter;
 
@@ -77,10 +79,13 @@ public class ShooterControllerCommand extends Command {
       mode = ShooterMode.MANUAL;
       shooterSpeedSetpoint = 3235;
       shooter.setLinearMm(0);
+      scanForTargetEnabled = false;
     } else if (controller.getAButton()) {
       mode = ShooterMode.AUTO;
+      scanForTargetEnabled = false;
     } else if (controller.getBButton()) {
       mode = ShooterMode.SEMIMANUAL;
+      scanForTargetEnabled = false;
     }
   }
 
@@ -124,7 +129,9 @@ public class ShooterControllerCommand extends Command {
 
   public void executeAuto() {
     if (!Vision.getInstance().isVisionInit()) {
-      shooter.scanForTarget();
+      if (scanForTargetEnabled) {
+        shooter.scanForTarget();
+      }
       shooter.autoAimDry(shooter.getShotTarget());
     } else {
       boolean flywheel = controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1;
