@@ -36,9 +36,9 @@ public class Intake extends SubsystemBase {
           case REAL -> new IntakeIOSpark();
           default -> new IntakeIO() {};
         };
-    beltOscillator.setAmplitude(9);
-    beltOscillator.setCenter(3);
-    beltOscillator.setPeriod(1);
+    beltOscillator.setAmplitude(8);
+    beltOscillator.setCenter(4);
+    beltOscillator.setPeriod(.75);
   }
 
   public void oscillateBelt(double speed) {
