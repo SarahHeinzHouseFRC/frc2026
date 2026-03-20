@@ -98,6 +98,7 @@ public class Drive extends SubsystemBase {
 
   public void zeroGyro() {
     gyroIO.zero();
+    poseEstimator.resetPose(Pose2d.kZero);
   }
 
   @Override

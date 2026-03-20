@@ -25,12 +25,12 @@ public class AutoWeekZero {
                         new SmoothMoveCommand(new Pose2d(.60, .65, Rotation2d.kZero))
                             .withAccelerationLimit(2)
                             .withVelocityLimit(2),
-                        new SmoothMoveCommand(new Pose2d(.40, .65, Rotation2d.kZero))
+                        new SmoothMoveCommand(new Pose2d(.20, .65, Rotation2d.kZero))
                             .withAccelerationLimit(1)
                             .withVelocityLimit(.5)
-                            .withDeadline(Commands.waitSeconds(2.0))),
+                            .withDeadline(Commands.waitSeconds(4.0))),
                     Shooter.getInstance().autoAimCommandAutoDryish())
-                .withDeadline(Commands.waitSeconds(7)),
+                .withDeadline(Commands.waitSeconds(10.0)),
             Commands.parallel(
                     new IntakeAutoCommand(Intake.getInstance()),
                     new ShakeCommand(OverBumper.getInstance()),

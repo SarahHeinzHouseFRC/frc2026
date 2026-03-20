@@ -78,8 +78,8 @@ public class ShooterIOSpark implements ShooterIO {
     SparkMaxConfig panConfig = new SparkMaxConfig();
     panConfig.smartCurrentLimit(10).idleMode(kCoast).inverted(true);
     panConfig.encoder.positionConversionFactor(2 * Math.PI / yawReduction);
-    panConfig.softLimit.forwardSoftLimit(yawMax);
-    panConfig.softLimit.reverseSoftLimit(yawMin);
+//    panConfig.softLimit.forwardSoftLimit(yawMax);
+//    panConfig.softLimit.reverseSoftLimit(yawMin);
     panConfig.softLimit.forwardSoftLimitEnabled(true);
     panConfig.softLimit.reverseSoftLimitEnabled(true);
     panConfig.absoluteEncoder.positionConversionFactor(2 * Math.PI);
