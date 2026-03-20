@@ -54,7 +54,7 @@ public class AutoWeekZero {
                     Shooter.getInstance().autoAimCommandAutoDryish())
                 .withDeadline(Commands.waitSeconds(2.5)),
             Commands.parallel(
-                    new SmoothMoveCommand(new Pose2d(.75, 6.0, Rotation2d.kZero))
+                    new SmoothMoveCommand(new Pose2d(.50, 6.0, Rotation2d.kZero))
                         .withAccelerationLimit(2)
                         .withVelocityLimit(1),
                     Shooter.getInstance().autoAimCommandAuto(),
