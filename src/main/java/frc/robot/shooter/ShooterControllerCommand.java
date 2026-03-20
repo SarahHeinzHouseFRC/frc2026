@@ -14,6 +14,8 @@ public class ShooterControllerCommand extends Command {
     SEMIMANUAL,
   }
 
+  private final static double OPEN_LOOP_TURRET_SPEED = 2.0;
+
   private ShooterMode mode = ShooterMode.AUTO;
 
   private final XboxController controller;
@@ -48,9 +50,9 @@ public class ShooterControllerCommand extends Command {
     boolean left = pov == 225 || pov == 270 || pov == 315;
 
     if (left) {
-      shooter.setTurretYawOpenLoop(2d);
+      shooter.setTurretYawOpenLoop(OPEN_LOOP_TURRET_SPEED);
     } else if (right) {
-      shooter.setTurretYawOpenLoop(-2d);
+      shooter.setTurretYawOpenLoop(-OPEN_LOOP_TURRET_SPEED);
     } else {
       shooter.setTurretYawOpenLoop(0d);
     }
@@ -96,10 +98,10 @@ public class ShooterControllerCommand extends Command {
       shooter.setTurretPitchOpenLoop(-12);
     }
     if (left) {
-      shooter.setTurretYawOpenLoop(2d);
+      shooter.setTurretYawOpenLoop(OPEN_LOOP_TURRET_SPEED );
     }
     if (right) {
-      shooter.setTurretYawOpenLoop(-2d);
+      shooter.setTurretYawOpenLoop(-OPEN_LOOP_TURRET_SPEED);
     }
 
     if (!left && !right) {
