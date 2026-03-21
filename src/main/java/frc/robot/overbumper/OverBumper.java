@@ -2,6 +2,7 @@ package frc.robot.overbumper;
 
 import static frc.robot.overbumper.OverBumperConstants.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,6 +27,14 @@ public class OverBumper extends SubsystemBase {
       throw new IllegalStateException("OverBumper already initialized.");
     }
     instance = new OverBumper();
+  }
+
+  public double getPosition() {
+    return MathUtil.inputModulus(inputs.obiPosition, -.5, .5);
+  }
+
+  public boolean isDeployedish() {
+    return MathUtil.isNear(getPosition(), 0, .15);
   }
 
   public static OverBumper getInstance() {

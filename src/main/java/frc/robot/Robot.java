@@ -197,7 +197,9 @@ public class Robot extends LoggedRobot {
         new IntakeControllerCommand(
             driverController,
             operatorController,
-            () -> driverController.getLeftTriggerAxis() < .1,
+            () ->
+                (driverController.getLeftTriggerAxis() < .1)
+                    && OverBumper.getInstance().isDeployedish(),
             intake));
     climber.setDefaultCommand(
         Climber.climbCommand(
