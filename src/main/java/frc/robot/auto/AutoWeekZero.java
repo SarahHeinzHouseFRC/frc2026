@@ -55,8 +55,8 @@ public class AutoWeekZero {
                 .withDeadline(Commands.waitSeconds(2.5)),
             Commands.parallel(
                     new SmoothMoveCommand(new Pose2d(.50, 6.0, Rotation2d.kZero))
-                        .withAccelerationLimit(2)
-                        .withVelocityLimit(1),
+                        .withAccelerationLimit(3)
+                        .withVelocityLimit(1.5),
                     Shooter.getInstance().autoAimCommandAuto(),
                     OverBumper.getInstance().intakeCommand(),
                     new IntakeAutoCommand(Intake.getInstance()))

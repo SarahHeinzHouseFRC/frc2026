@@ -16,8 +16,18 @@ import org.littletonrobotics.junction.Logger;
 public class Vision extends SubsystemBase {
   private final Transform3d turretCamTransform =
       new Transform3d(.18, 0, .5, new Rotation3d(0, -Math.PI / 6, 0));
+  private final Transform3d frontLeftSwerveTransform = new Transform3d(.2921, .2921, .2344, new Rotation3d(0,-0.43633,0.79037));
+  private final Transform3d frontRightSwerveTransform = new Transform3d(0, 0, 0, new Rotation3d(0,0,-Math.PI / 2)).plus(frontLeftSwerveTransform);
+  private final Transform3d backLeftSwerveTransform = new Transform3d(0, 0, 0, new Rotation3d(0,0,Math.PI / 2)).plus(frontLeftSwerveTransform);
+  private final Transform3d backRightSwerveTransform = new Transform3d(0, 0, 0, new Rotation3d(0,0,Math.PI)).plus(frontLeftSwerveTransform);
   private CameraIO turretCam = new PhotonCameraIO("turretCam", turretCamTransform);
   private CameraIOInputsAutoLogged turretCamInputs = new CameraIOInputsAutoLogged();
+
+  private CameraIO leftCam = new PhotonCameraIO("leftCam", frontLeftSwerveTransform);
+  private CameraIOInputsAutoLogged leftCamInputs = new CameraIOInputsAutoLogged();
+
+  private CameraIO rightCam = new PhotonCameraIO("rightCam", frontRightSwerveTransform);
+  private CameraIOInputsAutoLogged rightCamInputs = new CameraIOInputsAutoLogged();
   @AutoLogOutput private boolean isBlue = true;
 
   // VisionSystem handles updates from coprocessors and calls drive.addVisionMeasurement directly.
@@ -49,6 +59,9 @@ public class Vision extends SubsystemBase {
             ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide
             : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
     turretCam.setIsBlue(isBlue);
+    leftCam.setIsBlue(isBlue);
+    rightCam.setIsBlue(isBlue);
+
     // load bearing System.out.println btw. dont remove.
     // forces the jvm to actually load the apriltag layout
     // rather than waiting for first use (camera sees tag)
@@ -77,6 +90,10 @@ public class Vision extends SubsystemBase {
   public void periodic() {
     turretCam.updateInputs(turretCamInputs);
     Logger.processInputs("Vision/Turret Cam", turretCamInputs);
+    leftCam.updateInputs(leftCamInputs);
+    Logger.processInputs("Vision/Left Cam", leftCamInputs);
+    rightCam.updateInputs(rightCamInputs);
+    Logger.processInputs("Vision/Right Cam", rightCamInputs);
 
     boolean localIsBlue = true;
     Optional<DriverStation.Alliance> allianceOptional = DriverStation.getAlliance();
@@ -91,27 +108,39 @@ public class Vision extends SubsystemBase {
               ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide
               : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
       turretCam.setIsBlue(isBlue);
+      leftCam.setIsBlue(isBlue);
+      rightCam.setIsBlue(isBlue);
     }
 
-    Drive drive = Drive.getInstance();
     Shooter shooter = Shooter.getInstance();
     if (shooter.isTurretInit()) {
       for (CameraIO.PoseObservation obs : turretCamInputs.results) {
-        double stddev = 0.9;
-        Pose2d pose =
-            obs.pose()
-                .toPose2d()
-                .plus(
-                    (new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp())))
-                        .inverse()));
-        if (!isVisionInit) {
-          double start = Timer.getFPGATimestamp();
-          drive.setPose(pose);
-          System.out.println("vision init took " + (Timer.getFPGATimestamp() - start));
-          isVisionInit = true;
-        }
-        drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(stddev, stddev, stddev));
+        processPose(obs, new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp()))).inverse());
+      }
+      for (CameraIO.PoseObservation obs : leftCamInputs.results) {
+        processPose(obs);
+      }
+      for (CameraIO.PoseObservation obs : rightCamInputs.results) {
+        processPose(obs);
       }
     }
+  }
+
+  private void processPose(CameraIO.PoseObservation obs) {
+    processPose(obs, Transform2d.kZero);
+  }
+
+  private void processPose(CameraIO.PoseObservation obs, Transform2d transform) {
+    Pose2d pose = obs.pose()
+        .toPose2d()
+        .plus(transform);
+    Drive drive = Drive.getInstance();
+    if (!isVisionInit) {
+      double start = Timer.getFPGATimestamp();
+      drive.setPose(pose);
+      System.out.println("vision init took " + (Timer.getFPGATimestamp() - start));
+      isVisionInit = true;
+    }
+    drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(.9, .9, 4.5));
   }
 }
