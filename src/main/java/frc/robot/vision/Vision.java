@@ -141,6 +141,7 @@ public class Vision extends SubsystemBase {
       System.out.println("vision init took " + (Timer.getFPGATimestamp() - start));
       isVisionInit = true;
     }
-    drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(.9, .9, 4.5));
+    double stddev = Math.pow(obs.averageTagDistance(), 1.0/obs.tagCount());
+    drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(stddev, stddev, stddev * 5));
   }
 }

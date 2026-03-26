@@ -96,6 +96,15 @@ public class OverBumper extends SubsystemBase {
         this);
   }
 
+  public Command intakeCommand(double speed) {
+    return Commands.run(
+        () -> {
+          setObiSetpoint(presetEngaged);
+          setOBIClosedLoop(speed);
+        },
+        this);
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);

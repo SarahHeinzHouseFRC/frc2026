@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.drive.BetterSmoothMoveCommand;
 import frc.robot.drive.SmoothMoveCommand;
 import frc.robot.intake.Intake;
 import frc.robot.intake.IntakeAutoCommand;
@@ -81,43 +82,46 @@ public class AutoWeekZero {
   }
 
   public static Command rightSweep() {
+    double aLimit = 7;
+    double vLimit = 4;
     return Commands.sequence(
         Commands.parallel(
                 Commands.sequence(
                     Commands.waitSeconds(2), new IntakeAutoCommand(Intake.getInstance())),
                 new ShakeCommand(OverBumper.getInstance()),
                 Shooter.getInstance().autoAimCommandAuto())
-            .withDeadline(Commands.waitSeconds(5)),
-        new SmoothMoveCommand(new Pose2d(2.0, .75, Rotation2d.kZero))
-            .withAccelerationLimit(2)
-            .withVelocityLimit(2)
-            .withDeadline(Commands.waitSeconds(5)),
-        new SmoothMoveCommand(new Pose2d(8.0, .75, Rotation2d.kZero))
-            .withAccelerationLimit(2)
-            .withVelocityLimit(2)
-            .withDeadline(Commands.waitSeconds(5)),
-        new SmoothMoveCommand(new Pose2d(8.0, 1.7, Rotation2d.kCW_Pi_2))
-            .withAccelerationLimit(2)
-            .withVelocityLimit(2)
-            .withDeadline(Commands.waitSeconds(5)),
+            .withTimeout(5.0),
+//        new BetterSmoothMoveCommand(new Pose2d(3.0, .55, Rotation2d.kZero))
+//            .withAccelerationLimit(aLimit)
+//            .withVelocityLimit(vLimit)
+//            .withDeadline(Commands.waitSeconds(5)),
+        new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero))
+            .withAccelerationLimit(aLimit)
+            .withVelocityLimit(vLimit)
+            .withTimeout(5.0),
+        new BetterSmoothMoveCommand(new Pose2d(7.5, 1.0, Rotation2d.kCW_Pi_2))
+            .withAccelerationLimit(aLimit)
+            .withVelocityLimit(vLimit)
+            .withPositionTolerance(1)
+            .withTimeout(5.0),
         Commands.race(
-            new SmoothMoveCommand(new Pose2d(8.0, 5.0, Rotation2d.kCW_Pi_2))
-                .withAccelerationLimit(2)
-                .withVelocityLimit(2)
-                .withDeadline(Commands.waitSeconds(5)),
-            OverBumper.getInstance().intakeCommand()),
-        new SmoothMoveCommand(new Pose2d(8.0, .75, Rotation2d.kZero))
-            .withAccelerationLimit(2)
-            .withVelocityLimit(2)
-            .withDeadline(Commands.waitSeconds(5)),
-        new SmoothMoveCommand(new Pose2d(2.0, .75, Rotation2d.kZero))
-            .withAccelerationLimit(2)
-            .withVelocityLimit(2)
-            .withDeadline(Commands.waitSeconds(5)),
+            new BetterSmoothMoveCommand(new Pose2d(7.5, 3.0, Rotation2d.kCW_Pi_2))
+                .withAccelerationLimit(aLimit)
+                .withVelocityLimit(.65)
+                .withTimeout(5.0),
+            OverBumper.getInstance().intakeCommand(3500)),
+        new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero))
+            .withAccelerationLimit(aLimit)
+            .withVelocityLimit(vLimit)
+            .withTimeout(5.0),
+        new BetterSmoothMoveCommand(new Pose2d(2.0, .55, Rotation2d.kZero))
+            .withAccelerationLimit(aLimit)
+            .withVelocityLimit(vLimit)
+            .withTimeout(5.0),
         Commands.parallel(
                 new IntakeAutoCommand(Intake.getInstance()),
                 new ShakeCommand(OverBumper.getInstance()),
                 Shooter.getInstance().autoAimCommandAuto())
-            .withDeadline(Commands.waitSeconds(15)));
+            .withTimeout(5.0)).withDeadline(Commands.waitSeconds(20.0));
   }
 }
