@@ -109,7 +109,7 @@ public class AutoWeekZero {
                 .withAccelerationLimit(aLimit)
                 .withVelocityLimit(.65)
                 .withTimeout(5.0),
-            OverBumper.getInstance().intakeCommand(3500)),
+            OverBumper.getInstance().intakeCommand(2000)),
         new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero))
             .withAccelerationLimit(aLimit)
             .withVelocityLimit(vLimit)

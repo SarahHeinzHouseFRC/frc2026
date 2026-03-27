@@ -31,7 +31,7 @@ public class OverBumperControllerCommand extends Command {
         case V2:
           overBumper.setOBIClosedLoop(
               driverController.getLeftTriggerAxis()
-                  * 2250
+                  * 2000
                   * (driverController.getLeftBumperButton() ? -1 : 1));
           break;
       }

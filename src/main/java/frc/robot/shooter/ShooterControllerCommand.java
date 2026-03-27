@@ -1,6 +1,7 @@
 package frc.robot.shooter;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.drive.Drive;
@@ -120,9 +121,11 @@ public class ShooterControllerCommand extends Command {
     Logger.recordOutput("/Shooter/directSpeedSetpoint", shooterSpeedSetpoint);
     if (controller.getRightBumperButton()) {
       shooter.setFlywheelVelocityRpm(shooterSpeedSetpoint);
+      controller.setRumble(GenericHID.RumbleType.kBothRumble, 1d);
       //        shooter.setFlywheelOpenLoop(12d);
     } else {
       shooter.stopFlywheel();
+      controller.setRumble(GenericHID.RumbleType.kBothRumble, 0d);
     }
     shooter.autoAimDry(shooter.getShotTarget());
   }

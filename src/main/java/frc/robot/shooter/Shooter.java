@@ -193,7 +193,7 @@ public class Shooter extends SubsystemBase {
       boolean yawDisabled) {
     Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
 
-    double delaySeconds = 0.05;
+    double delaySeconds = 0.5;
     myPose = myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
     myPose = myPose.transformBy(robotToShooter);
 

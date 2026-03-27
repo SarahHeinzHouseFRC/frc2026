@@ -91,7 +91,7 @@ public class OverBumper extends SubsystemBase {
     return Commands.run(
         () -> {
           setObiSetpoint(presetEngaged);
-          setOBIClosedLoop(2250);
+          setOBIClosedLoop(2000);
         },
         this);
   }
