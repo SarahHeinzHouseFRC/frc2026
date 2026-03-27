@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
+import frc.robot.utils.Utils;
 
 public class BetterSmoothMoveCommand extends Command {
   private final Drive drive = Drive.getInstance();
@@ -33,6 +34,10 @@ public class BetterSmoothMoveCommand extends Command {
   // Track current velocity for smooth acceleration
   private double currentVx = 0;
   private double currentVy = 0;
+
+  public BetterSmoothMoveCommand(Pose2d target, boolean invertLeftRight) {
+    this(invertLeftRight ? Utils.invertLeftRight(target) : target);
+  }
 
   public BetterSmoothMoveCommand(Pose2d target) {
     this.target = target;

@@ -1,5 +1,10 @@
 package frc.robot.utils;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.FieldConstants;
+import frc.robot.vision.VisionConstants;
+
 public class Utils {
   public static double scaleAxis(double axis, int power) {
     if (power == 0) return 0;
@@ -31,5 +36,16 @@ public class Utils {
     if (t < 0) t = 0;
     if (t > 1) t = 1;
     return lut[n] + t * (lut[n + 1] - lut[n]);
+  }
+
+  /** Steps {@code current} toward {@code desired} by at most {@code maxDelta}. */
+  public static double clampStep(double current, double desired, double maxDelta) {
+    double diff = desired - current;
+    if (Math.abs(diff) <= maxDelta) return desired;
+    return current + Math.copySign(maxDelta, diff);
+  }
+
+  public static Pose2d invertLeftRight(Pose2d pose) {
+    return new Pose2d(pose.getX(), FieldConstants.fieldWidth - pose.getY(), pose.getRotation().unaryMinus());
   }
 }

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.auto.AutoWeekZero;
 import frc.robot.climber.Climber;
 import frc.robot.drive.ControllerDriveCommand;
@@ -108,10 +109,12 @@ public class Robot extends LoggedRobot {
   }
 
   private void configureAutoChooser() {
-    autoChooser.addDefaultOption("right side", AutoWeekZero.autoV1());
-    autoChooser.addOption("left side", AutoWeekZero.depot());
+    autoChooser.addDefaultOption("none", Commands.none());
+    autoChooser.addOption("right side/outpost", AutoWeekZero.autoV1());
+    autoChooser.addOption("left side/depot", AutoWeekZero.depot());
     autoChooser.addOption("right sweep", AutoWeekZero.rightSweep());
-    autoChooser.addOption("center", AutoWeekZero.center());
+    autoChooser.addOption("left sweep", AutoWeekZero.leftSweep());
+    autoChooser.addOption("center/preloads only", AutoWeekZero.center());
   }
 
   private void setupSim() {

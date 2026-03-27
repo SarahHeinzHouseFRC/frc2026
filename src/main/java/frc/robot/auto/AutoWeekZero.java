@@ -82,6 +82,14 @@ public class AutoWeekZero {
   }
 
   public static Command rightSweep() {
+    return sweep(false);
+  }
+
+  public static Command leftSweep() {
+    return sweep(true);
+  }
+
+  public static Command sweep(boolean isLeft) {
     double aLimit = 7;
     double vLimit = 4;
     return Commands.sequence(
@@ -95,26 +103,26 @@ public class AutoWeekZero {
 //            .withAccelerationLimit(aLimit)
 //            .withVelocityLimit(vLimit)
 //            .withDeadline(Commands.waitSeconds(5)),
-        new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero))
+        new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero), isLeft)
             .withAccelerationLimit(aLimit)
             .withVelocityLimit(vLimit)
             .withTimeout(5.0),
-        new BetterSmoothMoveCommand(new Pose2d(7.5, 1.0, Rotation2d.kCW_Pi_2))
+        new BetterSmoothMoveCommand(new Pose2d(7.5, 1.0, Rotation2d.kCW_Pi_2), isLeft)
             .withAccelerationLimit(aLimit)
             .withVelocityLimit(vLimit)
             .withPositionTolerance(1)
             .withTimeout(5.0),
         Commands.race(
-            new BetterSmoothMoveCommand(new Pose2d(7.5, 3.0, Rotation2d.kCW_Pi_2))
+            new BetterSmoothMoveCommand(new Pose2d(7.5, 3.0, Rotation2d.kCW_Pi_2), isLeft)
                 .withAccelerationLimit(aLimit)
                 .withVelocityLimit(.65)
                 .withTimeout(5.0),
             OverBumper.getInstance().intakeCommand(2000)),
-        new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero))
+        new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero), isLeft)
             .withAccelerationLimit(aLimit)
             .withVelocityLimit(vLimit)
             .withTimeout(5.0),
-        new BetterSmoothMoveCommand(new Pose2d(2.0, .55, Rotation2d.kZero))
+        new BetterSmoothMoveCommand(new Pose2d(2.0, .55, Rotation2d.kZero), isLeft)
             .withAccelerationLimit(aLimit)
             .withVelocityLimit(vLimit)
             .withTimeout(5.0),
