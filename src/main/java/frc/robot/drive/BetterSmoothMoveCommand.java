@@ -15,11 +15,11 @@ public class BetterSmoothMoveCommand extends Command {
   private double accelerationLimit = 5;
   private double velocityLimit = 5;
 
-  private double headingP = 4;
+  private double headingP = 4; // TODO: experiment
   private double headingI = 0;
   private double headingD = 0;
 
-  private double driveP = 4;
+  private double driveP = 4; // TODO: experiment
   private double driveI = 0;
   private double driveD = 0;
 
