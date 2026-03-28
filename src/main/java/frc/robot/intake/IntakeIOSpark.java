@@ -21,7 +21,10 @@ public class IntakeIOSpark implements IntakeIO {
     beltConfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake).inverted(false);
     beltMotor.configure(beltConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     SparkMaxConfig intakeConfig = new SparkMaxConfig();
-    intakeConfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake).inverted(false);
+    intakeConfig.smartCurrentLimit(40)
+      .idleMode(IdleMode.kBrake)
+      .inverted(false)
+      .openLoopRampRate(0.2);    //suggest: between 0.1 - 0.4
     intakeMotor.configure(
         intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
