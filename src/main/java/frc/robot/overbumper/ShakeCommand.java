@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ShakeCommand extends Command {
-  private double amplitude = 0.05;
+  private double amplitude = 0.04;
   private double period = .5;
   private double startTime = 0.015;
   private double middle = -.1;
@@ -34,7 +34,7 @@ public class ShakeCommand extends Command {
   public void execute() {
     double target = middle + Math.sin((Timer.getTimestamp() - startTime) * 2 * Math.PI / period) * amplitude; // TODO: change this to 0.1 when intake is fixed
     overBumper.setObiSetpoint(target);
-    overBumper.setOBIClosedLoop(2000);
+    overBumper.setOBIClosedLoop(1000);
   }
 
   @Override
