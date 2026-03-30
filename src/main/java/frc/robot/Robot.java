@@ -119,6 +119,8 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("left side/depot", AutoWeekZero.depot());
     autoChooser.addOption("right sweep", AutoWeekZero.rightSweep());
     autoChooser.addOption("left sweep", AutoWeekZero.leftSweep());
+    autoChooser.addOption("left climb", AutoWeekZero.climbLeft());
+    autoChooser.addOption("right climb", AutoWeekZero.climbRight());
     autoChooser.addOption("center/preloads only", AutoWeekZero.center());
   }
 
