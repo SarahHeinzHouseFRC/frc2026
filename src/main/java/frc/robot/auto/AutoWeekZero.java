@@ -234,11 +234,14 @@ public class AutoWeekZero {
 //            .withVelocityLimit(vLimit)
 //            .withDeadline(Commands.waitSeconds(5)),
 
-            // move under the trench towards mid field in a straight line on the x axis
-            new BetterSmoothMoveCommand(new Pose2d(6.5, .55, Rotation2d.kZero), false)
-                    .withAccelerationLimit(aLimit + 2)
-                    .withVelocityLimit(vLimit + 1)
-                    .withTimeout(5.0),
+           Commands.parallel(
+                   // move under the trench towards mid field in a straight line on the x axis
+                   new BetterSmoothMoveCommand(new Pose2d(6.5, .55, Rotation2d.kZero), false)
+                           .withAccelerationLimit(aLimit + 2)
+                           .withVelocityLimit(vLimit + 1)
+                           .withTimeout(5.0),
+                   OverBumper.getInstance().intakeCommand(2000).withTimeout(0.1d)
+           ),
             // rotate ourselves such that the intake is pointed towards the balls.
             // also move away from the wall while rotating so we don't break stuff.
             new BetterSmoothMoveCommand(new Pose2d(7.5, 1.0, Rotation2d.kCW_Pi_2), false)
@@ -268,6 +271,17 @@ public class AutoWeekZero {
             // in parallel...
 
 
+            Commands.deadline(
+                    // rotate before moving and shooting to improve accuracy
+                    new BetterSmoothMoveCommand(new Pose2d(1.087d, 2.5d, Rotation2d.fromDegrees(-178.1d)), false)
+                            .withAccelerationLimit(aLimit)
+                            .withVelocityLimit(vLimit)
+                            .withTimeout(0.7d),
+
+
+                    Shooter.getInstance().autoAimCommandAutoDryish()
+            ),
+
 
             Commands.parallel(
                     Commands.sequence(
@@ -275,6 +289,8 @@ public class AutoWeekZero {
                             Climber.climbCommand(() -> 0d).withTimeout(0.5d)
                     ),
                             Commands.sequence(
+
+
                                     Commands.deadline(
 
                                             Commands.parallel(
@@ -305,7 +321,7 @@ public class AutoWeekZero {
                     .withTimeout(6.0),
 
             Climber.climbCommand(() -> 1d).withTimeout(3.5d)
-    ).withTimeout(30.0); // TODO: change back to 20
+    ).withTimeout(20d);
 
 
   }
