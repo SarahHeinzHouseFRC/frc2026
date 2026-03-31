@@ -254,8 +254,8 @@ public class AutoWeekZero {
                     // move toward true mid field along the y axis
                     new BetterSmoothMoveCommand(new Pose2d(7.5, 3.0, Rotation2d.kCW_Pi_2), false)
                             .withAccelerationLimit(aLimit)
-                            .withVelocityLimit(.6)
-                            .withTimeout(4.0),
+                            .withVelocityLimit(.67) // SIX SEVEN HAHAHAHAHA
+                            .withTimeout(3.5),
                     // also run our overbumper intake while we do this
                     OverBumper.getInstance().intakeCommand(2000)),
             // move back along the y axis so we are aligned x-wise to the trench
@@ -276,7 +276,7 @@ public class AutoWeekZero {
                     new BetterSmoothMoveCommand(new Pose2d(1.087d, 2.5d, Rotation2d.fromDegrees(-178.1d)), false)
                             .withAccelerationLimit(aLimit)
                             .withVelocityLimit(vLimit)
-                            .withTimeout(0.7d),
+                            .withTimeout(0.5d),
 
 
                     Shooter.getInstance().autoAimCommandAutoDryish()
@@ -285,7 +285,7 @@ public class AutoWeekZero {
 
             Commands.parallel(
                     Commands.sequence(
-                            Climber.climbCommand(() -> -1d).withTimeout(3.9d),
+                            Climber.climbCommand(() -> -1d).withTimeout(3.8d),
                             Climber.climbCommand(() -> 0d).withTimeout(0.5d)
                     ),
                             Commands.sequence(
@@ -297,7 +297,7 @@ public class AutoWeekZero {
                                                             new IntakeAutoCommand(Intake.getInstance()), // run the "intake," which pushes balls tot he shooter
                                                             new ShakeCommand(OverBumper.getInstance()), // shake the overbumper to dislodge balls
                                                             Shooter.getInstance().autoAimCommandAuto()) // also autoaim and shoot at the same time
-                                                    .withTimeout(6.0),
+                                                    .withTimeout(4.0),
 
                                             // move to approach position to climb
                                             new BetterSmoothMoveCommand(new Pose2d(1.087d, 2.5d, Rotation2d.fromDegrees(-178.1d)), false)
@@ -313,14 +313,26 @@ public class AutoWeekZero {
                                             .withTimeout(10.0)
                             )
             ),
-// approach tower
-            new BetterSmoothMoveCommand(new Pose2d(1.087d, 3.254d, Rotation2d.fromDegrees(-178.1d)), false)
-                    .withAccelerationLimit(1)
-                    .withVelocityLimit(0.4)
-                    .withPositionTolerance(0.02)
-                    .withTimeout(6.0),
 
-            Climber.climbCommand(() -> 1d).withTimeout(3.5d)
+          Commands.parallel(
+                  Commands.parallel(
+                                  new IntakeAutoCommand(Intake.getInstance()), // run the "intake," which pushes balls tot he shooter
+                                  new ShakeCommand(OverBumper.getInstance()), // shake the overbumper to dislodge balls
+                                  Shooter.getInstance().autoAimCommandAuto()) // also autoaim and shoot at the same time
+                          .withTimeout(6.0),
+
+                  Commands.sequence(
+                          // approach tower
+                          new BetterSmoothMoveCommand(new Pose2d(1.087d, 3.254d, Rotation2d.fromDegrees(-178.1d)), false)
+                                  .withAccelerationLimit(1)
+                                  .withVelocityLimit(0.5)
+                                  .withPositionTolerance(0.02)
+                                  .withTimeout(6.0),
+
+                          Climber.climbCommand(() -> 1d).withTimeout(3.5d)
+                  )
+          )
+
     ).withTimeout(20d);
 
 
