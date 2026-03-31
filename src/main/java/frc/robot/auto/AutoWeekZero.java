@@ -302,12 +302,12 @@ public class AutoWeekZero {
                                             // move to approach position to climb
                                             new BetterSmoothMoveCommand(new Pose2d(1.087d, 2.5d, Rotation2d.fromDegrees(-178.1d)), false)
                                                     .withAccelerationLimit(aLimit)
-                                                    .withVelocityLimit(0.5)
+                                                    .withVelocityLimit(0.4)
                                                     .withTimeout(10.0)
                                     ),
 
                                     // move to approach position to climb
-                                    new BetterSmoothMoveCommand(new Pose2d(1.087d, 2.5d, Rotation2d.fromDegrees(-178.1d)), false)
+                                    new BetterSmoothMoveCommand(new Pose2d(1.017d, 2.8d, Rotation2d.fromDegrees(-178.1d)), false)
                                             .withAccelerationLimit(aLimit)
                                             .withVelocityLimit(vLimit + 2)
                                             .withTimeout(10.0)
@@ -323,7 +323,7 @@ public class AutoWeekZero {
 
                   Commands.sequence(
                           // approach tower
-                          new BetterSmoothMoveCommand(new Pose2d(1.087d, 3.254d, Rotation2d.fromDegrees(-178.1d)), false)
+                          new BetterSmoothMoveCommand(new Pose2d(1.077d, 3.254d, Rotation2d.fromDegrees(-178.1d)), false)
                                   .withAccelerationLimit(1)
                                   .withVelocityLimit(0.5)
                                   .withPositionTolerance(0.02)
