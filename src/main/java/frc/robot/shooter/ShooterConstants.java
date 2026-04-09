@@ -42,10 +42,10 @@ public class ShooterConstants {
       case V2:
         motorToFlywheel = 1.0;
         flywheelToMotor = 1.0;
-        flywheelP = 0.0015;
+        flywheelP = 0.001;
         flywheelI = 0.0;
         flywheelD = 0.0;
-        flywheelV = 0.00018;
+        flywheelV = 0.00025;
         yawP = 3.5;
         yawI = 0;
         yawD = .025;

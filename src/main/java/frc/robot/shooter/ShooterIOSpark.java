@@ -96,7 +96,7 @@ public class ShooterIOSpark implements ShooterIO {
 
     SparkFlexConfig baseFlywheelConfig = new SparkFlexConfig();
     baseFlywheelConfig.voltageCompensation(12.0);
-    baseFlywheelConfig.smartCurrentLimit(60).idleMode(kCoast);
+    baseFlywheelConfig.smartCurrentLimit(40).idleMode(kCoast);
     baseFlywheelConfig.closedLoop.pid(flywheelP, flywheelI, flywheelD, ClosedLoopSlot.kSlot0);
     baseFlywheelConfig.closedLoop.feedForward.kV(flywheelV, ClosedLoopSlot.kSlot0);
     baseFlywheelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
