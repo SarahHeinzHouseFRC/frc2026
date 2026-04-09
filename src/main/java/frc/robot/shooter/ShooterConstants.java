@@ -45,7 +45,7 @@ public class ShooterConstants {
         flywheelP = 0.001;
         flywheelI = 0.0;
         flywheelD = 0.0;
-        flywheelV = 0.002;
+        flywheelV = 0.00017;
         yawP = 3.5;
         yawI = 0;
         yawD = .025;
