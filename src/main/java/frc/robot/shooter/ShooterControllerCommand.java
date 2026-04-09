@@ -138,11 +138,11 @@ public class ShooterControllerCommand extends Command {
       shooter.autoAimDry(shooter.getShotTarget());
     } else {
       boolean flywheel = controller.getRightBumperButton() || controller.getRightTriggerAxis() > .1;
-      if (controller.getRightBumperButton()) {
-        controller.setRumble(GenericHID.RumbleType.kBothRumble, 1d);
-      } else {
-        controller.setRumble(GenericHID.RumbleType.kBothRumble, 0d);
-      }
+        if (controller.getRightBumperButton()) {
+            controller.setRumble(GenericHID.RumbleType.kBothRumble, 1d);
+        } else {
+            controller.setRumble(GenericHID.RumbleType.kBothRumble, 0d);
+        }
       shooter.autoAim(shooter.getShotTarget(), flywheel);
     }
   }

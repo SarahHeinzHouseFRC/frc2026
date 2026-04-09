@@ -1,5 +1,6 @@
 package frc.robot.drive;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -17,7 +18,7 @@ public class ControllerDriveCommand extends Command {
   private double lastVy = 0;
   private double lastOmega = 0;
 
-  private double dt = 1 / Robot.loopFrequency;
+  private double dt = 1/Robot.loopFrequency;
 
   public static void goSlowPls() {
     lastTimeToldToGoSlow = Timer.getTimestamp();
@@ -29,6 +30,8 @@ public class ControllerDriveCommand extends Command {
     addRequirements(drive);
   }
 
+
+
   @Override
   public void execute() {
     double speed = 3.5;
@@ -38,9 +41,9 @@ public class ControllerDriveCommand extends Command {
     double vx = Utils.scaleAxis(Utils.deadband(-controller.getLeftY() * speed, .1), 2);
     double vy = Utils.scaleAxis(Utils.deadband(-controller.getLeftX() * speed, .1), 2);
     double omega = Utils.scaleAxis(Utils.deadband(-controller.getRightX() * angularSpeed, .1), 2);
-    //    lastVx = Utils.clampStep(lastVx, vx, maxAccel * dt);
-    //    lastVy = Utils.clampStep(lastVy, vy, maxAccel * dt);
-    //    lastOmega = Utils.clampStep(lastOmega, omega, maxAlpha * dt);
+//    lastVx = Utils.clampStep(lastVx, vx, maxAccel * dt);
+//    lastVy = Utils.clampStep(lastVy, vy, maxAccel * dt);
+//    lastOmega = Utils.clampStep(lastOmega, omega, maxAlpha * dt);
     ChassisSpeeds speeds = new ChassisSpeeds(vx, vy, omega);
     drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
 

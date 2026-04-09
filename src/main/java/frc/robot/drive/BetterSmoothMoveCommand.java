@@ -89,6 +89,7 @@ public class BetterSmoothMoveCommand extends Command {
   public void execute() {
     Translation2d current = drive.getPose().getTranslation();
 
+
     double desiredVx = xPidController.calculate(current.getX(), target.getX());
     double desiredVy = yPidController.calculate(current.getY(), target.getY());
 
@@ -115,15 +116,13 @@ public class BetterSmoothMoveCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    //    Translation2d current = drive.getPose().getTranslation();
-    //    return Math.abs(current.getDistance(target.getTranslation())) < positionTolerance;
-    //        && MathUtil.isNear(
-    //            drive.getPose().getRotation().getRadians(),
-    //            target.getRotation().getRadians(),
-    //            headingTolerance);
-    return xPidController.atSetpoint()
-        && yPidController.atSetpoint()
-        && headingPidController.atSetpoint();
+//    Translation2d current = drive.getPose().getTranslation();
+//    return Math.abs(current.getDistance(target.getTranslation())) < positionTolerance;
+//        && MathUtil.isNear(
+//            drive.getPose().getRotation().getRadians(),
+//            target.getRotation().getRadians(),
+//            headingTolerance);
+    return xPidController.atSetpoint() && yPidController.atSetpoint() && headingPidController.atSetpoint();
   }
 
   /** Steps {@code current} toward {@code desired} by at most {@code maxDelta}. */
