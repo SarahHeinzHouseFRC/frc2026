@@ -7,6 +7,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -32,6 +33,8 @@ public class Shooter extends SubsystemBase {
   private final XboxController controller;
 
   private boolean wasZeroForced = false;
+
+  private boolean isShooting = false;
 
   private final TimestampedDoubleBuffer yawBuffer = new TimestampedDoubleBuffer(10);
 
@@ -67,23 +70,20 @@ public class Shooter extends SubsystemBase {
     this.controller = controller;
   }
 
-  /**
-   * sets the power of the shooter motor
-   *
-   * @param power Motor power from 0-1
-   */
-  public void setShooter(double power) {
-    io.setFlywheelOpenLoop(power * 12.0);
-  }
-
   /** Sets shooter wheel target speed in RPM. */
   public void setFlywheelVelocityRpm(double rpm) {
     io.setFlywheelVelocity(rpm);
+    isShooting = !MathUtil.isNear(0, rpm, .1);
   }
 
   /** Sets flywheel open loop */
   public void setFlywheelOpenLoop(double voltage) {
     io.setFlywheelOpenLoop(voltage);
+    isShooting = !MathUtil.isNear(0, voltage, .01);
+  }
+
+  public boolean isShooting() {
+    return isShooting;
   }
 
   /** Returns measured shooter speed in RPM. */
@@ -97,7 +97,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void stopFlywheel() {
-    io.setFlywheelOpenLoop(0);
+    setFlywheelOpenLoop(0);
   }
 
   public void setTurretPitchOpenLoop(double value) {
@@ -237,9 +237,9 @@ public class Shooter extends SubsystemBase {
         setTurretYaw(angleSetpoint);
       }
       if (flywheel) {
-        io.setFlywheelVelocity(shotParams.flywheelVelocityRotationsPerMinute());
+        setFlywheelVelocityRpm(shotParams.flywheelVelocityRotationsPerMinute());
       } else {
-        io.setFlywheelOpenLoop(0);
+        stopFlywheel();
       }
     }
   }
