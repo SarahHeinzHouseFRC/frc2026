@@ -101,8 +101,8 @@ public class ShooterIOSpark implements ShooterIO {
     baseFlywheelConfig.closedLoop.feedForward.kV(0, ClosedLoopSlot.kSlot0);
     baseFlywheelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     baseFlywheelConfig.closedLoop.maxMotion.maxAcceleration(12000).allowedProfileError(1000);
-    baseFlywheelConfig.openLoopRampRate(0);
-    baseFlywheelConfig.closedLoopRampRate(0);
+    baseFlywheelConfig.openLoopRampRate(0.2);
+    baseFlywheelConfig.closedLoopRampRate(0.2);
     baseFlywheelConfig.encoder.velocityConversionFactor(motorToFlywheel);
     baseFlywheelConfig
         .encoder

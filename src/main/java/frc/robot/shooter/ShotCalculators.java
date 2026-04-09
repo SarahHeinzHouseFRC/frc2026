@@ -32,7 +32,7 @@ public class ShotCalculators {
   private static final double lutStart =
       switch (Robot.VERSION) {
         case V1 -> 1.32;
-        case V2 -> 1.6;
+        case V2 -> 1.8;
       };
   private static final double lutStep =
       switch (Robot.VERSION) {
