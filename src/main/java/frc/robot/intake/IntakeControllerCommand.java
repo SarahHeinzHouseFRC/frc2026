@@ -29,7 +29,9 @@ public class IntakeControllerCommand extends Command {
 
   @Override
   public void execute() {
-    boolean intaking = (driverController.getRightTriggerAxis() > .1) || (operatorController.getLeftTriggerAxis() > .1);
+    boolean intaking =
+        (driverController.getRightTriggerAxis() > .1)
+            || (operatorController.getLeftTriggerAxis() > .1);
     boolean shooting = (operatorController.getRightTriggerAxis() > .1);
     boolean outtaking = false;
 

@@ -1,9 +1,7 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.FieldConstants;
-import frc.robot.vision.VisionConstants;
 
 public class Utils {
   public static double scaleAxis(double axis, int power) {
@@ -46,6 +44,7 @@ public class Utils {
   }
 
   public static Pose2d invertLeftRight(Pose2d pose) {
-    return new Pose2d(pose.getX(), FieldConstants.fieldWidth - pose.getY(), pose.getRotation().unaryMinus());
+    return new Pose2d(
+        pose.getX(), FieldConstants.fieldWidth - pose.getY(), pose.getRotation().unaryMinus());
   }
 }

@@ -16,10 +16,14 @@ import org.littletonrobotics.junction.Logger;
 public class Vision extends SubsystemBase {
   private final Transform3d turretCamTransform =
       new Transform3d(.18, 0, .5, new Rotation3d(0, -Math.PI / 6, 0));
-  private final Transform3d frontLeftSwerveTransform = new Transform3d(.2921, .2921, .2344, new Rotation3d(0,-0.43633,0.79037));
-  private final Transform3d frontRightSwerveTransform = new Transform3d(0, 0, 0, new Rotation3d(0,0,-Math.PI / 2)).plus(frontLeftSwerveTransform);
-  private final Transform3d backLeftSwerveTransform = new Transform3d(0, 0, 0, new Rotation3d(0,0,Math.PI / 2)).plus(frontLeftSwerveTransform);
-  private final Transform3d backRightSwerveTransform = new Transform3d(0, 0, 0, new Rotation3d(0,0,Math.PI)).plus(frontLeftSwerveTransform);
+  private final Transform3d frontLeftSwerveTransform =
+      new Transform3d(.2921, .2921, .2344, new Rotation3d(0, -0.43633, 0.79037));
+  private final Transform3d frontRightSwerveTransform =
+      new Transform3d(0, 0, 0, new Rotation3d(0, 0, -Math.PI / 2)).plus(frontLeftSwerveTransform);
+  private final Transform3d backLeftSwerveTransform =
+      new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI / 2)).plus(frontLeftSwerveTransform);
+  private final Transform3d backRightSwerveTransform =
+      new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)).plus(frontLeftSwerveTransform);
   private CameraIO turretCam = new PhotonCameraIO("turretCam", turretCamTransform);
   private CameraIOInputsAutoLogged turretCamInputs = new CameraIOInputsAutoLogged();
 
@@ -115,7 +119,10 @@ public class Vision extends SubsystemBase {
     Shooter shooter = Shooter.getInstance();
     if (shooter.isTurretInit()) {
       for (CameraIO.PoseObservation obs : turretCamInputs.results) {
-        processPose(obs, new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp()))).inverse());
+        processPose(
+            obs,
+            new Transform2d(.12, 0, new Rotation2d(shooter.getYawAtTime(obs.timestamp())))
+                .inverse());
       }
       for (CameraIO.PoseObservation obs : leftCamInputs.results) {
         processPose(obs);
@@ -131,9 +138,7 @@ public class Vision extends SubsystemBase {
   }
 
   private void processPose(CameraIO.PoseObservation obs, Transform2d transform) {
-    Pose2d pose = obs.pose()
-        .toPose2d()
-        .plus(transform);
+    Pose2d pose = obs.pose().toPose2d().plus(transform);
     Drive drive = Drive.getInstance();
     if (!isVisionInit) {
       double start = Timer.getFPGATimestamp();
@@ -141,7 +146,7 @@ public class Vision extends SubsystemBase {
       System.out.println("vision init took " + (Timer.getFPGATimestamp() - start));
       isVisionInit = true;
     }
-    double stddev = Math.pow(obs.averageTagDistance(), 1.0/obs.tagCount());
+    double stddev = Math.pow(obs.averageTagDistance(), 1.0 / obs.tagCount());
     drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(stddev, stddev, stddev * 5));
   }
 }
