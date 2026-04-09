@@ -32,7 +32,10 @@ public class ShakeCommand extends Command {
 
   @Override
   public void execute() {
-    double target = middle + Math.sin((Timer.getTimestamp() - startTime) * 2 * Math.PI / period) * amplitude; // TODO: change this to 0.1 when intake is fixed
+    double target =
+        middle
+            + Math.sin((Timer.getTimestamp() - startTime) * 2 * Math.PI / period)
+                * amplitude; // TODO: change this to 0.1 when intake is fixed
     overBumper.setObiSetpoint(target);
     overBumper.setOBIClosedLoop(1000);
   }
