@@ -229,7 +229,7 @@ public class ShooterIOSpark implements ShooterIO {
 
     flywheelController.setSetpoint(
         speedRotationsPerMinute,
-        SparkBase.ControlType.kMAXMotionVelocityControl,
+        SparkBase.ControlType.kVelocity,
         ClosedLoopSlot.kSlot0);
     //    double flywheelVelocity1 = motorToFlywheel * flywheelEncoder.getVelocity();
     //    double flywheelVelocity2 = motorToFlywheel * flywheelEncoder2.getVelocity();
