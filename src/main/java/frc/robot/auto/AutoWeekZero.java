@@ -323,11 +323,11 @@ public class AutoWeekZero {
 
                   Commands.sequence(
                           // approach tower
-                          new BetterSmoothMoveCommand(new Pose2d(1.067d, 2.965d, Rotation2d.fromDegrees(179.67d)), false)
+                          new BetterSmoothMoveCommand(new Pose2d(1.067d, 2.960d, Rotation2d.fromDegrees(179.67d)), false)
                                   .withAccelerationLimit(1)
                                   .withVelocityLimit(0.5)
-                                  .withPositionTolerance(0.02)
-                                  .withTimeout(6.0),
+                                  .withPositionTolerance(0.08)
+                                  .withTimeout(5.0),
 
                           Climber.climbCommand(() -> 1d).withTimeout(3.5d)
                   )
