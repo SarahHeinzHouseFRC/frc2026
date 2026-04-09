@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-import frc.robot.shooter.Shooter;
 import frc.robot.utils.Utils;
 
 public class ControllerDriveCommand extends Command {
@@ -33,9 +32,6 @@ public class ControllerDriveCommand extends Command {
   @Override
   public void execute() {
     double speed = 3.5;
-    if (Shooter.getInstance().isShooting()) {
-      speed = 1;
-    }
     double angularSpeed = 3.5;
     double maxAccel = 14;
     double maxAlpha = 14;
