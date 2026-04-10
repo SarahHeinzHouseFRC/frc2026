@@ -2,10 +2,12 @@ package frc.robot.auto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.climber.Climber;
 import frc.robot.drive.BetterSmoothMoveCommand;
+import frc.robot.drive.Drive;
 import frc.robot.drive.SmoothMoveCommand;
 import frc.robot.intake.Intake;
 import frc.robot.intake.IntakeAutoCommand;
@@ -385,12 +387,21 @@ public class AutoWeekZero {
 
         Commands.sequence(
             // approach tower
-            new BetterSmoothMoveCommand(
-                new Pose2d(1.067d, 3.1d, Rotation2d.fromDegrees(179.67d)), false)
-                .withAccelerationLimit(1)
-                .withVelocityLimit(1.5)
-                .withPositionTolerance(0.1)
-                .withTimeout(1.5),
+            Commands.race(
+                    new BetterSmoothMoveCommand(
+                            new Pose2d(1.067d, 3.1d, Rotation2d.fromDegrees(179.67d)), false)
+                            .withAccelerationLimit(1)
+                            .withVelocityLimit(1.5)
+                            .withPositionTolerance(0.1)
+                            .withTimeout(1.5),
+
+                    Commands.waitUntil(() -> {
+                      ChassisSpeeds speeds = Drive.getInstance().getChassisSpeeds();
+                      double speed = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+                      double tolerance = .1;
+                      return speed < 0.1;
+                    })
+            ),
             Climber.climbCommand(() -> 1d).withTimeout(5d))
     );
   }
