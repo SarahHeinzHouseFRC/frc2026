@@ -14,7 +14,7 @@ import frc.robot.overbumper.ShakeCommand;
 import frc.robot.shooter.Shooter;
 
 public class AutoWeekZero {
-  public static Command autoV1() {
+  public static Command outpost() {
     return Commands.sequence(
             Commands.parallel(
                     Commands.sequence(
@@ -38,7 +38,35 @@ public class AutoWeekZero {
                     new IntakeAutoCommand(Intake.getInstance()),
                     new ShakeCommand(OverBumper.getInstance()),
                     Shooter.getInstance().autoAimCommandAuto())
-                .withDeadline(Commands.waitSeconds(15)))
+                .withDeadline(Commands.waitSeconds(15)),
+
+            // move to approach position to climb
+            new BetterSmoothMoveCommand(
+                    new Pose2d(1.017d, 2.9d, Rotation2d.fromDegrees(179.67d)), false)
+                    .withAccelerationLimit(7)
+                    .withVelocityLimit(4 + 2)
+                    .withTimeout(10.0),
+
+            Commands.parallel(
+                    Commands.parallel(
+                                    new IntakeAutoCommand(
+                                            Intake.getInstance()), // run the "intake," which pushes balls tot he
+                                    // shooter
+                                    new ShakeCommand(
+                                            OverBumper.getInstance()), // shake the overbumper to dislodge balls
+                                    Shooter.getInstance()
+                                            .autoAimCommandAuto()) // also autoaim and shoot at the same time
+                            .withTimeout(6.0),
+                    Commands.sequence(
+                            // approach tower
+                            new BetterSmoothMoveCommand(
+                                    new Pose2d(1.067d, 2.950d, Rotation2d.fromDegrees(179.67d)), false)
+                                    .withAccelerationLimit(1)
+                                    .withVelocityLimit(1.2)
+                                    .withPositionTolerance(0.1)
+                                    .withTimeout(2.0),
+                            Climber.climbCommand(() -> 1d).withTimeout(3.5d)))
+            )
         .withDeadline(Commands.waitSeconds(20));
   }
 

@@ -111,7 +111,7 @@ public class Robot extends LoggedRobot {
 
   private void configureAutoChooser() {
     autoChooser.addDefaultOption("none", Commands.none());
-    autoChooser.addOption("right side/outpost", AutoWeekZero.autoV1());
+    autoChooser.addOption("right side/outpost", AutoWeekZero.outpost());
     autoChooser.addOption("left side/depot", AutoWeekZero.depot());
     autoChooser.addOption("right sweep", AutoWeekZero.rightSweep());
     autoChooser.addOption("left sweep", AutoWeekZero.leftSweep());
