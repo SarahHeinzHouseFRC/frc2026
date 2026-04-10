@@ -35,12 +35,12 @@ public class AutoWeekZero {
                             .withDeadline(Commands.waitSeconds(4.0))),
                     new IntakeAutoCommand(Intake.getInstance()),
                     Shooter.getInstance().autoAimCommandAuto())
-                .withDeadline(Commands.waitSeconds(10.0)),
+                .withDeadline(Commands.waitSeconds(7)),
             Commands.parallel(
                     new IntakeAutoCommand(Intake.getInstance()),
                     new ShakeCommand(OverBumper.getInstance()),
                     Shooter.getInstance().autoAimCommandAuto())
-                .withDeadline(Commands.waitSeconds(15)),
+                .withDeadline(Commands.waitSeconds(6)),
 
             // move to approach position to climb
             new BetterSmoothMoveCommand(
