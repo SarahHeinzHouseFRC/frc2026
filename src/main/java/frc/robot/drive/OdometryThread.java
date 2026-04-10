@@ -57,7 +57,9 @@ public class OdometryThread {
     try {
       genericSignals.add(signal);
       genericQueues.add(queue);
-      signalValidators.add(() -> spark.getLastError() == REVLibError.kOk);
+//      signalValidators.add(() -> spark.getLastError() == REVLibError.kOk);
+      // temporary fix: always consider these as valid!
+      signalValidators.add(() -> true);
     } finally {
       Drive.odometryLock.unlock();
     }

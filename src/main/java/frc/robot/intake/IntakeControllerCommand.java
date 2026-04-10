@@ -1,5 +1,6 @@
 package frc.robot.intake;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -17,6 +18,8 @@ public class IntakeControllerCommand extends Command {
   private final Command shakeCommand;
   private boolean isShakeScheduled = false;
   private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
+
+  private final Debouncer flywheelGoodDebouncer = new Debouncer(.1, Debouncer.DebounceType.kRising);
 
   public IntakeControllerCommand(
       XboxController driver, XboxController operator, BooleanSupplier shakeAllowed, Intake intake) {
@@ -40,7 +43,9 @@ public class IntakeControllerCommand extends Command {
 
     boolean shouldOnlyShootIfAtSpeed = true;
 
-    if (shouldOnlyShootIfAtSpeed && !Shooter.getInstance().isFlywheelAtSpeed() && shooting) {
+    boolean flywheelGood = flywheelGoodDebouncer.calculate(Shooter.getInstance().isFlywheelAtSpeed());
+
+    if (shouldOnlyShootIfAtSpeed && !flywheelGood && shooting) {
       shooting = false;
       unjamming = true;
     }
