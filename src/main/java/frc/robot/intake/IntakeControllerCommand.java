@@ -36,11 +36,13 @@ public class IntakeControllerCommand extends Command {
             || (operatorController.getLeftTriggerAxis() > .1);
     boolean shooting = (operatorController.getRightTriggerAxis() > .1);
     boolean outtaking = false;
+    boolean unjamming = false;
 
     boolean shouldOnlyShootIfAtSpeed = true;
 
-    if (shouldOnlyShootIfAtSpeed && !Shooter.getInstance().isFlywheelAtSpeed()) {
+    if (shouldOnlyShootIfAtSpeed && !Shooter.getInstance().isFlywheelAtSpeed() && shooting) {
       shooting = false;
+      unjamming = true;
     }
 
     if (intaking && shooting) {
@@ -51,6 +53,8 @@ public class IntakeControllerCommand extends Command {
       intake.shoot();
     } else if (outtaking) {
       intake.outtake();
+    } else if (unjamming) {
+      intake.intake(.25);
     } else {
       intake.stop();
     }

@@ -19,8 +19,10 @@ public class IntakeIOSpark implements IntakeIO {
   public IntakeIOSpark() {
     SparkMaxConfig beltConfig = new SparkMaxConfig();
     beltConfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake).inverted(false);
+    beltConfig.openLoopRampRate(.2);
     beltMotor.configure(beltConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     SparkMaxConfig intakeConfig = new SparkMaxConfig();
+    intakeConfig.openLoopRampRate(.2);
     intakeConfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake).inverted(false);
     intakeMotor.configure(
         intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -30,6 +32,7 @@ public class IntakeIOSpark implements IntakeIO {
     if (Robot.VERSION == Robot.RobotVersion.V2) {
       indexerConfig.inverted(true);
     }
+    indexerConfig.openLoopRampRate(.2);
     indexerConfig.absoluteEncoder.positionConversionFactor(2 * Math.PI);
     indexerConfig.absoluteEncoder.velocityConversionFactor(2 * Math.PI / 60);
     indexerConfig.absoluteEncoder.inverted(true);
