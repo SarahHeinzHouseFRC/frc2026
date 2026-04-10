@@ -377,7 +377,7 @@ public class AutoWeekZero {
 
         // move to approach position to climb
         new BetterSmoothMoveCommand(
-            new Pose2d(1.017d, 2.9d, Rotation2d.fromDegrees(179.67d)), false)
+            new Pose2d(0.95d, 2.7d, Rotation2d.fromDegrees(179.67d)), false)
             .withAccelerationLimit(aLimit)
             .withVelocityLimit(vLimit + 2)
             .withTimeout(10.0),
