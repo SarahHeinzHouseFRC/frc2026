@@ -31,7 +31,8 @@ public class AutoWeekZero {
                             .withAccelerationLimit(1)
                             .withVelocityLimit(.5)
                             .withDeadline(Commands.waitSeconds(4.0))),
-                    Shooter.getInstance().autoAimCommandAutoDryish())
+                    new IntakeAutoCommand(Intake.getInstance()),
+                    Shooter.getInstance().autoAimCommandAuto())
                 .withDeadline(Commands.waitSeconds(10.0)),
             Commands.parallel(
                     new IntakeAutoCommand(Intake.getInstance()),
