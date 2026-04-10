@@ -397,9 +397,9 @@ public class AutoWeekZero {
 
                     Commands.waitUntil(() -> {
                       ChassisSpeeds speeds = Drive.getInstance().getChassisSpeeds();
-                      double speed = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
-                      double tolerance = .1;
-                      return speed < 0.1;
+                      double speed = Math.abs(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
+                      double tolerance = .3;
+                      return speed < tolerance;
                     })
             ),
             Climber.climbCommand(() -> 1d).withTimeout(5d))
