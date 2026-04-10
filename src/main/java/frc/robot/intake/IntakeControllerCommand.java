@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.overbumper.OverBumper;
 import frc.robot.overbumper.ShakeCommand;
 import frc.robot.shooter.Shooter;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.function.BooleanSupplier;
 
@@ -43,7 +44,12 @@ public class IntakeControllerCommand extends Command {
 
     boolean shouldOnlyShootIfAtSpeed = true;
 
-    boolean flywheelGood = flywheelGoodDebouncer.calculate(Shooter.getInstance().isFlywheelAtSpeed());
+    boolean isFlywheelAtSpeed = Shooter.getInstance().isFlywheelAtSpeed();
+
+    boolean flywheelGood = flywheelGoodDebouncer.calculate(isFlywheelAtSpeed);
+
+    Logger.recordOutput("/Intake/flywheelGood", isFlywheelAtSpeed);
+    Logger.recordOutput("/Intake/debouncedFlywheelGood", flywheelGood);
 
     if (shouldOnlyShootIfAtSpeed && !flywheelGood && shooting) {
       shooting = false;
