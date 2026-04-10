@@ -364,4 +364,28 @@ public class AutoWeekZero {
                     Climber.climbCommand(() -> 1d).withTimeout(3.5d))))
         .withTimeout(20d);
   }
+
+  public static Command climbTesting() {
+    double aLimit = 7;
+    double vLimit = 4;
+    return Commands.sequence(
+        // move to approach position to climb
+        new BetterSmoothMoveCommand(
+            new Pose2d(1.017d, 2.9d, Rotation2d.fromDegrees(179.67d)), false)
+            .withAccelerationLimit(aLimit)
+            .withVelocityLimit(vLimit + 2)
+            .withTimeout(10.0),
+
+
+        Commands.sequence(
+            // approach tower
+            new BetterSmoothMoveCommand(
+                new Pose2d(1.067d, 2.950d, Rotation2d.fromDegrees(179.67d)), false)
+                .withAccelerationLimit(1)
+                .withVelocityLimit(1.2)
+                .withPositionTolerance(0.1)
+                .withTimeout(2.0),
+            Climber.climbCommand(() -> 1d).withTimeout(5d))
+    );
+  }
 }

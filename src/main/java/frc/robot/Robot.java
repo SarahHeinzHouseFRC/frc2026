@@ -118,6 +118,7 @@ public class Robot extends LoggedRobot {
     autoChooser.addOption("left climb", AutoWeekZero.climbLeft());
     autoChooser.addOption("right climb", AutoWeekZero.climbRight());
     autoChooser.addOption("center/preloads only", AutoWeekZero.center());
+    autoChooser.addOption("DO NOT USE climber testing", AutoWeekZero.climbTesting());
   }
 
   private void setupSim() {
