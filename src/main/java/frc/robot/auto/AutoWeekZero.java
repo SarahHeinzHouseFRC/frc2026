@@ -388,9 +388,9 @@ public class AutoWeekZero {
             new BetterSmoothMoveCommand(
                 new Pose2d(1.067d, 3.1d, Rotation2d.fromDegrees(179.67d)), false)
                 .withAccelerationLimit(1)
-                .withVelocityLimit(1.2)
+                .withVelocityLimit(1.5)
                 .withPositionTolerance(0.1)
-                .withTimeout(2.0),
+                .withTimeout(1.5),
             Climber.climbCommand(() -> 1d).withTimeout(5d))
     );
   }
