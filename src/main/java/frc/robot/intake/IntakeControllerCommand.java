@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.overbumper.OverBumper;
 import frc.robot.overbumper.ShakeCommand;
+import frc.robot.shooter.Shooter;
+
 import java.util.function.BooleanSupplier;
 
 public class IntakeControllerCommand extends Command {
@@ -34,6 +36,12 @@ public class IntakeControllerCommand extends Command {
             || (operatorController.getLeftTriggerAxis() > .1);
     boolean shooting = (operatorController.getRightTriggerAxis() > .1);
     boolean outtaking = false;
+
+    boolean shouldOnlyShootIfAtSpeed = true;
+
+    if (shouldOnlyShootIfAtSpeed && !Shooter.getInstance().isFlywheelAtSpeed()) {
+      shooting = false;
+    }
 
     if (intaking && shooting) {
       intake.intakeAndShoot();

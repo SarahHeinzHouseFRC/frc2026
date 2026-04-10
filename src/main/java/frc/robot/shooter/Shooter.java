@@ -67,22 +67,24 @@ public class Shooter extends SubsystemBase {
     this.controller = controller;
   }
 
-  /**
-   * sets the power of the shooter motor
-   *
-   * @param power Motor power from 0-1
-   */
-  public void setShooter(double power) {
-    io.setFlywheelOpenLoop(power * 12.0);
-  }
+//  /**
+//   * sets the power of the shooter motor
+//   *
+//   * @param power Motor power from 0-1
+//   */
+//  public void setShooter(double power) {
+//    io.setFlywheelOpenLoop(power * 12.0);
+//  }
 
   /** Sets shooter wheel target speed in RPM. */
   public void setFlywheelVelocityRpm(double rpm) {
+    flywheelTarget = rpm;
     io.setFlywheelVelocity(rpm);
   }
 
   /** Sets flywheel open loop */
   public void setFlywheelOpenLoop(double voltage) {
+    flywheelTarget = -1;
     io.setFlywheelOpenLoop(voltage);
   }
 
@@ -96,8 +98,17 @@ public class Shooter extends SubsystemBase {
     return Math.abs(getFlywheelVelocityRpm() - targetRpm) <= toleranceRpm;
   }
 
+  private double flywheelTarget = -1;
+
+  public boolean isFlywheelAtSpeed() {
+    if (flywheelTarget <= 0) {
+      return true;
+    }
+    return isFlywheelAtSpeed(flywheelTarget, Math.max(flywheelTarget * .1, 300));
+  }
+
   public void stopFlywheel() {
-    io.setFlywheelOpenLoop(0);
+    setFlywheelOpenLoop(0);
   }
 
   public void setTurretPitchOpenLoop(double value) {
@@ -237,9 +248,9 @@ public class Shooter extends SubsystemBase {
         setTurretYaw(angleSetpoint);
       }
       if (flywheel) {
-        io.setFlywheelVelocity(shotParams.flywheelVelocityRotationsPerMinute());
+        setFlywheelVelocityRpm(shotParams.flywheelVelocityRotationsPerMinute());
       } else {
-        io.setFlywheelOpenLoop(0);
+        stopFlywheel();
       }
     }
   }
