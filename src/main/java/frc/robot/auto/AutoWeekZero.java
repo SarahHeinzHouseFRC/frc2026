@@ -369,6 +369,12 @@ public class AutoWeekZero {
     double aLimit = 7;
     double vLimit = 4;
     return Commands.sequence(
+
+        Commands.sequence(
+            Climber.climbCommand(() -> -1d).withTimeout(3.8d),
+            Climber.climbCommand(() -> 0d).withTimeout(0.5d)),
+
+
         // move to approach position to climb
         new BetterSmoothMoveCommand(
             new Pose2d(1.017d, 2.9d, Rotation2d.fromDegrees(179.67d)), false)
