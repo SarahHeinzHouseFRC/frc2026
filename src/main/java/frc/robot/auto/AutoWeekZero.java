@@ -2,12 +2,10 @@ package frc.robot.auto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.climber.Climber;
 import frc.robot.drive.BetterSmoothMoveCommand;
-import frc.robot.drive.Drive;
 import frc.robot.drive.SmoothMoveCommand;
 import frc.robot.intake.Intake;
 import frc.robot.intake.IntakeAutoCommand;
@@ -35,12 +33,12 @@ public class AutoWeekZero {
                             .withDeadline(Commands.waitSeconds(4.0))),
                     new IntakeAutoCommand(Intake.getInstance()),
                     Shooter.getInstance().autoAimCommandAuto())
-                .withDeadline(Commands.waitSeconds(7)),
+                .withDeadline(Commands.waitSeconds(10.0)),
             Commands.parallel(
                     new IntakeAutoCommand(Intake.getInstance()),
                     new ShakeCommand(OverBumper.getInstance()),
                     Shooter.getInstance().autoAimCommandAuto())
-                .withDeadline(Commands.waitSeconds(6)),
+                .withDeadline(Commands.waitSeconds(15)),
 
             // move to approach position to climb
             new BetterSmoothMoveCommand(
@@ -60,40 +58,14 @@ public class AutoWeekZero {
                                             .autoAimCommandAuto()) // also autoaim and shoot at the same time
                             .withTimeout(6.0),
                     Commands.sequence(
-                                    Commands.sequence(
-                                            Climber.climbCommand(() -> -1d).withTimeout(3.8d),
-                                            Climber.climbCommand(() -> 0d).withTimeout(0.5d)),
-
-
-                                    // move to approach position to climb
-                                    new BetterSmoothMoveCommand(
-                                            new Pose2d(0.95d, 2.7d, Rotation2d.fromDegrees(179.67d)), false)
-                                            .withAccelerationLimit(7)
-                                            .withVelocityLimit(4 + 2)
-                                            .withTimeout(10.0),
-
-
-                                    Commands.sequence(
-                                            // approach tower
-                                            Commands.race(
-                                                    new BetterSmoothMoveCommand(
-                                                            new Pose2d(1.067d, 3.1d, Rotation2d.fromDegrees(179.67d)), false)
-                                                            .withAccelerationLimit(1)
-                                                            .withVelocityLimit(1.5)
-                                                            .withPositionTolerance(0.1)
-                                                            .withTimeout(1.5),
-
-                                                    Commands.sequence(
-                                                            Commands.waitSeconds(0.7d),
-                                                            Commands.waitUntil(() -> {
-                                                              ChassisSpeeds speeds = Drive.getInstance().getChassisSpeeds();
-                                                              double speed = Math.abs(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
-                                                              double tolerance = .14;
-                                                              return speed < tolerance;
-                                                            })
-                                                    )
-                                            ),
-                                            Climber.climbCommand(() -> 1d).withTimeout(5d))))
+                            // approach tower
+                            new BetterSmoothMoveCommand(
+                                    new Pose2d(1.067d, 2.950d, Rotation2d.fromDegrees(179.67d)), false)
+                                    .withAccelerationLimit(1)
+                                    .withVelocityLimit(1.2)
+                                    .withPositionTolerance(0.1)
+                                    .withTimeout(2.0),
+                            Climber.climbCommand(() -> 1d).withTimeout(3.5d)))
             )
         .withDeadline(Commands.waitSeconds(20));
   }
@@ -405,7 +377,7 @@ public class AutoWeekZero {
 
         // move to approach position to climb
         new BetterSmoothMoveCommand(
-            new Pose2d(0.95d, 2.7d, Rotation2d.fromDegrees(179.67d)), false)
+            new Pose2d(1.017d, 2.9d, Rotation2d.fromDegrees(179.67d)), false)
             .withAccelerationLimit(aLimit)
             .withVelocityLimit(vLimit + 2)
             .withTimeout(10.0),
@@ -413,24 +385,12 @@ public class AutoWeekZero {
 
         Commands.sequence(
             // approach tower
-            Commands.race(
-                    new BetterSmoothMoveCommand(
-                            new Pose2d(1.067d, 3.1d, Rotation2d.fromDegrees(179.67d)), false)
-                            .withAccelerationLimit(1)
-                            .withVelocityLimit(1.5)
-                            .withPositionTolerance(0.1)
-                            .withTimeout(1.5),
-
-                    Commands.sequence(
-                            Commands.waitSeconds(0.7d),
-                            Commands.waitUntil(() -> {
-                              ChassisSpeeds speeds = Drive.getInstance().getChassisSpeeds();
-                              double speed = Math.abs(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
-                              double tolerance = .14;
-                              return speed < tolerance;
-                            })
-                    )
-            ),
+            new BetterSmoothMoveCommand(
+                new Pose2d(1.067d, 3.1d, Rotation2d.fromDegrees(179.67d)), false)
+                .withAccelerationLimit(1)
+                .withVelocityLimit(1.5)
+                .withPositionTolerance(0.1)
+                .withTimeout(1.5),
             Climber.climbCommand(() -> 1d).withTimeout(5d))
     );
   }
