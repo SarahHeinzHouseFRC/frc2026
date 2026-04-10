@@ -50,7 +50,7 @@ public class ShooterConstants {
         yawI = 0;
         yawD = .025;
         yawReduction = 20d * (200d / 26d);
-        maxYawVolts = 8;
+        maxYawVolts = 7;
         yawMax = Math.PI / 2;
         yawMin = -Math.PI;
         yawModuloMax = Math.PI / 2;
