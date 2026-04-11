@@ -43,28 +43,30 @@ public class AutoWeekZero {
             // move to approach position to climb
             new BetterSmoothMoveCommand(
                     new Pose2d(1.017d, 2.9d, Rotation2d.fromDegrees(179.67d)), false)
-                .withAccelerationLimit(7)
-                .withVelocityLimit(4 + 2)
-                .withTimeout(10.0),
+                    .withAccelerationLimit(7)
+                    .withVelocityLimit(4 + 2)
+                    .withTimeout(10.0),
+
             Commands.parallel(
-                Commands.parallel(
-                        new IntakeAutoCommand(
-                            Intake.getInstance()), // run the "intake," which pushes balls tot he
-                        // shooter
-                        new ShakeCommand(
-                            OverBumper.getInstance()), // shake the overbumper to dislodge balls
-                        Shooter.getInstance()
-                            .autoAimCommandAuto()) // also autoaim and shoot at the same time
-                    .withTimeout(6.0),
-                Commands.sequence(
-                    // approach tower
-                    new BetterSmoothMoveCommand(
-                            new Pose2d(1.067d, 2.950d, Rotation2d.fromDegrees(179.67d)), false)
-                        .withAccelerationLimit(1)
-                        .withVelocityLimit(1.2)
-                        .withPositionTolerance(0.1)
-                        .withTimeout(2.0),
-                    Climber.climbCommand(() -> 1d).withTimeout(3.5d))))
+                    Commands.parallel(
+                                    new IntakeAutoCommand(
+                                            Intake.getInstance()), // run the "intake," which pushes balls tot he
+                                    // shooter
+                                    new ShakeCommand(
+                                            OverBumper.getInstance()), // shake the overbumper to dislodge balls
+                                    Shooter.getInstance()
+                                            .autoAimCommandAuto()) // also autoaim and shoot at the same time
+                            .withTimeout(6.0),
+                    Commands.sequence(
+                            // approach tower
+                            new BetterSmoothMoveCommand(
+                                    new Pose2d(1.067d, 2.950d, Rotation2d.fromDegrees(179.67d)), false)
+                                    .withAccelerationLimit(1)
+                                    .withVelocityLimit(1.2)
+                                    .withPositionTolerance(0.1)
+                                    .withTimeout(2.0),
+                            Climber.climbCommand(() -> 1d).withTimeout(3.5d)))
+            )
         .withDeadline(Commands.waitSeconds(20));
   }
 
@@ -367,24 +369,29 @@ public class AutoWeekZero {
     double aLimit = 7;
     double vLimit = 4;
     return Commands.sequence(
+
         Commands.sequence(
             Climber.climbCommand(() -> -1d).withTimeout(3.8d),
             Climber.climbCommand(() -> 0d).withTimeout(0.5d)),
 
+
         // move to approach position to climb
         new BetterSmoothMoveCommand(
-                new Pose2d(1.017d, 2.9d, Rotation2d.fromDegrees(179.67d)), false)
+            new Pose2d(1.017d, 2.9d, Rotation2d.fromDegrees(179.67d)), false)
             .withAccelerationLimit(aLimit)
             .withVelocityLimit(vLimit + 2)
             .withTimeout(10.0),
+
+
         Commands.sequence(
             // approach tower
             new BetterSmoothMoveCommand(
-                    new Pose2d(1.067d, 3.1d, Rotation2d.fromDegrees(179.67d)), false)
+                new Pose2d(1.067d, 3.1d, Rotation2d.fromDegrees(179.67d)), false)
                 .withAccelerationLimit(1)
                 .withVelocityLimit(1.5)
                 .withPositionTolerance(0.1)
                 .withTimeout(1.5),
-            Climber.climbCommand(() -> 1d).withTimeout(5d)));
+            Climber.climbCommand(() -> 1d).withTimeout(5d))
+    );
   }
 }

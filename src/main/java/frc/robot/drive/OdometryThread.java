@@ -7,6 +7,7 @@
 
 package frc.robot.drive;
 
+import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
@@ -56,7 +57,7 @@ public class OdometryThread {
     try {
       genericSignals.add(signal);
       genericQueues.add(queue);
-      //      signalValidators.add(() -> spark.getLastError() == REVLibError.kOk);
+//      signalValidators.add(() -> spark.getLastError() == REVLibError.kOk);
       // temporary fix: always consider these as valid!
       signalValidators.add(() -> true);
     } finally {

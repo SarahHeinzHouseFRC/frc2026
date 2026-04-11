@@ -32,9 +32,6 @@ public class ControllerDriveCommand extends Command {
   @Override
   public void execute() {
     double speed = 3.5;
-    if (controller.getRightBumperButton()) {
-      speed = 5;
-    }
     double angularSpeed = 3.5;
     double maxAccel = 14;
     double maxAlpha = 14;

@@ -67,14 +67,14 @@ public class Shooter extends SubsystemBase {
     this.controller = controller;
   }
 
-  //  /**
-  //   * sets the power of the shooter motor
-  //   *
-  //   * @param power Motor power from 0-1
-  //   */
-  //  public void setShooter(double power) {
-  //    io.setFlywheelOpenLoop(power * 12.0);
-  //  }
+//  /**
+//   * sets the power of the shooter motor
+//   *
+//   * @param power Motor power from 0-1
+//   */
+//  public void setShooter(double power) {
+//    io.setFlywheelOpenLoop(power * 12.0);
+//  }
 
   /** Sets shooter wheel target speed in RPM. */
   public void setFlywheelVelocityRpm(double rpm) {
@@ -159,17 +159,6 @@ public class Shooter extends SubsystemBase {
         false);
   }
 
-  public void autoAim(Translation2d itsPose, boolean flywheel, double distanceOffset) {
-    autoAim(
-        itsPose,
-        Drive.getInstance().getPose(),
-        Drive.getInstance().getChassisSpeeds(),
-        flywheel,
-        false,
-        false,
-        distanceOffset);
-  }
-
   public void autoAim(
       Translation2d itsPose, Pose2d myPose, ChassisSpeeds chassisSpeeds, boolean flywheel) {
     autoAim(itsPose, myPose, chassisSpeeds, flywheel, false);
@@ -213,18 +202,6 @@ public class Shooter extends SubsystemBase {
       boolean flywheel,
       boolean dryRun,
       boolean yawDisabled) {
-    autoAim(itsPose, myPose, chassisSpeeds, flywheel, dryRun, yawDisabled, 0);
-  }
-
-  // positive distanceoffset will create overshoot condition
-  public void autoAim(
-      Translation2d itsPose,
-      Pose2d myPose,
-      ChassisSpeeds chassisSpeeds,
-      boolean flywheel,
-      boolean dryRun,
-      boolean yawDisabled,
-      double distanceOffset) {
     Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
 
     double delaySeconds = 0.1;
@@ -252,7 +229,7 @@ public class Shooter extends SubsystemBase {
 
     ShotParams shotParams =
         shotCalculator.calculateShotParams(
-            itsPose.getDistance(myPose.getTranslation()) + distanceOffset, vrad, vtan);
+            itsPose.getDistance(myPose.getTranslation()), vrad, vtan);
     Logger.recordOutput("/Shooter/shotParams/yawOffsetRadians", shotParams.yawOffsetRadians());
     Logger.recordOutput(
         "/Shooter/shotParams/flywheelVelocityRotationsPerMinute",

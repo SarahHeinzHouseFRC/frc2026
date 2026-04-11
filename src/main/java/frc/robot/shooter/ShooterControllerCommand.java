@@ -26,10 +26,6 @@ public class ShooterControllerCommand extends Command {
 
   private double shooterSpeedSetpoint = 3235;
 
-  private double distanceOffset = 0;
-
-  private boolean povPressed = false;
-
   public ShooterControllerCommand(XboxController controller, Shooter shooter) {
     this.shooter = shooter;
     this.controller = controller;
@@ -49,7 +45,6 @@ public class ShooterControllerCommand extends Command {
     } else {
       executeManual();
     }
-    Logger.recordOutput("/Shooter/distanceOffset", distanceOffset);
   }
 
   public void executeSemimanual() {
@@ -88,7 +83,6 @@ public class ShooterControllerCommand extends Command {
       scanForTargetEnabled = false;
     } else if (controller.getAButton()) {
       mode = ShooterMode.AUTO;
-      distanceOffset = 0;
       scanForTargetEnabled = false;
     } else if (controller.getBButton()) {
       mode = ShooterMode.SEMIMANUAL;
@@ -137,23 +131,6 @@ public class ShooterControllerCommand extends Command {
   }
 
   public void executeAuto() {
-    int pov = controller.getPOV();
-    boolean down = pov == 135 || pov == 180 || pov == 225;
-    boolean up = pov == 315 || pov == 360 || pov == 0 || pov == 45;
-    if (pov == -1 && povPressed) {
-      povPressed = false;
-    }
-
-    if (!povPressed) {
-      if (up) {
-        distanceOffset += 0.1;
-      } else if (down) {
-        distanceOffset -= 0.1;
-      }
-      povPressed = true;
-    }
-
-    distanceOffset = MathUtil.clamp(distanceOffset, -1, 1);
     if (!Vision.getInstance().isVisionInit()) {
       if (scanForTargetEnabled) {
         shooter.scanForTarget();
@@ -166,7 +143,7 @@ public class ShooterControllerCommand extends Command {
       } else {
         controller.setRumble(GenericHID.RumbleType.kBothRumble, 0d);
       }
-      shooter.autoAim(shooter.getShotTarget(), flywheel, distanceOffset);
+      shooter.autoAim(shooter.getShotTarget(), flywheel);
     }
   }
 }

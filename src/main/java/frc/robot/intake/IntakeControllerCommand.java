@@ -7,8 +7,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.overbumper.OverBumper;
 import frc.robot.overbumper.ShakeCommand;
 import frc.robot.shooter.Shooter;
-import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.function.BooleanSupplier;
 
 public class IntakeControllerCommand extends Command {
   private final Intake intake;
