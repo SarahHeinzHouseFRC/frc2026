@@ -142,7 +142,7 @@ public class AutoWeekZero {
                 .withTimeout(5.0),
             // rotate ourselves such that the intake is pointed towards the balls.
             // also move away from the wall while rotating so we don't break stuff.
-            new BetterSmoothMoveCommand(new Pose2d(7.515, 1.0, Rotation2d.kCW_Pi_2), isLeft)
+            new BetterSmoothMoveCommand(new Pose2d(7.5, 1.0, Rotation2d.kCW_Pi_2), isLeft)
                 .withAccelerationLimit(aLimit + 2)
                 .withVelocityLimit(vLimit + 1)
                 .withPositionTolerance(1)
@@ -150,14 +150,14 @@ public class AutoWeekZero {
             // race means this composition finishes when either subcommand finishes
             Commands.race(
                 // move toward true mid field along the y axis
-                new BetterSmoothMoveCommand(new Pose2d(7.515, 3.0, Rotation2d.kCW_Pi_2), isLeft)
+                new BetterSmoothMoveCommand(new Pose2d(7.5, 3.0, Rotation2d.kCW_Pi_2), isLeft)
                     .withAccelerationLimit(aLimit)
                     .withVelocityLimit(.6)
                     .withTimeout(4.0),
                 // also run our overbumper intake while we do this
                 OverBumper.getInstance().intakeCommand(2000)),
             // move back along the y axis so we are aligned x-wise to the trench
-            new BetterSmoothMoveCommand(new Pose2d(7.515, .55, Rotation2d.kZero), isLeft)
+            new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero), isLeft)
                 .withAccelerationLimit(aLimit)
                 .withVelocityLimit(vLimit)
                 .withTimeout(5.0),
@@ -182,7 +182,7 @@ public class AutoWeekZero {
                 .withTimeout(5.0),
             // rotate ourselves such that the intake is pointed towards the balls.
             // also move away from the wall while rotating so we don't break stuff.
-            new BetterSmoothMoveCommand(new Pose2d(7.515, 3.0, Rotation2d.kCW_Pi_2), isLeft)
+            new BetterSmoothMoveCommand(new Pose2d(7.5, 3.0, Rotation2d.kCW_Pi_2), isLeft)
                 .withAccelerationLimit(aLimit + 1)
                 .withVelocityLimit(vLimit + 1)
                 .withPositionTolerance(1)
@@ -190,14 +190,14 @@ public class AutoWeekZero {
             // race means this composition finishes when either subcommand finishes
             Commands.race(
                 // move toward true mid field along the y axis
-                new BetterSmoothMoveCommand(new Pose2d(7.515, 5.0, Rotation2d.kCW_Pi_2), isLeft)
+                new BetterSmoothMoveCommand(new Pose2d(7.5, 5.0, Rotation2d.kCW_Pi_2), isLeft)
                     .withAccelerationLimit(aLimit)
                     .withVelocityLimit(.6)
                     .withTimeout(5.0),
                 // also run our overbumper intake while we do this
                 OverBumper.getInstance().intakeCommand(2000)),
             // move back along the y axis so we are aligned x-wise to the trench
-            new BetterSmoothMoveCommand(new Pose2d(7.515, .55, Rotation2d.kZero), isLeft)
+            new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero), isLeft)
                 .withAccelerationLimit(aLimit)
                 .withVelocityLimit(vLimit)
                 .withTimeout(5.0),
