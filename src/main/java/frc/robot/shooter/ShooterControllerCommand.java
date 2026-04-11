@@ -49,6 +49,7 @@ public class ShooterControllerCommand extends Command {
     } else {
       executeManual();
     }
+    Logger.recordOutput("/Shooter/distanceOffset", distanceOffset);
   }
 
   public void executeSemimanual() {
@@ -153,7 +154,6 @@ public class ShooterControllerCommand extends Command {
     }
 
     distanceOffset = MathUtil.clamp(distanceOffset, -1, 1);
-    Logger.recordOutput("/Shooter/distanceOffset", distanceOffset);
     if (!Vision.getInstance().isVisionInit()) {
       if (scanForTargetEnabled) {
         shooter.scanForTarget();
