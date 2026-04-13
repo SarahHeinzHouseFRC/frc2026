@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.*;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -38,17 +37,14 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends LoggedRobot {
-//    public AddressableLED coolLED;
-//    public AddressableLEDBuffer coolLEDBufer;
+  //    public AddressableLED coolLED;
+  //    public AddressableLEDBuffer coolLEDBufer;
   public enum RobotVersion {
     V1,
     V2
@@ -115,13 +111,14 @@ public class Robot extends LoggedRobot {
 
   private void configureAutoChooser() {
     autoChooser.addDefaultOption("none", Commands.none());
-    autoChooser.addOption("right side/outpost", AutoWeekZero.autoV1());
+    autoChooser.addOption("right side/outpost", AutoWeekZero.outpost());
     autoChooser.addOption("left side/depot", AutoWeekZero.depot());
     autoChooser.addOption("right sweep", AutoWeekZero.rightSweep());
     autoChooser.addOption("left sweep", AutoWeekZero.leftSweep());
     autoChooser.addOption("left climb", AutoWeekZero.climbLeft());
     autoChooser.addOption("right climb", AutoWeekZero.climbRight());
     autoChooser.addOption("center/preloads only", AutoWeekZero.center());
+    autoChooser.addOption("DO NOT USE climber testing", AutoWeekZero.climbTesting());
   }
 
   private void setupSim() {
@@ -200,17 +197,17 @@ public class Robot extends LoggedRobot {
     overBumper = OverBumper.getInstance();
     autoIntake = new AutoIntake(driverController);
 
-//    coolLED = new AddressableLED(0);
-//    coolLEDBufer = new AddressableLEDBuffer(100);
-//    coolLED.setLength(coolLEDBufer.getLength());
-//      coolLEDBufer.setRGB(0, 255, 192, 0);
-//      coolLEDBufer.setRGB(1, 255, 192, 0);
-//      coolLEDBufer.setRGB(2, 0, 0, 255);
-//      coolLEDBufer.setRGB(3, 0, 255, 0);
-//      coolLEDBufer.setRGB(4, 0, 255, 0);
-//
-//    coolLED.setData(coolLEDBufer);
-//    coolLED.start();
+    //    coolLED = new AddressableLED(0);
+    //    coolLEDBufer = new AddressableLEDBuffer(100);
+    //    coolLED.setLength(coolLEDBufer.getLength());
+    //      coolLEDBufer.setRGB(0, 255, 192, 0);
+    //      coolLEDBufer.setRGB(1, 255, 192, 0);
+    //      coolLEDBufer.setRGB(2, 0, 0, 255);
+    //      coolLEDBufer.setRGB(3, 0, 255, 0);
+    //      coolLEDBufer.setRGB(4, 0, 255, 0);
+    //
+    //    coolLED.setData(coolLEDBufer);
+    //    coolLED.start();
   }
 
   private void configureBindings() {
@@ -247,8 +244,6 @@ public class Robot extends LoggedRobot {
     // block in order for anything in the Command-based framework to work.
     commandScheduler.run();
     autoChooser.periodic();
-
-
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
