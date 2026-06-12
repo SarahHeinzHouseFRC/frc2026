@@ -32,7 +32,7 @@ public class IntakeAndShoot extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    ball.runIntake(0);
+    ball.stopIntake();
     ball.runIndexerAndBelt(0);
     ball.stopFlywheel();
   }

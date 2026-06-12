@@ -6,8 +6,7 @@ import frc.robot.subsystems.turret.Turret;
 
 import java.util.function.DoubleSupplier;
 
-import static frc.robot.subsystems.ball.BallConstants.intakeSpeed;
-import static frc.robot.subsystems.ball.BallConstants.presetEngaged;
+import static frc.robot.subsystems.ball.BallConstants.*;
 
 public class Shoot extends Command {
   private Ball ball;
@@ -21,7 +20,7 @@ public class Shoot extends Command {
   @Override
   public void execute() {
     double speed = speedSupplier.getAsDouble();
-    ball.setIntakePositionSlowly(presetEngaged);
+//    ball.setIntakePositionSlowly(presetStowed);
     ball.runIntake(intakeSpeed * 0.5);
     ball.runFlywheel(speed);
     if (ball.isFlywheelAtSpeed() && Turret.getInstance().isPanAtSetpoint()) {
@@ -31,7 +30,7 @@ public class Shoot extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    ball.runIntake(0);
+    ball.stopIntake();
     ball.runIndexerAndBelt(0);
     ball.stopFlywheel();
   }

@@ -8,6 +8,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -39,8 +40,8 @@ public class Ball extends SubsystemBase {
     SparkFlexConfig baseShooterConfig = new SparkFlexConfig();
     baseShooterConfig.voltageCompensation(12.0);
     baseShooterConfig.smartCurrentLimit(40).idleMode(kCoast);
-    baseShooterConfig.closedLoop.pid(0.001, 0, 0, ClosedLoopSlot.kSlot0);
-    baseShooterConfig.closedLoop.feedForward.kV(0.00016, ClosedLoopSlot.kSlot0);
+    baseShooterConfig.closedLoop.pid(0.002, 0, 0, ClosedLoopSlot.kSlot0);
+    baseShooterConfig.closedLoop.feedForward.kV(0.00022, ClosedLoopSlot.kSlot0);
     baseShooterConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     baseShooterConfig.closedLoop.maxMotion.maxAcceleration(12000).allowedProfileError(1000);
     baseShooterConfig.openLoopRampRate(0.5);
@@ -77,7 +78,7 @@ public class Ball extends SubsystemBase {
         indexerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SparkFlexConfig intakeConfig = new SparkFlexConfig();
-    intakeConfig.smartCurrentLimit(40).idleMode(SparkBaseConfig.IdleMode.kBrake).inverted(true);
+    intakeConfig.smartCurrentLimit(60).idleMode(SparkBaseConfig.IdleMode.kBrake).inverted(false);
 
     intakeConfig.closedLoop.pid(overBumperP, overBumperI, overBumperD, ClosedLoopSlot.kSlot0);
     intakeConfig.closedLoop.feedForward.kV(overBumperV, ClosedLoopSlot.kSlot0);
@@ -89,7 +90,7 @@ public class Ball extends SubsystemBase {
     intakeController = intakeMotor.getClosedLoopController();
 
     SparkMaxConfig pivotConfig = new SparkMaxConfig();
-    pivotConfig.smartCurrentLimit(40).idleMode(SparkBaseConfig.IdleMode.kBrake).inverted(false);
+    pivotConfig.smartCurrentLimit(40).idleMode(SparkBaseConfig.IdleMode.kCoast).inverted(false);
     pivotConfig.absoluteEncoder.inverted(false);
     pivotConfig.inverted(true);
     pivotConfig.closedLoop.pid(
@@ -100,9 +101,9 @@ public class Ball extends SubsystemBase {
         .closedLoop
         .maxMotion
         .allowedProfileError(.5, ClosedLoopSlot.kSlot0)
-        .cruiseVelocity(.5, ClosedLoopSlot.kSlot0)
+        .cruiseVelocity(.2, ClosedLoopSlot.kSlot0)
         .maxAcceleration(1, ClosedLoopSlot.kSlot0);
-    pivotConfig.closedLoop.feedForward.kCos(-.3, ClosedLoopSlot.kSlot0);
+    pivotConfig.closedLoop.feedForward.kCos(.3, ClosedLoopSlot.kSlot0);
 
     pivotConfig.closedLoop.pid(
         overBumperPivotP, overBumperPivotI, overBumperPivotD, ClosedLoopSlot.kSlot1);
@@ -111,12 +112,10 @@ public class Ball extends SubsystemBase {
         .closedLoop
         .maxMotion
         .allowedProfileError(.5, ClosedLoopSlot.kSlot1)
-        .cruiseVelocity(.2, ClosedLoopSlot.kSlot1)
+        .cruiseVelocity(.05, ClosedLoopSlot.kSlot1)
         .maxAcceleration(1, ClosedLoopSlot.kSlot1);
-    pivotConfig.closedLoop.feedForward.kCos(-.3, ClosedLoopSlot.kSlot1);
+    pivotConfig.closedLoop.feedForward.kCos(.3, ClosedLoopSlot.kSlot1);
 
-    pivotConfig.closedLoop.positionWrappingEnabled(true);
-    pivotConfig.closedLoop.positionWrappingInputRange(-.75, .25);
     pivotMotor.configure(
         pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     pivotController = pivotMotor.getClosedLoopController();
@@ -144,10 +143,13 @@ public class Ball extends SubsystemBase {
     speed = MathUtil.clamp(speed, -1, 1);
     beltMotor.set(speed);
     indexerMotor.set(speed);
+//    System.out.println("running indexer and belt at " + speed);
   }
 
   public void runIntake(double speed) {
-    intakeController.setSetpoint(speed, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    SmartDashboard.putNumber("intake setpoint", speed);
+//    intakeController.setSetpoint(speed, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    intakeMotor.set(speed/intakeSpeed);
   }
 
   public void setIntakePosition(double position) {
@@ -156,5 +158,14 @@ public class Ball extends SubsystemBase {
 
   public void setIntakePositionSlowly(double position) {
     pivotController.setSetpoint(position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot1);
+  }
+
+  public void stopIntake() {
+    intakeMotor.set(0);
+  }
+
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("intake speed", intakeMotor.getEncoder().getVelocity());
   }
 }

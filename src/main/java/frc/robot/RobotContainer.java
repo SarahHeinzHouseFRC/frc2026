@@ -10,16 +10,14 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.OperatorConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.ball.Ball;
-import frc.robot.subsystems.ball.Intake;
-import frc.robot.subsystems.ball.IntakeAndShoot;
-import frc.robot.subsystems.ball.Shoot;
+import frc.robot.subsystems.ball.*;
 import frc.robot.subsystems.drive.ControllerDriveCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.turret.AutoTurret;
@@ -50,7 +48,7 @@ public class RobotContainer {
 
   private static final RobotContainer instance = new RobotContainer();
 
-  private boolean shooterIsAuto = true;
+  private boolean shooterIsAuto = false;
 
   private double shooterManualSetpoint = 6000;
 
@@ -72,7 +70,7 @@ public class RobotContainer {
   private RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
-    switchToAutoShoot();
+    switchToManualShoot();
   }
 
   public void periodic() {
@@ -98,9 +96,12 @@ public class RobotContainer {
 
     Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
     distanceToHubPublisher.set(Drive.getInstance().getPose().transformBy(robotToShooter).getTranslation().getDistance(FieldConstants.HUB.toTranslation2d()));
+
+    SmartDashboard.putNumber("target rpm", shooterManualSetpoint);
   }
 
-  public void handleAutoShooterAdjustment() {}
+  public void handleAutoShooterAdjustment() {
+  }
 
   public void handleManualShooterAdjustment() {
     if (controller.getYButton()) {
@@ -111,12 +112,14 @@ public class RobotContainer {
   }
 
   public void switchToAutoShoot() {
-    CommandScheduler.getInstance().schedule(autoTurret);
+    turret.setDefaultCommand(autoTurret);
+    CommandScheduler.getInstance().cancel(manualTurret);
     shooterIsAuto = true;
   }
 
   public void switchToManualShoot() {
-    CommandScheduler.getInstance().schedule(manualTurret);
+    turret.setDefaultCommand(manualTurret);
+    CommandScheduler.getInstance().cancel(autoTurret);
     shooterIsAuto = false;
   }
 
@@ -145,6 +148,9 @@ public class RobotContainer {
     shouldRunShoot.whileTrue(new Shoot(ball, shooterSpeed));
 
     shouldRunShootAndIntake.whileTrue(new IntakeAndShoot(ball, controller::getLeftTriggerAxis, shooterSpeed));
+
+    Trigger stowIntakeTrigger = new Trigger(controller::getRightBumperButton);
+    stowIntakeTrigger.onTrue(new StowIntake(ball));
   }
 
   /**

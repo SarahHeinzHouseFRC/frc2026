@@ -29,7 +29,7 @@ public class Intake extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    ball.runIntake(0);
+    ball.stopIntake();
     ball.runIndexerAndBelt(0);
   }
 }

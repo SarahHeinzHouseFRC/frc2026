@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.utils.ContinuousAbsoluteEncoder;
@@ -35,7 +36,7 @@ public class Turret extends SubsystemBase {
 
   private final ContinuousAbsoluteEncoder panEncoder;
 
-  private final PIDController panPidController = new PIDController(3, 0, 0);
+  private final PIDController panPidController = new PIDController(1, 0, 0);
 
   private static final Turret instance = new Turret();
   public static Turret getInstance() {
@@ -50,7 +51,7 @@ public class Turret extends SubsystemBase {
     panConfig.smartCurrentLimit(10).idleMode(kCoast).inverted(true);
     panConfig.voltageCompensation(12.0);
     panConfig.absoluteEncoder.positionConversionFactor(panEncoderPositionFactor);
-    panConfig.absoluteEncoder.inverted(true);
+    panConfig.absoluteEncoder.inverted(false);
     panConfig.openLoopRampRate(0.2);
     panMotor = new SparkMax(31, kBrushless);
     panMotor.configure(panConfig, kResetSafeParameters, kPersistParameters);
@@ -70,6 +71,9 @@ public class Turret extends SubsystemBase {
         panEncoder.setAccumulator(0);
       }
     }
+
+    SmartDashboard.putNumber("panEncoder", panEncoder.getPosition());
+    SmartDashboard.putNumber("panSetpoint", panSetpoint);
   }
 
   public void setLinearActuator(double value) {
@@ -92,6 +96,7 @@ public class Turret extends SubsystemBase {
   }
 
   public boolean isPanAtSetpoint() {
+    if (!RobotContainer.getInstance().isShooterAuto()) return true;
    return Math.abs(panEncoder.getPosition() - panSetpoint) < 0.1;
   }
 

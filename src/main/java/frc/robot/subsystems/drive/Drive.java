@@ -17,6 +17,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -47,6 +48,7 @@ public class Drive extends SubsystemBase {
   private final StructArrayPublisher<SwerveModuleState> swerveSetpointPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SHARP/Drive/SwerveSetpoints", SwerveModuleState.struct).publish();
   private final StructArrayPublisher<SwerveModuleState> swerveStatePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/SHARP/Drive/SwerveStates", SwerveModuleState.struct).publish();
   private final StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault().getStructTopic("/SHARP/Drive/Pose", Pose2d.struct).publish();
+  private final StructPublisher<ChassisSpeeds> chassisSpeedsPublisher = NetworkTableInstance.getDefault().getStructTopic("/SHARP/Drive/chassisspeeds", ChassisSpeeds.struct).publish();
 
   private static final Drive instance = new Drive();
 
@@ -70,7 +72,7 @@ public class Drive extends SubsystemBase {
       modulePositions[i] = modules[i].getPosition();
     }
 
-    gyroAngle = yaw.getValueAsDouble() * Math.PI / 180; // of course degrees is the default unit...
+    gyroAngle = yaw.refresh().getValueAsDouble() * Math.PI / 180; // of course degrees is the default unit...
 
     poseEstimator.update(new Rotation2d(gyroAngle), modulePositions);
 
@@ -81,6 +83,8 @@ public class Drive extends SubsystemBase {
     swerveStatePublisher.set(states);
 
     posePublisher.set(poseEstimator.getEstimatedPosition());
+
+    SmartDashboard.putNumber("gyroAngle", gyroAngle);
   }
 
   public void runVelocity(ChassisSpeeds speeds) {
@@ -109,8 +113,16 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  private SwerveModuleState[] getModuleStates() {
+    SwerveModuleState[] states = new SwerveModuleState[4];
+    for (int i = 0; i < 4; i++) {
+      states[i] = modules[i].getState();
+    }
+    return states;
+  }
+
   public ChassisSpeeds getChassisSpeeds() {
-    return kinematics.toChassisSpeeds(states);
+    return kinematics.toChassisSpeeds(getModuleStates());
   }
 
   public void addVisionMeasurement(

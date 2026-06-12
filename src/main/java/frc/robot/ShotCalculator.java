@@ -54,7 +54,7 @@ public class ShotCalculator {
     Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
 
     double delaySeconds = 0.1;
-    myPose = myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
+//    myPose = myPose.exp(chassisSpeeds.toTwist2d(delaySeconds));
     myPose = myPose.transformBy(robotToShooter);
 
     double shooterVx =
@@ -82,7 +82,7 @@ public class ShotCalculator {
     double distanceTangential = 0;
     double rpm = 0;
     double linear = 15;
-    double iMax = 30;
+    double iMax = 2;
     double lastTime = 0;
     for (int i = 0; i < iMax; i++) {
       double distance = Math.hypot(distanceRadial, distanceTangential);
@@ -94,11 +94,11 @@ public class ShotCalculator {
         break;
       }
       double time = Utils.lutLerp(timeLut, lutStart, lutStep, distance) + timeDelay;
-      boolean converged = Math.abs(lastTime - time) < .001;
+      boolean converged = Math.abs(lastTime - time) < .1;
       if (converged) {
         break;
       } else if (i == iMax - 1) {
-        System.out.println("[WARNING] iterativeShotCalculator did not converge");
+//        System.out.println("[WARNING] iterativeShotCalculator did not converge");
       }
       lastTime = time;
 
