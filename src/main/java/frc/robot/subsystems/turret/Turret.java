@@ -96,7 +96,9 @@ public class Turret extends SubsystemBase {
   }
 
   public boolean isPanAtSetpoint() {
-    if (!RobotContainer.getInstance().isShooterAuto()) return true;
+    // if the turret is not in automatic mode (ie either it is not controlled at all
+    // or controlled manually by the driver) then it is at the setpoint, in a way.
+    if (!(getCurrentCommand() instanceof AutoTurret)) return true;
    return Math.abs(panEncoder.getPosition() - panSetpoint) < 0.1;
   }
 

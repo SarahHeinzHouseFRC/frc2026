@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.OperatorConstants;
@@ -17,6 +18,7 @@ import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.Autos;
 import frc.robot.subsystems.ball.*;
 import frc.robot.subsystems.drive.ControllerDriveCommand;
 import frc.robot.subsystems.drive.Drive;
@@ -52,6 +54,8 @@ public class RobotContainer {
 
   private double shooterManualSetpoint = 6000;
 
+  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+
   public static RobotContainer getInstance() {
     return instance;
   }
@@ -69,8 +73,16 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   private RobotContainer() {
     // Configure the trigger bindings
+    configureAutoChooser();
     configureBindings();
     switchToManualShoot();
+  }
+
+  private void configureAutoChooser() {
+    autoChooser.setDefaultOption("preloads", Autos.preloads());
+    autoChooser.addOption("sweep right", Autos.sweep(false));
+    autoChooser.addOption("sweep left", Autos.sweep(true));
+    SmartDashboard.putData("Auto choices", autoChooser);
   }
 
   public void periodic() {
@@ -161,7 +173,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
 //    return Autos.exampleAuto(m_exampleSubsystem);
-    return null;
+    return autoChooser.getSelected();
   }
 
   public ShotCalculator getShotCalculator() {
