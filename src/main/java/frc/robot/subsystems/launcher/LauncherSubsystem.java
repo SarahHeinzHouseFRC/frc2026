@@ -66,13 +66,13 @@ public class LauncherSubsystem extends SharpSubsystem {
       new Alert("[LAUNCHER] Error configuring flywheel2: " + flywheel2error, Alert.AlertType.kError).set(true);
     }
 
-    setDefaultCommand(new RunCommand(this::stopFlywheel));
+    setDefaultCommand(new RunCommand(this::stopFlywheel, this));
   }
 
   public void setFlywheelSetpoint(double setpoint) {
     if (setpoint <= 0) { stopFlywheel(); return; }
-    setpoint = Math.min(setpoint, 10000);
-    flywheelController.setSetpoint(setpoint, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    this.setpoint = Math.min(setpoint, 6000);
+    flywheelController.setSetpoint(this.setpoint, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
   public double getFlywheelVelocity() {
@@ -89,15 +89,12 @@ public class LauncherSubsystem extends SharpSubsystem {
   }
 
   public Command launcherSpeedCommand(DoubleSupplier speedSupplier) {
-    return new Command() {
-      @Override
-      public void execute() {
-        setFlywheelSetpoint(speedSupplier.getAsDouble());
-      }
-      @Override
-      public void end(boolean interrupted) {
-        stopFlywheel();
-      }
-    };
+    return new FunctionalCommand(
+        () -> {},
+        () -> setFlywheelSetpoint(speedSupplier.getAsDouble()),
+        interrupted -> stopFlywheel(),
+        () -> false,
+        this
+    );
   }
 }

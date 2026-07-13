@@ -74,6 +74,12 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   private RobotContainer() {
+    registerSubsystem(drive);
+    registerSubsystem(turret);
+    registerSubsystem(ball);
+    registerSubsystem(intake);
+    registerSubsystem(launcher);
+
     teleopShooter.setXboxController(controller);
     // Configure the trigger bindings
     configureAutoChooser();
@@ -103,6 +109,8 @@ public class RobotContainer {
     if (isBeforeFirstEnable && DriverStation.isEnabled()) {
       isBeforeFirstEnable = false;
     }
+
+    teleopShooter.periodic();
 
     shotCalculator.update(drive.getPose(), drive.getChassisSpeeds());
 

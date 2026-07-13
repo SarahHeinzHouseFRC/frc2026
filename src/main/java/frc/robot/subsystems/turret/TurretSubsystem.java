@@ -62,7 +62,7 @@ public class TurretSubsystem extends SharpSubsystem {
 
     setDefaultCommand(new RunCommand(() -> {
       setPanMotor(0);
-    }));
+    }, this));
   }
 
   public void periodic() {

@@ -43,7 +43,6 @@ public class TeleopShooter {
   }
 
   private TeleopShooter() {
-    configureBindings();
     configureChooser();
   }
 
@@ -124,6 +123,10 @@ public class TeleopShooter {
   }
 
   public void setXboxController(XboxController controller) {
+    if (this.controller != null) {
+      throw new IllegalStateException("Xbox controller already configured");
+    }
     this.controller = controller;
+    configureBindings();
   }
 }

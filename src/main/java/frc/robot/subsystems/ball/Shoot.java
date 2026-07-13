@@ -34,7 +34,7 @@ public class Shoot extends Command {
     if (TeleopBallControl.readyToShoot()) {
       ball.runIndexer(indexerSpeedShooting);
     } else {
-      ball.runIndexer(-indexerSpeedPreShooting);
+      ball.runIndexer(indexerSpeedPreShooting);
     }
   }
 
