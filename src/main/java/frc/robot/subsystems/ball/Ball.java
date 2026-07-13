@@ -11,13 +11,14 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.subsystems.SharpSubsystem;
 
 import static com.revrobotics.PersistMode.kPersistParameters;
 import static com.revrobotics.ResetMode.kResetSafeParameters;
 import static com.revrobotics.spark.config.SparkBaseConfig.IdleMode.kCoast;
 import static frc.robot.subsystems.ball.BallConstants.*;
 
-public class Ball extends SubsystemBase {
+public class Ball extends SharpSubsystem {
   private final static Ball instance = new Ball();
   public static Ball getInstance() {
     return instance;

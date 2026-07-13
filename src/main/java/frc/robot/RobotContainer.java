@@ -13,12 +13,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.OperatorConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
+import frc.robot.subsystems.SharpSubsystem;
 import frc.robot.subsystems.ball.*;
 import frc.robot.subsystems.drive.ControllerDriveCommand;
 import frc.robot.subsystems.drive.Drive;
@@ -27,6 +29,9 @@ import frc.robot.subsystems.turret.ManualTurret;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.vision.Vision;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -42,6 +47,8 @@ public class RobotContainer {
   private final Vision vision = Vision.getInstance();
   private final ShotCalculator shotCalculator = ShotCalculator.getInstance();
   private final XboxController controller = new XboxController(0);
+
+  private final List<SharpSubsystem> subsystems = new ArrayList<>();
 
   private final AutoTurret autoTurret = new AutoTurret(Turret.getInstance());
   private final ManualTurret manualTurret = new ManualTurret(Turret.getInstance(), controller);
@@ -76,6 +83,18 @@ public class RobotContainer {
     configureAutoChooser();
     configureBindings();
     switchToManualShoot();
+  }
+
+  public void registerSubsystem(SharpSubsystem subsystem) {
+    if (subsystems.contains(subsystem)) {
+      throw new IllegalArgumentException(
+          "Subsystem " + subsystem.getName() + " is already registered!");
+    }
+    subsystems.add(subsystem);
+  }
+
+  public List<SharpSubsystem> getSubsystems() {
+    return Collections.unmodifiableList(subsystems);
   }
 
   private void configureAutoChooser() {

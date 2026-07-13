@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.SharpSubsystem;
 import frc.robot.utils.ContinuousAbsoluteEncoder;
 
 import static com.revrobotics.PersistMode.kPersistParameters;
@@ -21,7 +22,7 @@ import static com.revrobotics.spark.SparkLowLevel.MotorType.kBrushless;
 import static com.revrobotics.spark.config.SparkBaseConfig.IdleMode.kCoast;
 import static frc.robot.subsystems.turret.TurretConstants.*;
 
-public class Turret extends SubsystemBase {
+public class Turret extends SharpSubsystem {
   private final Servo linearActuator = new Servo(0);
   private final Servo linearActuator2 = new Servo(1);
 
