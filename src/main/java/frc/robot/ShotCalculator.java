@@ -27,6 +27,8 @@ public class ShotCalculator {
 
   private double shotAngle = 0;
 
+  private double offset = 0;
+
   private ShotCalculator() {}
 
   public static ShotCalculator getInstance() {
@@ -48,6 +50,7 @@ public class ShotCalculator {
       }
     }
   }
+
 
   public void update(Pose2d myPose, ChassisSpeeds chassisSpeeds) {
     Translation2d itsPose = getTarget(myPose);
@@ -72,7 +75,7 @@ public class ShotCalculator {
 
     shotParams =
         calculateShotParams(
-            itsPose.getDistance(myPose.getTranslation()), vrad, vtan);
+            itsPose.getDistance(myPose.getTranslation()) + offset, vrad, vtan);
 
     shotAngle = angleToHub + shotParams.yawOffsetRadians();
   }
@@ -115,5 +118,9 @@ public class ShotCalculator {
 
   public double getShotAngle() {
     return shotAngle;
+  }
+
+  public void setOffset(double offset) {
+    this.offset = offset;
   }
 }

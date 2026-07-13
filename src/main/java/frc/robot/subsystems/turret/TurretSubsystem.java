@@ -1,17 +1,13 @@
 package frc.robot.subsystems.turret;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.SharpSubsystem;
 import frc.robot.utils.ContinuousAbsoluteEncoder;
@@ -22,7 +18,7 @@ import static com.revrobotics.spark.SparkLowLevel.MotorType.kBrushless;
 import static com.revrobotics.spark.config.SparkBaseConfig.IdleMode.kCoast;
 import static frc.robot.subsystems.turret.TurretConstants.*;
 
-public class Turret extends SharpSubsystem {
+public class TurretSubsystem extends SharpSubsystem {
   private final Servo linearActuator = new Servo(0);
   private final Servo linearActuator2 = new Servo(1);
 
@@ -39,12 +35,14 @@ public class Turret extends SharpSubsystem {
 
   private final PIDController panPidController = new PIDController(1, 0, 0);
 
-  private static final Turret instance = new Turret();
-  public static Turret getInstance() {
+  private static final TurretSubsystem instance = new TurretSubsystem();
+  public static TurretSubsystem getInstance() {
     return instance;
   }
 
-  private Turret() {
+  private boolean isAuto = false;
+
+  private TurretSubsystem() {
     linearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     linearActuator2.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
 
@@ -61,6 +59,10 @@ public class Turret extends SharpSubsystem {
 
     panEncoder = new ContinuousAbsoluteEncoder();
     panEncoder.setEncoderConversionFactor(panEncoderPositionFactor);
+
+    setDefaultCommand(new RunCommand(() -> {
+      setPanMotor(0);
+    }));
   }
 
   public void periodic() {
@@ -92,18 +94,26 @@ public class Turret extends SharpSubsystem {
   }
 
   public void setPanSetpoint(double setpoint) {
+    isAuto = true;
     panSetpoint = MathUtil.clamp(MathUtil.inputModulus(setpoint, yawModuloMin, yawModuloMax), yawMin, yawMax);
-    panMotor.set(MathUtil.clamp(panPidController.calculate(panEncoder.getPosition(), panSetpoint), -maxYawOutput, maxYawOutput));
   }
 
   public boolean isPanAtSetpoint() {
     // if the turret is not in automatic mode (ie either it is not controlled at all
     // or controlled manually by the driver) then it is at the setpoint, in a way.
-    if (!(getCurrentCommand() instanceof AutoTurret)) return true;
+    if (!isAuto) return true;
    return Math.abs(panEncoder.getPosition() - panSetpoint) < 0.1;
   }
 
   public void setPanMotor(double output) {
+    isAuto = false;
     panMotor.set(output);
+  }
+
+  @Override
+  public void execute() {
+    if (isAuto) {
+      panMotor.set(MathUtil.clamp(panPidController.calculate(panEncoder.getPosition(), panSetpoint), -maxYawOutput, maxYawOutput));
+    }
   }
 }

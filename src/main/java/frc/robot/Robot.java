@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
 
   private final CommandScheduler scheduler = CommandScheduler.getInstance();
 
-  public static final double LOOP_PERIOD = 0.01;
+  public static final double LOOP_PERIOD = 0.02;
 
   private final Watchdog watchdog = new Watchdog(LOOP_PERIOD, () -> {});
 

@@ -4,19 +4,22 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.ball.Ball;
+import frc.robot.ShotCalculator;
+import frc.robot.subsystems.ball.BallSubsystem;
 import frc.robot.subsystems.ball.BallConstants;
 import frc.robot.subsystems.ball.Intake;
 import frc.robot.subsystems.ball.Shoot;
 import frc.robot.subsystems.drive.BetterSmoothMoveCommand;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.launcher.LauncherSubsystem;
 import frc.robot.subsystems.turret.AutoTurret;
-import frc.robot.subsystems.turret.Turret;
+import frc.robot.subsystems.turret.TurretSubsystem;
 
 public class Autos {
   public static Command preloads() {
     return Commands.parallel(
-        new Shoot(Ball.getInstance(), () -> BallConstants.intakeSpeed),
-        new AutoTurret(Turret.getInstance())
+        new Shoot(BallSubsystem.getInstance(), LauncherSubsystem.getInstance(), () -> ShotCalculator.getInstance().getShotParams().flywheelVelocityRotationsPerMinute()),
+        new AutoTurret(TurretSubsystem.getInstance())
     ).withTimeout(20.0);
   }
 
@@ -57,7 +60,7 @@ public class Autos {
                         .withVelocityLimit(.6)
                         .withTimeout(4.0),
                     // also run our overbumper intake while we do this
-                    new Intake(Ball.getInstance(), () -> BallConstants.intakeSpeed)),
+                    new Intake(BallSubsystem.getInstance(), IntakeSubsystem.getInstance(), () -> 1.0)),
                 // move back along the y axis so we are aligned x-wise to the trench
                 new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero), isLeft)
                     .withAccelerationLimit(aLimit)
@@ -69,7 +72,7 @@ public class Autos {
                     .withVelocityLimit(vLimit + 1)
                     .withTimeout(5.0),
                 // in parallel...
-                new Shoot(Ball.getInstance(), () -> BallConstants.intakeSpeed) // also autoaim and shoot at the same time
+                new Shoot(BallSubsystem.getInstance(), LauncherSubsystem.getInstance(), () -> ShotCalculator.getInstance().getShotParams().flywheelVelocityRotationsPerMinute()) // also autoaim and shoot at the same time
                     .withTimeout(7.0),
                 new BetterSmoothMoveCommand(new Pose2d(6.5, .55, Rotation2d.kZero), isLeft)
                     .withAccelerationLimit(aLimit + 2)
@@ -90,7 +93,7 @@ public class Autos {
                         .withVelocityLimit(.6)
                         .withTimeout(5.0),
                     // also run our overbumper intake while we do this
-                    new Intake(Ball.getInstance(), () -> BallConstants.intakeSpeed)),
+                    new Intake(BallSubsystem.getInstance(), IntakeSubsystem.getInstance(), () -> 1.0)),
                 // move back along the y axis so we are aligned x-wise to the trench
                 new BetterSmoothMoveCommand(new Pose2d(7.5, .55, Rotation2d.kZero), isLeft)
                     .withAccelerationLimit(aLimit)
@@ -102,10 +105,10 @@ public class Autos {
                     .withVelocityLimit(vLimit + 1)
                     .withTimeout(5.0),
                 // in parallel...
-                new Shoot(Ball.getInstance(), () -> BallConstants.intakeSpeed) // also autoaim and shoot at the same time
+                new Shoot(BallSubsystem.getInstance(), LauncherSubsystem.getInstance(), () -> ShotCalculator.getInstance().getShotParams().flywheelVelocityRotationsPerMinute()) // also autoaim and shoot at the same time
                     .withTimeout(7.0))
             .withTimeout(20.0),
-        new AutoTurret(Turret.getInstance()));
+        new AutoTurret(TurretSubsystem.getInstance()));
   }
 
 }

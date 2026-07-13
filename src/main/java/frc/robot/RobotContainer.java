@@ -13,8 +13,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.Constants.OperatorConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -24,9 +22,12 @@ import frc.robot.subsystems.SharpSubsystem;
 import frc.robot.subsystems.ball.*;
 import frc.robot.subsystems.drive.ControllerDriveCommand;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.intake.StowIntake;
+import frc.robot.subsystems.launcher.LauncherSubsystem;
 import frc.robot.subsystems.turret.AutoTurret;
 import frc.robot.subsystems.turret.ManualTurret;
-import frc.robot.subsystems.turret.Turret;
+import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.Vision;
 
 import java.util.ArrayList;
@@ -42,24 +43,22 @@ import java.util.function.DoubleSupplier;
  */
 public class RobotContainer {
   private final Drive drive = Drive.getInstance();
-  private final Turret turret = Turret.getInstance();
-  private final Ball ball = Ball.getInstance();
+  private final TurretSubsystem turret = TurretSubsystem.getInstance();
+  private final BallSubsystem ball = BallSubsystem.getInstance();
+  private final IntakeSubsystem intake = IntakeSubsystem.getInstance();
+  private final LauncherSubsystem launcher = LauncherSubsystem.getInstance();
   private final Vision vision = Vision.getInstance();
+
   private final ShotCalculator shotCalculator = ShotCalculator.getInstance();
   private final XboxController controller = new XboxController(0);
 
-  private final List<SharpSubsystem> subsystems = new ArrayList<>();
+  private final TeleopShooter teleopShooter = TeleopShooter.getInstance();
 
-  private final AutoTurret autoTurret = new AutoTurret(Turret.getInstance());
-  private final ManualTurret manualTurret = new ManualTurret(Turret.getInstance(), controller);
+  private final List<SharpSubsystem> subsystems = new ArrayList<>();
 
   private final DoublePublisher distanceToHubPublisher = NetworkTableInstance.getDefault().getDoubleTopic("/SHARP/Shooter/distanceToHub").publish();
 
   private static final RobotContainer instance = new RobotContainer();
-
-  private boolean shooterIsAuto = false;
-
-  private double shooterManualSetpoint = 6000;
 
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -69,20 +68,16 @@ public class RobotContainer {
 
   private boolean isBeforeFirstEnable = true;
 
-  public boolean isShooterAuto() {
-    return shooterIsAuto;
-  }
-
   public boolean isBeforeFirstEnable() {
     return isBeforeFirstEnable;
   }
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   private RobotContainer() {
+    teleopShooter.setXboxController(controller);
     // Configure the trigger bindings
     configureAutoChooser();
     configureBindings();
-    switchToManualShoot();
   }
 
   public void registerSubsystem(SharpSubsystem subsystem) {
@@ -111,47 +106,8 @@ public class RobotContainer {
 
     shotCalculator.update(drive.getPose(), drive.getChassisSpeeds());
 
-    if (controller.getBButtonPressed()) {
-      switchToAutoShoot();
-    }
-
-    if (controller.getXButtonPressed()) {
-      switchToManualShoot();
-    }
-
-    if (shooterIsAuto) {
-      handleAutoShooterAdjustment();
-    } else {
-      handleManualShooterAdjustment();
-    }
-
     Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
     distanceToHubPublisher.set(Drive.getInstance().getPose().transformBy(robotToShooter).getTranslation().getDistance(FieldConstants.HUB.toTranslation2d()));
-
-    SmartDashboard.putNumber("target rpm", shooterManualSetpoint);
-  }
-
-  public void handleAutoShooterAdjustment() {
-  }
-
-  public void handleManualShooterAdjustment() {
-    if (controller.getYButton()) {
-      shooterManualSetpoint += 10;
-    } else if (controller.getAButton()) {
-      shooterManualSetpoint -= 10;
-    }
-  }
-
-  public void switchToAutoShoot() {
-    turret.setDefaultCommand(autoTurret);
-    CommandScheduler.getInstance().cancel(manualTurret);
-    shooterIsAuto = true;
-  }
-
-  public void switchToManualShoot() {
-    turret.setDefaultCommand(manualTurret);
-    CommandScheduler.getInstance().cancel(autoTurret);
-    shooterIsAuto = false;
   }
 
   /**
@@ -165,23 +121,6 @@ public class RobotContainer {
    */
   private void configureBindings() {
     drive.setDefaultCommand(new ControllerDriveCommand(controller, drive));
-
-    Trigger controllerIntakeTrigger = new Trigger(() -> controller.getLeftTriggerAxis() > 0.1);
-    Trigger controllerShootTrigger = new Trigger(() -> controller.getRightTriggerAxis() > 0.1);
-    Trigger shouldRunShoot = controllerShootTrigger.and(controllerIntakeTrigger.negate());
-    Trigger shouldRunIntake = controllerIntakeTrigger.and(controllerShootTrigger.negate());
-    Trigger shouldRunShootAndIntake = controllerIntakeTrigger.and(controllerShootTrigger);
-
-    DoubleSupplier shooterSpeed = () -> shooterIsAuto ? shotCalculator.getShotParams().flywheelVelocityRotationsPerMinute() : shooterManualSetpoint;
-
-    shouldRunIntake.whileTrue(new Intake(ball, () -> controller.getLeftTriggerAxis() * (controller.getLeftBumperButton() ? -1 : 1)));
-
-    shouldRunShoot.whileTrue(new Shoot(ball, shooterSpeed));
-
-    shouldRunShootAndIntake.whileTrue(new IntakeAndShoot(ball, controller::getLeftTriggerAxis, shooterSpeed));
-
-    Trigger stowIntakeTrigger = new Trigger(controller::getRightBumperButton);
-    stowIntakeTrigger.onTrue(new StowIntake(ball));
   }
 
   /**
@@ -193,9 +132,5 @@ public class RobotContainer {
     // An example command will be run in autonomous
 //    return Autos.exampleAuto(m_exampleSubsystem);
     return autoChooser.getSelected();
-  }
-
-  public ShotCalculator getShotCalculator() {
-    return shotCalculator;
   }
 }

@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ManualTurret extends Command {
-  private final Turret turret;
+  private final TurretSubsystem turret;
   private final XboxController controller;
-  public ManualTurret(Turret turret, XboxController controller) {
+  public ManualTurret(TurretSubsystem turret, XboxController controller) {
     this.turret = turret;
     this.controller = controller;
-    addRequirements(Turret.getInstance());
+    addRequirements(TurretSubsystem.getInstance());
   }
 
   @Override
