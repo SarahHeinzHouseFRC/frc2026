@@ -85,7 +85,7 @@ public class LauncherSubsystem extends SharpSubsystem {
   }
 
   public boolean isFlywheelAtSpeed() {
-    return Math.abs(getFlywheelVelocity() - setpoint) < Math.max(100, setpoint * 0.05);
+    return Math.abs(getFlywheelVelocity() - setpoint) < Math.max(100, setpoint * 0.05) && setpoint != 0;
   }
 
   public Command launcherSpeedCommand(DoubleSupplier speedSupplier) {
