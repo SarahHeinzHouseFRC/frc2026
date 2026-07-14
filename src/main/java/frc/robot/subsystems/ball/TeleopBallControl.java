@@ -19,37 +19,38 @@ public class TeleopBallControl extends BallControl {
   public TeleopBallControl(BallSubsystem ball, DoubleSupplier intakeRequestSupplier, DoubleSupplier shootRequestSupplier, BooleanSupplier readyToShootSupplier) {
     super(
         ball,
-        () -> {
-          double intakeRequest = intakeRequestSupplier.getAsDouble();
-          double shootRequest = shootRequestSupplier.getAsDouble();
-          boolean wantsIntake = Math.abs(intakeRequest) > 0.1;
-          boolean wantsShoot = shootRequest > 0.1;
-
-          double intakeSpeed = 0;
-          double beltSpeed = 0;
-          if (wantsIntake) {
-            intakeSpeed =  intakeSpeedIntaking * intakeRequest;
-            beltSpeed = beltSpeedIntaking * intakeRequest;
-          } else if (wantsShoot) {
-            intakeSpeed =  intakeSpeedShooting;
-            beltSpeed = beltSpeedShooting;
-          }
-
-
-          boolean readyToShoot = readyToShootSupplier.getAsBoolean();
-
-          double indexerSpeed = 0;
-          if (wantsShoot && readyToShoot) {
-            indexerSpeed = indexerSpeedShooting;
-          } else if (wantsIntake) {
-            indexerSpeed = indexerSpeedIntaking * Math.abs(intakeRequest);
-          } else if (wantsShoot) {
-            indexerSpeed = indexerSpeedPreShooting;
-          }
-
-          return new BallInputs(intakeSpeed, beltSpeed, indexerSpeed);
-        }
+        () -> calculateBallInputs(
+            intakeRequestSupplier.getAsDouble(),
+            shootRequestSupplier.getAsDouble(),
+            readyToShootSupplier.getAsBoolean()
+        )
     );
+  }
+
+  private static BallInputs calculateBallInputs(double intakeRequest, double shootRequest, boolean readyToShoot) {
+    boolean wantsIntake = Math.abs(intakeRequest) > 0.1;
+    boolean wantsShoot = shootRequest > 0.1;
+
+    double intakeSpeed = 0;
+    double beltSpeed = 0;
+    if (wantsIntake) {
+      intakeSpeed =  intakeSpeedIntaking * intakeRequest;
+      beltSpeed = beltSpeedIntaking * intakeRequest;
+    } else if (wantsShoot) {
+      intakeSpeed =  intakeSpeedShooting;
+      beltSpeed = beltSpeedShooting;
+    }
+
+    double indexerSpeed = 0;
+    if (wantsShoot && readyToShoot) {
+      indexerSpeed = indexerSpeedShooting;
+    } else if (wantsIntake) {
+      indexerSpeed = indexerSpeedIntaking * Math.abs(intakeRequest);
+    } else if (wantsShoot) {
+      indexerSpeed = indexerSpeedPreShooting;
+    }
+
+    return new BallInputs(intakeSpeed, beltSpeed, indexerSpeed);
   }
 
   public static boolean readyToShoot() {
