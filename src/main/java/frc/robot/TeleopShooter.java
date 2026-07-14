@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -56,11 +57,13 @@ public class TeleopShooter {
   private boolean stowOnLeftBumperRelease = false;
 
   private void configureBindings() {
+    Trigger teleopEnabled = new Trigger(DriverStation::isTeleopEnabled);
+
     DoubleSupplier intakeRequestSupplier = () -> controller.getLeftTriggerAxis() * (controller.getLeftBumperButton() ? -1 : 1);
     DoubleSupplier shootRequestSupplier = () -> controller.getRightTriggerAxis();
     TeleopBallControl teleopBallControl = new TeleopBallControl(ball, intakeRequestSupplier, shootRequestSupplier);
-    Trigger wantsTeleopBallControl = new Trigger(() -> controller.getLeftTriggerAxis() > .1 || controller.getRightTriggerAxis() > .1);
-    wantsTeleopBallControl.whileTrue(teleopBallControl);
+//    Trigger wantsTeleopBallControl = new Trigger(() -> controller.getLeftTriggerAxis() > .1 || controller.getRightTriggerAxis() > .1);
+    teleopEnabled.whileTrue(teleopBallControl);
 
     Trigger wantsLauncher = new Trigger(() -> controller.getRightTriggerAxis() > .1 || controller.getRightBumperButton());
     wantsLauncher.whileTrue(launcher.launcherSpeedCommand(() -> switch (getShooterMode()) {
@@ -91,8 +94,8 @@ public class TeleopShooter {
 
     Trigger doAutoTurret = new Trigger(() -> getShooterMode() == ShooterMode.TURRET_AUTO);
     Trigger doManualTurret = new Trigger(() -> getShooterMode() == ShooterMode.MANUAL || getShooterMode() == ShooterMode.DRIVE_AUTO);
-    doAutoTurret.whileTrue(new AutoTurret(turret));
-    doManualTurret.whileTrue(new ManualTurret(turret, controller));
+    doAutoTurret.and(teleopEnabled).whileTrue(new AutoTurret(turret));
+    doManualTurret.and(teleopEnabled).whileTrue(new ManualTurret(turret, controller));
   }
 
   public void periodic() {
