@@ -2,6 +2,7 @@ package frc.robot.subsystems.ball;
 
 import frc.robot.RobotContainer;
 import frc.robot.TeleopShooter;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.launcher.LauncherSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 
@@ -54,8 +55,7 @@ public class TeleopBallControl extends BallControl {
   public static boolean readyToShoot() {
     boolean flywheelReady = LauncherSubsystem.getInstance().isFlywheelAtSpeed();
     boolean aimReady = switch (TeleopShooter.getInstance().getShooterMode()) {
-      //      TODO
-      //      case DRIVE_AUTO -> drive.isYawAtSetpoint();
+      case DRIVE_AUTO -> Drive.getInstance().isYawAtSetpoint();
       case TURRET_AUTO -> TurretSubsystem.getInstance().isPanAtSetpoint();
       case MANUAL -> true;
       default -> false;

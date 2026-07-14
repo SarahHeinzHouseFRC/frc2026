@@ -28,6 +28,7 @@ public class Drive extends SharpSubsystem {
   private final Module[] modules = new Module[4];
   private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleTranslations);
   private double gyroAngle = 0;
+  private boolean yawAtSetpoint = false;
   private SwerveModulePosition[] modulePositions = // For delta tracking
       new SwerveModulePosition[] {
           new SwerveModulePosition(),
@@ -124,6 +125,14 @@ public class Drive extends SharpSubsystem {
 
   public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  public boolean isYawAtSetpoint() {
+    return yawAtSetpoint;
+  }
+
+  void setYawAtSetpoint(boolean yawAtSetpoint) {
+    this.yawAtSetpoint = yawAtSetpoint;
   }
 
   public void addVisionMeasurement(

@@ -22,6 +22,7 @@ import frc.robot.subsystems.SharpSubsystem;
 import frc.robot.subsystems.ball.*;
 import frc.robot.subsystems.drive.ControllerDriveCommand;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveAutoShootCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.intake.StowIntake;
 import frc.robot.subsystems.launcher.LauncherSubsystem;
@@ -128,7 +129,19 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    drive.setDefaultCommand(new ControllerDriveCommand(controller, drive));
+    Command normalDrive = new ControllerDriveCommand(controller, drive);
+    Command driveAutoShoot = new DriveAutoShootCommand(controller, drive);
+
+    // Drive intentionally has no default command. These mutually-exclusive triggers select normal
+    // driving unless DRIVE_AUTO is actively shooting, when the drivetrain owns heading control.
+    Trigger driveAutoShooting =
+        new Trigger(
+            () ->
+                teleopShooter.getShooterMode() == TeleopShooter.ShooterMode.DRIVE_AUTO
+                    && controller.getRightTriggerAxis() > .1);
+    Trigger isTeleopEnabled = new Trigger(DriverStation::isTeleopEnabled);
+    driveAutoShooting.and(isTeleopEnabled).whileTrue(driveAutoShoot);
+    driveAutoShooting.negate().and(isTeleopEnabled).whileTrue(normalDrive);
   }
 
   /**
