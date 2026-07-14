@@ -12,6 +12,7 @@ import frc.robot.utils.Utils;
  */
 public class DriveAutoShootCommand extends Command {
   private static final double TRANSLATION_SPEED_METERS_PER_SECOND = 3.5;
+  private static final double BOOST_TRANSLATION_SPEED_METERS_PER_SECOND = 5.0;
   private static final double HEADING_KP = 4.0;
   private static final double HEADING_TOLERANCE_RADIANS = 0.15;
 
@@ -37,12 +38,14 @@ public class DriveAutoShootCommand extends Command {
 
   @Override
   public void execute() {
+    double speed = TRANSLATION_SPEED_METERS_PER_SECOND;
+    if (controller.getLeftStickButton()) speed = BOOST_TRANSLATION_SPEED_METERS_PER_SECOND;
     double vx =
         Utils.scaleAxis(
-            Utils.deadband(-controller.getLeftY() * TRANSLATION_SPEED_METERS_PER_SECOND, .1), 2);
+            Utils.deadband(-controller.getLeftY() * speed, .1), 2);
     double vy =
         Utils.scaleAxis(
-            Utils.deadband(-controller.getLeftX() * TRANSLATION_SPEED_METERS_PER_SECOND, .1), 2);
+            Utils.deadband(-controller.getLeftX() * speed, .1), 2);
 
     double currentHeading = drive.getPose().getRotation().getRadians();
     double targetHeading = currentHeading + shotCalculator.getShotAngle();
