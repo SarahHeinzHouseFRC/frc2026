@@ -112,6 +112,6 @@ public class Vision extends SubsystemBase {
       isVisionInit = true;
     }
     double stddev = Math.pow(obs.averageTagDistance(), 1.0 / obs.tagCount());
-    drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(stddev, stddev, stddev * 5));
+    drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(stddev, stddev, Math.min(stddev * 5, 10)));
   }
 }

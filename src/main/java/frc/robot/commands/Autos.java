@@ -13,6 +13,7 @@ import frc.robot.subsystems.drive.BetterSmoothMoveCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveAutoShootCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.intake.StowIntake;
 import frc.robot.subsystems.launcher.LauncherSubsystem;
 import frc.robot.subsystems.turret.AutoTurret;
 import frc.robot.subsystems.turret.TurretSubsystem;
@@ -21,14 +22,20 @@ public class Autos {
   public static Command preloads() {
     return Commands.parallel(
         new Shoot(BallSubsystem.getInstance(), LauncherSubsystem.getInstance(), () -> ShotCalculator.getInstance().getShotParams().flywheelVelocityRotationsPerMinute()),
-        new AutoTurret(TurretSubsystem.getInstance())
+        new DriveAutoShootCommand(Drive.getInstance()),
+        IntakeSubsystem.getInstance().shakeCommand()
     ).withTimeout(20.0);
+  }
+
+  public static Command driveBackAndPreloads() {
+    return Commands.sequence(new DriveAutoShootCommand(() -> -2.0, () -> 0, Drive.getInstance()).withTimeout(1.0), preloads());
   }
 
   public static Command sweep(boolean isLeft) {
     double aLimit = 7;
     double vLimit = 4;
     return Commands.sequence(
+        new StowIntake(IntakeSubsystem.getInstance()),
         // move under the trench towards mid field in a straight line on the x axis
         new BetterSmoothMoveCommand(new Pose2d(6.5, .55, Rotation2d.kZero), isLeft)
             .withAccelerationLimit(aLimit + 2)

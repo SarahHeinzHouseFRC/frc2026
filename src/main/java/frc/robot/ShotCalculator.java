@@ -11,7 +11,7 @@ import frc.robot.utils.Utils;
 public class ShotCalculator {
   private final double[] rpmLut = new double[] {2900, 3047, 3207, 3367, 3489, 3610, 3746, 4150};
 
-  private final double[] linearLut = new double[] {0, 0, 0, 0, 5, 10, 15, 25};
+  private final double[] linearLut = new double[] {0, 0, 0, 0, 0, 0, 0, 0};
 
   private final double[] timeLut = new double[] {1.33, 1.62, 1.82, 1.86, 1.87, 1.88, 1.90, 1.99, 2.00};
 
@@ -31,9 +31,9 @@ public class ShotCalculator {
 
   private double offset = 0;
 
-  private final double internalAimOffsetDegrees = 0.0;
+  private final double internalAimOffsetDegrees = 5.0;
 
-  private final double internalShooterOffsetMeters = -1.0;
+  private final double internalShooterOffsetMeters = -1.5;
 
   private ShotCalculator() {}
 
@@ -78,6 +78,9 @@ public class ShotCalculator {
 
     double vrad = -shooterVx * Math.cos(angleToHub) - shooterVy * Math.sin(angleToHub);
     double vtan = shooterVx * Math.sin(angleToHub) - shooterVy * Math.cos(angleToHub);
+
+    vrad = 0;
+    vtan = 0;
 
     shotParams =
         calculateShotParams(

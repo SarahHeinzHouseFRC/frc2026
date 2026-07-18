@@ -1,6 +1,7 @@
 package frc.robot.subsystems.ball;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotContainer;
 import frc.robot.TeleopShooter;
@@ -81,6 +82,8 @@ public class TeleopBallControl extends BallControl {
       case MANUAL -> true;
       default -> false;
     };
+
+    if (DriverStation.isAutonomous()) aimReady = Drive.getInstance().isYawAtSetpoint();
 
     return flywheelReady && aimReady;
   }

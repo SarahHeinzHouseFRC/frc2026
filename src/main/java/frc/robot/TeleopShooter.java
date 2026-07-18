@@ -107,9 +107,6 @@ public class TeleopShooter {
     Trigger doManualTurret = new Trigger(() -> getShooterMode() == ShooterMode.MANUAL || getShooterMode() == ShooterMode.DRIVE_AUTO);
     doAutoTurret.and(teleopEnabled).whileTrue(new AutoTurret(turret));
     doManualTurret.and(teleopEnabled).whileTrue(new ManualTurret(turret, controller));
-
-
-    controller.setRumble(GenericHID.RumbleType.kBothRumble, ball.isIntakeJammed() ? 1 : 0);
   }
 
   public void periodic() {
@@ -136,6 +133,7 @@ public class TeleopShooter {
       }
       autoAimOffsetDegrees = Math.min(Math.max(-15, autoAimOffsetDegrees), 15);
 
+      controller.setRumble(GenericHID.RumbleType.kBothRumble, ball.isIntakeJammed() ? 1 : 0);
     }
 
     SmartDashboard.putNumber("Manual Flywheel Speed", manualFlywheelSpeed);

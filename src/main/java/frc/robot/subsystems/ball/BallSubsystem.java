@@ -27,6 +27,10 @@ public class BallSubsystem extends SharpSubsystem {
   private Debouncer intakeJamDebouncer = new Debouncer(0.25);
   private boolean intakeJammed = false;
 
+  private double intakeSpeed = 0;
+  private double beltSpeed = 0;
+  private double indexerSpeed = 0;
+
   private BallSubsystem() {
     SparkMaxConfig beltConfig = new SparkMaxConfig();
     beltConfig.smartCurrentLimit(40).idleMode(SparkBaseConfig.IdleMode.kBrake).inverted(false);
@@ -51,16 +55,19 @@ public class BallSubsystem extends SharpSubsystem {
   // + to shoot, - to not do that
   public void runIndexer(double speed) {
     indexerMotor.set(speed);
+    indexerSpeed = speed;
   }
 
   // + to shoot or intake, - to not do those things
   public void runBelt(double speed) {
     beltMotor.set(speed);
+    beltSpeed = speed;
   }
 
   // idk this one should be pretty obvious (+ intake, - out)
   public void runIntake(double speed) {
     intakeMotor.set(speed);
+    intakeSpeed = speed;
   }
 
   public void runInputs(BallInputs inputs) {
@@ -86,16 +93,16 @@ public class BallSubsystem extends SharpSubsystem {
   @Override
   public void periodic() {
     indexerJammed = indexerJamDebouncer.calculate(
-        indexerMotor.getAppliedOutput() > .1 && indexerMotor.getEncoder().getVelocity() < 60
+        indexerSpeed > .1 && indexerMotor.getEncoder().getVelocity() < 60
     );
 
-    if (indexerJammed) {
-      System.out.println("(debug) indexer jammed!");
-    }
+    SmartDashboard.putBoolean("indexer jammed?", indexerJammed);
 
     intakeJammed = intakeJamDebouncer.calculate(
-        Math.abs(intakeMotor.getAppliedOutput()) > .1 && intakeMotor.getEncoder().getVelocity() * Math.signum(intakeMotor.getAppliedOutput()) < 60
+        Math.abs(intakeSpeed) > .1 && (intakeMotor.getEncoder().getVelocity() * Math.signum(intakeSpeed)) < 60
     );
+
+    SmartDashboard.putBoolean("intake jammed?", intakeJammed);
     SmartDashboard.putNumber("intake speed", intakeMotor.getEncoder().getVelocity());
   }
 }

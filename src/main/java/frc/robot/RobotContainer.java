@@ -8,8 +8,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -64,6 +67,11 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
+  private final Field2d field2d = new Field2d();
+
+  private final Alert batteryWarning = new Alert("battery voltage momentarily dropped below 12v; please replace", Alert.AlertType.kWarning);
+  private final Alert batteryAlert = new Alert("battery voltage momentarily dropped below 10v; replace now!", Alert.AlertType.kError);
+
   public static RobotContainer getInstance() {
     return instance;
   }
@@ -102,6 +110,7 @@ public class RobotContainer {
 
   private void configureAutoChooser() {
     autoChooser.setDefaultOption("preloads", Autos.preloads());
+    autoChooser.addOption("drive back and preloads", Autos.driveBackAndPreloads());
     autoChooser.addOption("sweep right", Autos.sweep(false));
     autoChooser.addOption("sweep left", Autos.sweep(true));
     SmartDashboard.putData("Auto choices", autoChooser);
@@ -117,7 +126,23 @@ public class RobotContainer {
     shotCalculator.update(drive.getPose(), drive.getChassisSpeeds());
 
     Transform2d robotToShooter = new Transform2d(.12, 0, Rotation2d.kZero);
-    distanceToHubPublisher.set(Drive.getInstance().getPose().transformBy(robotToShooter).getTranslation().getDistance(FieldConstants.HUB.toTranslation2d()));
+    distanceToHubPublisher.set(drive.getPose().transformBy(robotToShooter).getTranslation().getDistance(FieldConstants.HUB.toTranslation2d()));
+
+    SmartDashboard.putNumber("battery voltage", RobotController.getBatteryVoltage());
+
+    if (RobotController.getBatteryVoltage() < 10.0) {
+      batteryAlert.set(true);
+      batteryWarning.set(false);
+    } else if (RobotController.getBatteryVoltage() < 12.0 && !batteryAlert.get()) {
+      batteryWarning.set(true);
+    }
+
+
+    field2d.setRobotPose(drive.getPose());
+
+    SmartDashboard.putData("field2d", field2d);
+
+    SmartDashboard.putNumber("match time", DriverStation.getMatchTime());
   }
 
   /**

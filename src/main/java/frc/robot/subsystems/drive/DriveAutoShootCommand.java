@@ -24,7 +24,7 @@ public class DriveAutoShootCommand extends Command {
   private final DoubleSupplier vxSupplier;
   private final DoubleSupplier vySupplier;
   private final ShotCalculator shotCalculator = ShotCalculator.getInstance();
-  private final PIDController headingController = new PIDController(HEADING_KP, 0, 0);
+  private final PIDController headingController = new PIDController(HEADING_KP, 0, .1);
 
   public DriveAutoShootCommand(XboxController controller, Drive drive) {
     this(
