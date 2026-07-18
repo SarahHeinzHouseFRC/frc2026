@@ -5,6 +5,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -35,8 +36,8 @@ public class LauncherSubsystem extends SharpSubsystem {
     SparkFlexConfig baseFlywheelConfig = new SparkFlexConfig();
     baseFlywheelConfig.voltageCompensation(12.0);
     baseFlywheelConfig.smartCurrentLimit(40).idleMode(kCoast);
-    baseFlywheelConfig.closedLoop.pid(0.002, 0, 0, ClosedLoopSlot.kSlot0);
-    baseFlywheelConfig.closedLoop.feedForward.kV(0.00022, ClosedLoopSlot.kSlot0);
+    baseFlywheelConfig.closedLoop.pid(0.002, 0, 0.01, ClosedLoopSlot.kSlot0);
+    baseFlywheelConfig.closedLoop.feedForward.kV(0.0018, ClosedLoopSlot.kSlot0);
     baseFlywheelConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     baseFlywheelConfig.closedLoop.maxMotion.maxAcceleration(12000).allowedProfileError(1000);
     baseFlywheelConfig.openLoopRampRate(0.5);
@@ -85,6 +86,7 @@ public class LauncherSubsystem extends SharpSubsystem {
   }
 
   public boolean isFlywheelAtSpeed() {
+//    return true;
     return Math.abs(getFlywheelVelocity() - setpoint) < Math.max(100, setpoint * 0.05) && setpoint != 0;
   }
 
@@ -96,5 +98,11 @@ public class LauncherSubsystem extends SharpSubsystem {
         () -> false,
         this
     );
+  }
+
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("flywheel velocity", getFlywheelVelocity());
+    SmartDashboard.putNumber("flywheel setpoint", setpoint);
   }
 }

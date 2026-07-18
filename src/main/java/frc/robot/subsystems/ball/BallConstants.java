@@ -2,7 +2,7 @@ package frc.robot.subsystems.ball;
 
 public class BallConstants {
   public static final double intakeSpeedShooting = 0.5;
-  public static final double indexerSpeedShooting = 0.5;
+  public static final double indexerSpeedShooting = 0.75;
   public static final double beltSpeedShooting = 0.5;
   public static final double indexerSpeedPreShooting = -0.25;
 

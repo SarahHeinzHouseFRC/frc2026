@@ -111,6 +111,10 @@ public class Drive extends SharpSubsystem {
     poseEstimator.resetPosition(Rotation2d.fromRadians(gyroAngle), modulePositions, pose);
   }
 
+  public void resetOdometry() {
+    setPose(Pose2d.kZero);
+  }
+
   public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
   }

@@ -27,7 +27,13 @@ public class ShotCalculator {
 
   private double shotAngle = 0;
 
+  private double aimOffset = 0;
+
   private double offset = 0;
+
+  private double internalAimOffsetDegrees = 0.0;
+
+  private double internalShooterOffsetMeters = -1.0;
 
   private ShotCalculator() {}
 
@@ -75,7 +81,7 @@ public class ShotCalculator {
 
     shotParams =
         calculateShotParams(
-            itsPose.getDistance(myPose.getTranslation()) + offset, vrad, vtan);
+            itsPose.getDistance(myPose.getTranslation()) + offset + internalShooterOffsetMeters, vrad, vtan);
 
     shotAngle = angleToHub + shotParams.yawOffsetRadians();
   }
@@ -109,7 +115,7 @@ public class ShotCalculator {
       distanceRadial = distanceMeters + velocityRadialMetersPerSecond * time;
       distanceTangential = velocityTangentialMetersPerSecond * time;
     }
-    return new ShotParams(rpm, linear, Math.atan2(distanceTangential, distanceRadial));
+    return new ShotParams(rpm, linear, Math.atan2(distanceTangential, distanceRadial) + Math.toRadians(aimOffset + internalAimOffsetDegrees));
   };
 
   public ShotParams getShotParams() {
@@ -122,5 +128,9 @@ public class ShotCalculator {
 
   public void setOffset(double offset) {
     this.offset = offset;
+  }
+
+  public void setAimOffset(double offset) {
+    this.aimOffset = offset;
   }
 }

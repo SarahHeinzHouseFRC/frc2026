@@ -6,6 +6,7 @@ import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.SharpSubsystem;
 
@@ -19,6 +20,12 @@ public class BallSubsystem extends SharpSubsystem {
   private final SparkMax indexerMotor = new SparkMax(22, SparkLowLevel.MotorType.kBrushless);
 
   private final SparkFlex intakeMotor = new SparkFlex(25, SparkLowLevel.MotorType.kBrushless);
+
+  private Debouncer indexerJamDebouncer = new Debouncer(0.25);
+  private boolean indexerJammed = false;
+
+  private Debouncer intakeJamDebouncer = new Debouncer(0.25);
+  private boolean intakeJammed = false;
 
   private BallSubsystem() {
     SparkMaxConfig beltConfig = new SparkMaxConfig();
@@ -68,8 +75,27 @@ public class BallSubsystem extends SharpSubsystem {
     runIndexer(0);
   }
 
+  public boolean isIndexerJammed() {
+    return indexerJammed;
+  }
+
+  public boolean isIntakeJammed() {
+    return intakeJammed;
+  }
+
   @Override
   public void periodic() {
+    indexerJammed = indexerJamDebouncer.calculate(
+        indexerMotor.getAppliedOutput() > .1 && indexerMotor.getEncoder().getVelocity() < 60
+    );
+
+    if (indexerJammed) {
+      System.out.println("(debug) indexer jammed!");
+    }
+
+    intakeJammed = intakeJamDebouncer.calculate(
+        Math.abs(intakeMotor.getAppliedOutput()) > .1 && intakeMotor.getEncoder().getVelocity() * Math.signum(intakeMotor.getAppliedOutput()) < 60
+    );
     SmartDashboard.putNumber("intake speed", intakeMotor.getEncoder().getVelocity());
   }
 }

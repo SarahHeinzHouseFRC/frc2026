@@ -1,5 +1,7 @@
 package frc.robot.subsystems.ball;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotContainer;
 import frc.robot.TeleopShooter;
 import frc.robot.subsystems.drive.Drive;
@@ -12,22 +14,35 @@ import java.util.function.DoubleSupplier;
 import static frc.robot.subsystems.ball.BallConstants.*;
 
 public class TeleopBallControl extends BallControl {
-  public TeleopBallControl(BallSubsystem ball, DoubleSupplier intakeRequestSupplier, DoubleSupplier shootRequestSupplier) {
-    this(ball, intakeRequestSupplier, shootRequestSupplier, TeleopBallControl::readyToShoot);
+  public static final double INDEXER_UNJAM_TIME = 1.0;
+  public static final double INDEXER_UNJAM_POWER = -0.5;
+  private double jamDetectedTime = -1;
+
+
+  public TeleopBallControl(BallSubsystem ball, DoubleSupplier intakeRequestSupplier, DoubleSupplier shootRequestSupplier, BooleanSupplier unjamRequestSupplier) {
+    this(ball, intakeRequestSupplier, shootRequestSupplier, TeleopBallControl::readyToShoot, unjamRequestSupplier);
   }
 
-  public TeleopBallControl(BallSubsystem ball, DoubleSupplier intakeRequestSupplier, DoubleSupplier shootRequestSupplier, BooleanSupplier readyToShootSupplier) {
+  public TeleopBallControl(BallSubsystem ball, DoubleSupplier intakeRequestSupplier, DoubleSupplier shootRequestSupplier, BooleanSupplier readyToShootSupplier, BooleanSupplier unjamRequestSupplier) {
     super(
         ball,
-        () -> calculateBallInputs(
-            intakeRequestSupplier.getAsDouble(),
-            shootRequestSupplier.getAsDouble(),
-            readyToShootSupplier.getAsBoolean()
-        )
+        () -> BallInputs.ZERO
     );
+    setBallInputsSupplier(() -> calculateBallInputs(
+        intakeRequestSupplier.getAsDouble(),
+        shootRequestSupplier.getAsDouble(),
+        readyToShootSupplier.getAsBoolean(),
+        unjamRequestSupplier.getAsBoolean()
+    ));
   }
 
-  private static BallInputs calculateBallInputs(double intakeRequest, double shootRequest, boolean readyToShoot) {
+  private BallInputs calculateBallInputs(double intakeRequest, double shootRequest, boolean readyToShoot, boolean unjamRequest) {
+    if (jamDetectedTime < 0 && BallSubsystem.getInstance().isIndexerJammed()) {
+      jamDetectedTime = Timer.getFPGATimestamp();
+    } else if (!BallSubsystem.getInstance().isIndexerJammed()) {
+      jamDetectedTime = -1;
+    }
+
     boolean wantsIntake = Math.abs(intakeRequest) > 0.1;
     boolean wantsShoot = shootRequest > 0.1;
 
@@ -48,6 +63,11 @@ public class TeleopBallControl extends BallControl {
       indexerSpeed = indexerSpeedIntaking * Math.abs(intakeRequest);
     } else if (wantsShoot) {
       indexerSpeed = indexerSpeedPreShooting;
+    }
+
+    if (Timer.getFPGATimestamp() - jamDetectedTime < INDEXER_UNJAM_TIME || unjamRequest) {
+      indexerSpeed = INDEXER_UNJAM_POWER;
+      beltSpeed = INDEXER_UNJAM_POWER;
     }
 
     return new BallInputs(intakeSpeed, beltSpeed, indexerSpeed);

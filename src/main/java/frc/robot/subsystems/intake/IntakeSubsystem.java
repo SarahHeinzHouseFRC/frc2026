@@ -5,6 +5,10 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.SharpSubsystem;
 
 import static frc.robot.subsystems.intake.IntakeConstants.*;
@@ -78,5 +82,20 @@ public class IntakeSubsystem extends SharpSubsystem {
 
   public void retract() {
     setPositionSlowly(presetStowed);
+  }
+
+  public Command shakeCommand() {
+    double extraWaitTimeAtStart = 1.0;
+    double waitTime = 1.0;
+
+    return Commands.sequence(
+        new WaitCommand(extraWaitTimeAtStart),
+        Commands.repeatingSequence(
+            new WaitCommand(waitTime),
+            new StowIntake(this),
+            new WaitCommand(waitTime),
+            new DeployIntake(this)
+        )
+    );
   }
 }

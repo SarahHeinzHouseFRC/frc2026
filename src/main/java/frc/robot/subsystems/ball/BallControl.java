@@ -7,10 +7,14 @@ import java.util.function.Supplier;
 
 public class BallControl extends Command {
   private final BallSubsystem ball;
-  private final Supplier<BallInputs> ballInputsSupplier;
+  private Supplier<BallInputs> ballInputsSupplier;
 
   public BallControl(BallSubsystem ball, DoubleSupplier intakeSpeedSupplier, DoubleSupplier beltSpeedSupplier, DoubleSupplier indexerSpeedSupplier) {
     this(ball, () -> new BallInputs(intakeSpeedSupplier.getAsDouble(), beltSpeedSupplier.getAsDouble(), indexerSpeedSupplier.getAsDouble()));
+  }
+
+  public void setBallInputsSupplier(Supplier<BallInputs> ballInputsSupplier) {
+    this.ballInputsSupplier = ballInputsSupplier;
   }
 
   public BallControl(BallSubsystem ball, Supplier<BallInputs> ballInputsSupplier) {

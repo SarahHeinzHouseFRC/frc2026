@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,6 +17,7 @@ import frc.robot.subsystems.turret.AutoTurret;
 import frc.robot.subsystems.turret.ManualTurret;
 import frc.robot.subsystems.turret.TurretSubsystem;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class TeleopShooter {
@@ -39,6 +41,8 @@ public class TeleopShooter {
 
   private double autoShooterOffset = 0; // + makes it overshoot
 
+  private double autoAimOffsetDegrees = 0;
+
   public enum ShooterMode {
     TURRET_AUTO, DRIVE_AUTO, MANUAL
   }
@@ -61,7 +65,8 @@ public class TeleopShooter {
 
     DoubleSupplier intakeRequestSupplier = () -> controller.getLeftTriggerAxis() * (controller.getLeftBumperButton() ? -1 : 1);
     DoubleSupplier shootRequestSupplier = () -> controller.getRightTriggerAxis();
-    TeleopBallControl teleopBallControl = new TeleopBallControl(ball, intakeRequestSupplier, shootRequestSupplier);
+    BooleanSupplier unjamRequestSupplier = () -> controller.getBackButton();
+    TeleopBallControl teleopBallControl = new TeleopBallControl(ball, intakeRequestSupplier, shootRequestSupplier, unjamRequestSupplier);
 //    Trigger wantsTeleopBallControl = new Trigger(() -> controller.getLeftTriggerAxis() > .1 || controller.getRightTriggerAxis() > .1);
     teleopEnabled.whileTrue(teleopBallControl);
 
@@ -70,6 +75,10 @@ public class TeleopShooter {
       case TURRET_AUTO, DRIVE_AUTO -> shotCalculator.getShotParams().flywheelVelocityRotationsPerMinute();
       case MANUAL -> manualFlywheelSpeed;
     }));
+
+
+    Trigger wantsShoot = new Trigger(() -> shootRequestSupplier.getAsDouble() > 0.1);
+
 
 
     Trigger leftBumper = new Trigger(() -> controller.getLeftBumperButton());
@@ -92,10 +101,15 @@ public class TeleopShooter {
 
     leftTriggerActive.onTrue(new DeployIntake(intake));
 
+    wantsShoot.and(leftTriggerActive.negate()).whileTrue(intake.shakeCommand());
+
     Trigger doAutoTurret = new Trigger(() -> getShooterMode() == ShooterMode.TURRET_AUTO);
     Trigger doManualTurret = new Trigger(() -> getShooterMode() == ShooterMode.MANUAL || getShooterMode() == ShooterMode.DRIVE_AUTO);
     doAutoTurret.and(teleopEnabled).whileTrue(new AutoTurret(turret));
     doManualTurret.and(teleopEnabled).whileTrue(new ManualTurret(turret, controller));
+
+
+    controller.setRumble(GenericHID.RumbleType.kBothRumble, ball.isIntakeJammed() ? 1 : 0);
   }
 
   public void periodic() {
@@ -113,12 +127,22 @@ public class TeleopShooter {
       } else if (controller.getAButton()) {
         autoShooterOffset -= .01;
       }
-      autoShooterOffset = Math.min(Math.max(-1, autoShooterOffset), 1);
+      autoShooterOffset = Math.min(Math.max(-2, autoShooterOffset), 2);
+
+      if (controller.getXButton()) {
+        autoAimOffsetDegrees += .1;
+      } else if (controller.getBButton()) {
+        autoAimOffsetDegrees -= .1;
+      }
+      autoAimOffsetDegrees = Math.min(Math.max(-15, autoAimOffsetDegrees), 15);
+
     }
 
     SmartDashboard.putNumber("Manual Flywheel Speed", manualFlywheelSpeed);
-    SmartDashboard.putNumber("Auto Shooter Offset", autoShooterOffset);
+    SmartDashboard.putNumber("distance Offset meter", autoShooterOffset);
+    SmartDashboard.putNumber("Horizontal offset degrees", autoAimOffsetDegrees);
     shotCalculator.setOffset(autoShooterOffset);
+    shotCalculator.setAimOffset(autoAimOffsetDegrees);
   }
 
   public ShooterMode getShooterMode() {
