@@ -26,6 +26,8 @@ import frc.robot.testmode.TestMotor;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Optional;
+
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 public class Drive extends SharpSubsystem {
@@ -74,6 +76,10 @@ public class Drive extends SharpSubsystem {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
     yaw.setUpdateFrequency(50);
+  }
+
+  public Optional<Pose2d> samplePoseAt(double timestampSeconds) {
+    return poseEstimator.sampleAt(timestampSeconds);
   }
 
   @Override

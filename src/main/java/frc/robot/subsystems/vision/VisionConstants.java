@@ -8,6 +8,24 @@ import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.FieldConstants;
 
 public class VisionConstants {
+  // chat and I made ALL of these constants up
+  public static final double LINEAR_STD_DEV_AT_ONE_METER = 0.15;
+  public static final double ANGULAR_STD_DEV_AT_ONE_METER = 0.5;
+  public static final double MIN_LINEAR_STD_DEV = 0.05;
+  public static final double MAX_LINEAR_STD_DEV = 5.0;
+  public static final double MIN_ANGULAR_STD_DEV = 0.1;
+  public static final double MAX_ANGULAR_STD_DEV = 10.0;
+
+  public static final double FIELD_BORDER_MARGIN_METERS = 0.25;
+  public static final double MAX_Z = 0.6;
+  public static final double MIN_Z = -0.3;
+  public static final double MAX_TILT_RADIANS = .5;
+  public static final double MAX_SINGLE_TAG_AMBIGUITY = 0.2;
+  public static final double MAX_MULTI_TAG_REPROJECTION_ERROR = 1.0;
+  public static final double MAX_OBSERVATION_AGE_SECONDS = 0.5;
+  public static final double MAX_FUTURE_TIMESTAMP_SECONDS = 0.1;
+  public static final double MAX_SINGLE_TAG_POSE_DIFFERENCE_METERS = 1.0;
+
   public static AprilTagFieldLayout aprilTagFieldLayout =
       AprilTagFieldLayout.loadField(
           switch (FieldConstants.TYPE) {
