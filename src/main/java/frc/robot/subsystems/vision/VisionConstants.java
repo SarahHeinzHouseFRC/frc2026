@@ -9,8 +9,8 @@ import frc.robot.FieldConstants;
 
 public class VisionConstants {
   // chat and I made ALL of these constants up
-  public static final double LINEAR_STD_DEV_AT_ONE_METER = 0.15;
-  public static final double ANGULAR_STD_DEV_AT_ONE_METER = 0.5;
+  public static final double LINEAR_STD_DEV_AT_ONE_METER = 1;
+  public static final double ANGULAR_STD_DEV_AT_ONE_METER = 5;
   public static final double MIN_LINEAR_STD_DEV = 0.05;
   public static final double MAX_LINEAR_STD_DEV = 5.0;
   public static final double MIN_ANGULAR_STD_DEV = 0.1;
