@@ -9,7 +9,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.utils.Utils;
 
 public class ShotCalculator {
-  private final double[] rpmLut = new double[] {2900, 3047, 3207, 3367, 3489, 3610, 3746, 4150};
+  private final double[] rpmLut = new double[] {2600, 2750, 2880, 3050, 3230, 3460, 3820, 4340};
 
   private final double[] linearLut = new double[] {0, 0, 0, 0, 0, 0, 0, 0};
 
