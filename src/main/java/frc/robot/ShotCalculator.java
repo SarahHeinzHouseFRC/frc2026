@@ -31,9 +31,9 @@ public class ShotCalculator {
 
   private double offset = 0;
 
-  private final double internalAimOffsetDegrees = 11.4;
+  private final double internalAimOffsetDegrees = 0.3;
 
-  private final double internalShooterOffsetMeters = -0.26;
+  private final double internalShooterOffsetMeters = 0.33;
 
   private ShotCalculator() {}
 
