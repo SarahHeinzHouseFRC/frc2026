@@ -136,6 +136,13 @@ public class TeleopShooter {
       controller.setRumble(GenericHID.RumbleType.kBothRumble, ball.isIntakeJammed() ? 1 : 0);
     }
 
+    int pov = controller.getPOV();
+    boolean povUp = pov == 315 || pov == 360 || pov == 0 || pov == 45;
+    if (povUp) {
+      autoShooterOffset = 0;
+      autoAimOffsetDegrees = 0;
+    }
+
     SmartDashboard.putNumber("Manual Flywheel Speed", manualFlywheelSpeed);
     SmartDashboard.putNumber("distance Offset meter", autoShooterOffset);
     SmartDashboard.putNumber("Horizontal offset degrees", autoAimOffsetDegrees);
