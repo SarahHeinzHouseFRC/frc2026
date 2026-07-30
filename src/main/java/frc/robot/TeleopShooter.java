@@ -110,6 +110,10 @@ public class TeleopShooter {
   }
 
   public void periodic() {
+    manualFlywheelSpeed = SmartDashboard.getNumber("Manual Flywheel Speed", manualFlywheelSpeed);
+    autoShooterOffset = SmartDashboard.getNumber("distance Offset meter", autoShooterOffset);
+    autoAimOffsetDegrees = SmartDashboard.getNumber("Horizontal offset degrees", autoAimOffsetDegrees);
+
     if (getShooterMode() == ShooterMode.MANUAL) {
       if (controller.getYButton()) {
         manualFlywheelSpeed += 10;
@@ -117,21 +121,18 @@ public class TeleopShooter {
       if (controller.getAButton()) {
         manualFlywheelSpeed -= 10;
       }
-      manualFlywheelSpeed = Math.min(Math.max(0, manualFlywheelSpeed), 6000);
     } else if (getShooterMode() == ShooterMode.DRIVE_AUTO || getShooterMode() == ShooterMode.TURRET_AUTO) {
       if (controller.getYButton()) {
         autoShooterOffset += .01;
       } else if (controller.getAButton()) {
         autoShooterOffset -= .01;
       }
-      autoShooterOffset = Math.min(Math.max(-2, autoShooterOffset), 2);
 
       if (controller.getXButton()) {
         autoAimOffsetDegrees += .1;
       } else if (controller.getBButton()) {
         autoAimOffsetDegrees -= .1;
       }
-      autoAimOffsetDegrees = Math.min(Math.max(-15, autoAimOffsetDegrees), 15);
 
       controller.setRumble(GenericHID.RumbleType.kBothRumble, ball.isIntakeJammed() ? 1 : 0);
     }
@@ -142,6 +143,10 @@ public class TeleopShooter {
       autoShooterOffset = 0;
       autoAimOffsetDegrees = 0;
     }
+
+    manualFlywheelSpeed = Math.min(Math.max(0, manualFlywheelSpeed), 6000);
+    autoShooterOffset = Math.min(Math.max(-2, autoShooterOffset), 2);
+    autoAimOffsetDegrees = Math.min(Math.max(-15, autoAimOffsetDegrees), 15);
 
     SmartDashboard.putNumber("Manual Flywheel Speed", manualFlywheelSpeed);
     SmartDashboard.putNumber("distance Offset meter", autoShooterOffset);
