@@ -68,11 +68,13 @@ public final class BallTestCommand extends SubsystemTestCommand {
               ? velocities[i] >= MINIMUM_RPMS[i]
               : velocities[i] <= -MINIMUM_RPMS[i];
       if (!atExpectedVelocity) {
-        addFailure(
-            MOTOR_NAMES[i]
-                + (phase == Phase.FORWARD
-                    ? " below +"  + MINIMUM_RPMS[i] + " RPM while running forward"
-                    : " above -" + MINIMUM_RPMS[i] + " RPM while running reverse"));
+        addFailure(String.format("The %s motor did not reach the minimum %.0f rpm while moving %s",
+            MOTOR_NAMES[i],
+            MINIMUM_RPMS[i],
+            switch (phase) {
+              case FORWARD -> "forward";
+              case REVERSE -> "backward";
+            }));
       }
     }
   }

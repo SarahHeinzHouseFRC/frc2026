@@ -128,22 +128,24 @@ public final class DriveTestCommand extends SubsystemTestCommand {
   private void checkSetpoints(String direction) {
     SwerveModuleState[] actual = drive.getModuleStates();
     SwerveModuleState[] targets = drive.getTargetModuleStates();
+
     for (int i = 0; i < actual.length; i++) {
+      String infoPrefix = String.format("While moving %s, the %s module ", direction, MODULE_NAMES[i]);
       if (!withinTolerance(
           Math.abs(targets[i].speedMetersPerSecond),
           TEST_SPEED_MPS,
           TARGET_SPEED_TOLERANCE_MPS)) {
-        addFailure(direction + " " + MODULE_NAMES[i] + " target wheel speed outside ±0.05 m/s");
+        addFailure(infoPrefix + " had a target wheel speed outside the nominal range of ±0.05 m/s");
       }
       if (!withinTolerance(
           actual[i].speedMetersPerSecond,
           targets[i].speedMetersPerSecond,
           SPEED_TOLERANCE_MPS)) {
-        addFailure(direction + " " + MODULE_NAMES[i] + " wheel speed outside ±0.65 m/s");
+        addFailure(infoPrefix + " had a wheel speed outside the nominal range of ±0.65 m/s");
       }
       Rotation2d angleError = actual[i].angle.minus(targets[i].angle);
       if (Math.abs(angleError.getRadians()) > ANGLE_TOLERANCE_RADIANS) {
-        addFailure(direction + " " + MODULE_NAMES[i] + " steering angle outside ±2 degrees");
+        addFailure(infoPrefix + " had a steering angle outside the nominal range of ±2 degrees");
       }
 
       double speedDeviation = Math.abs(actual[i].speedMetersPerSecond - targets[i].speedMetersPerSecond);
