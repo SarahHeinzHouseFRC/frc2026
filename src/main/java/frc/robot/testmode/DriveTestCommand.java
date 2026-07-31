@@ -9,10 +9,14 @@ import frc.robot.subsystems.drive.Drive;
 public final class DriveTestCommand extends SubsystemTestCommand {
   private static final double TEST_SPEED_MPS = 2.0;
   private static final double SPEED_TOLERANCE_MPS = 1.0;
+  private static final double TARGET_SPEED_TOLERANCE_MPS = 0.05;
   private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(5.0);
   private static final String[] MODULE_NAMES = {
     "front-left", "front-right", "back-left", "back-right"
   };
+
+  private double maxSpeedDeviation = 0.0;
+  private double maxAngleDeviation = 0.0;
 
   private enum Phase {
     ORIENT,
@@ -38,6 +42,8 @@ public final class DriveTestCommand extends SubsystemTestCommand {
   protected void initializeTest() {
     stopTest();
     phase = Phase.ORIENT;
+    maxSpeedDeviation = 0.0;
+    maxAngleDeviation = 0.0;
     startPhase("orienting modules (faults ignored)");
     drive.runVelocity(new ChassisSpeeds(TEST_SPEED_MPS, 0.0, 0.0));
   }
@@ -123,8 +129,14 @@ public final class DriveTestCommand extends SubsystemTestCommand {
     SwerveModuleState[] targets = drive.getTargetModuleStates();
     for (int i = 0; i < actual.length; i++) {
       if (!withinTolerance(
-          Math.abs(actual[i].speedMetersPerSecond),
+          Math.abs(targets[i].speedMetersPerSecond),
           TEST_SPEED_MPS,
+          TARGET_SPEED_TOLERANCE_MPS)) {
+        addFailure(direction + " " + MODULE_NAMES[i] + " target wheel speed outside ±0.05 m/s");
+      }
+      if (!withinTolerance(
+          actual[i].speedMetersPerSecond,
+          targets[i].speedMetersPerSecond,
           SPEED_TOLERANCE_MPS)) {
         addFailure(direction + " " + MODULE_NAMES[i] + " wheel speed outside ±1.0 m/s");
       }
@@ -132,6 +144,12 @@ public final class DriveTestCommand extends SubsystemTestCommand {
       if (Math.abs(angleError.getRadians()) > ANGLE_TOLERANCE_RADIANS) {
         addFailure(direction + " " + MODULE_NAMES[i] + " steering angle outside ±5 degrees");
       }
+
+      double speedDeviation = Math.abs(actual[i].speedMetersPerSecond - targets[i].speedMetersPerSecond);
+      double angleDeviation = Math.abs(angleError.getRadians());
+
+      if (angleDeviation > maxAngleDeviation) maxAngleDeviation = angleDeviation;
+      if (speedDeviation > maxSpeedDeviation) maxSpeedDeviation = speedDeviation;
     }
   }
 
@@ -142,6 +160,7 @@ public final class DriveTestCommand extends SubsystemTestCommand {
 
   @Override
   protected void stopTest() {
+    setDebugString(String.format("%.2f/%.4f", maxSpeedDeviation, maxAngleDeviation));
     drive.runVelocity(new ChassisSpeeds());
   }
 }

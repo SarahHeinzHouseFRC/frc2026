@@ -4,8 +4,10 @@ import frc.robot.subsystems.ball.BallSubsystem;
 
 /** Runs and validates all three ball-path motors in both directions. */
 public final class BallTestCommand extends SubsystemTestCommand {
-  private static final double MINIMUM_RPM = 1000.0;
+  private static final double[] MINIMUM_RPMS = {1000.0, 1000.0, 1000.0};
   private static final String[] MOTOR_NAMES = {"intake", "belt", "indexer"};
+
+  private double[] minAbsoluteRpms = {9999.0, 9999.0, 9999.0};
 
   private enum Phase {
     FORWARD,
@@ -23,6 +25,7 @@ public final class BallTestCommand extends SubsystemTestCommand {
   @Override
   protected void initializeTest() {
     stopTest();
+    minAbsoluteRpms = new double[]{9999.0, 9999.0, 9999.0};
     startFaultMonitoring(ball.getTestMotors());
     runAll(1.0);
     setPhase(Phase.FORWARD, "full forward");
@@ -54,16 +57,22 @@ public final class BallTestCommand extends SubsystemTestCommand {
   private void checkVelocities() {
     double[] velocities = ball.getMotorVelocities();
     for (int i = 0; i < velocities.length; i++) {
+      double absoluteVelocity = Math.abs(velocities[i]);
+
+      if (absoluteVelocity < minAbsoluteRpms[i]) {
+        minAbsoluteRpms[i] = absoluteVelocity;
+      }
+
       boolean atExpectedVelocity =
           phase == Phase.FORWARD
-              ? velocities[i] >= MINIMUM_RPM
-              : velocities[i] <= -MINIMUM_RPM;
+              ? velocities[i] >= MINIMUM_RPMS[i]
+              : velocities[i] <= -MINIMUM_RPMS[i];
       if (!atExpectedVelocity) {
         addFailure(
             MOTOR_NAMES[i]
                 + (phase == Phase.FORWARD
-                    ? " below +3000 RPM while running forward"
-                    : " above -3000 RPM while running reverse"));
+                    ? " below +"  + MINIMUM_RPMS[i] + " RPM while running forward"
+                    : " above -" + MINIMUM_RPMS[i] + " RPM while running reverse"));
       }
     }
   }
@@ -75,6 +84,7 @@ public final class BallTestCommand extends SubsystemTestCommand {
 
   @Override
   protected void stopTest() {
+    setDebugString(String.format("intake %.2f, belt %.2f, indexer %.2f", minAbsoluteRpms[0], minAbsoluteRpms[1], minAbsoluteRpms[2]));
     ball.stop();
   }
 }

@@ -22,6 +22,8 @@ public abstract class SubsystemTestCommand extends Command {
   private double phaseStart;
   private boolean complete;
 
+  private String debugString = "";
+
   protected SubsystemTestCommand(String subsystemName, Subsystem... requirements) {
     this.subsystemName = subsystemName;
     progressAlert =
@@ -107,15 +109,21 @@ public abstract class SubsystemTestCommand extends Command {
   }
 
   private void publishResult() {
+    String assembledDebugString = debugString != null && !debugString.isEmpty() ? " (" + debugString + ")" : "";
+
     clearResultAlerts();
     if (failures.isEmpty()) {
-      passAlert.setText("[" + subsystemName + "] Tests passed");
+      passAlert.setText("[" + subsystemName + "] Tests passed" + assembledDebugString);
       passAlert.set(true);
     } else {
       failureAlert.setText(
-          "[" + subsystemName + "] Tests failed: " + String.join("; ", failures));
+          "[" + subsystemName + "] Tests failed" + assembledDebugString + ": " + String.join("; ", failures));
       failureAlert.set(true);
     }
+  }
+
+  protected final void setDebugString(String debugString) {
+    this.debugString = debugString;
   }
 
   protected static boolean withinTolerance(

@@ -7,6 +7,9 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 public final class IntakeTestCommand extends SubsystemTestCommand {
   private static final double POSITION_TOLERANCE = 0.07;
 
+  private double maxPositionDeviationStowed = 0.0;
+  private double maxPositionDeviationDeployed = 0.0;
+
   private enum Phase {
     PREPARE_DEPLOYED,
     STOW_MOVE,
@@ -26,6 +29,8 @@ public final class IntakeTestCommand extends SubsystemTestCommand {
   @Override
   protected void initializeTest() {
     stopTest();
+    maxPositionDeviationStowed = 0.0;
+    maxPositionDeviationDeployed = 0.0;
     startFaultMonitoring(intake.getTestMotors());
     intake.deploy();
     setPhase(Phase.PREPARE_DEPLOYED, "preparing deployed position");
@@ -90,6 +95,16 @@ public final class IntakeTestCommand extends SubsystemTestCommand {
       if (!withinTolerance(positions[i], target, POSITION_TOLERANCE)) {
         addFailure("pivot " + (i + 1) + " did not remain " + state);
       }
+
+      double deviation = Math.abs(positions[i] - target);
+      switch (state) {
+        case "stowed" -> {
+          if (deviation > maxPositionDeviationStowed) maxPositionDeviationStowed = deviation;
+        }
+        case "deployed" -> {
+          if (deviation > maxPositionDeviationDeployed) maxPositionDeviationDeployed = deviation;
+        }
+      }
     }
   }
 
@@ -100,6 +115,7 @@ public final class IntakeTestCommand extends SubsystemTestCommand {
 
   @Override
   protected void stopTest() {
+    setDebugString(String.format("%.03f/%.03f", maxPositionDeviationStowed, maxPositionDeviationDeployed));
     intake.stop();
   }
 }
