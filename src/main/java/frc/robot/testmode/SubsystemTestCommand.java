@@ -16,7 +16,9 @@ public abstract class SubsystemTestCommand extends Command {
   private final Alert progressAlert;
   private final Alert passAlert;
   private final Alert failureAlert;
+  private final Alert warningAlert;
   private final Set<String> failures = new LinkedHashSet<>();
+  private final Set<String> warnings = new LinkedHashSet<>();
 
   private FaultCollector faultCollector;
   private double phaseStart;
@@ -35,6 +37,9 @@ public abstract class SubsystemTestCommand extends Command {
     failureAlert =
         new Alert(
             ALERT_GROUP, "[" + subsystemName + "] Tests failed", Alert.AlertType.kError);
+    warningAlert =
+        new Alert(
+            ALERT_GROUP, "[" + subsystemName + "] Warnings", Alert.AlertType.kWarning);
     addRequirements(requirements);
   }
 
@@ -42,6 +47,7 @@ public abstract class SubsystemTestCommand extends Command {
   public final void initialize() {
     clearResultAlerts();
     failures.clear();
+    warnings.clear();
     faultCollector = null;
     complete = false;
     progressAlert.set(true);
@@ -82,7 +88,7 @@ public abstract class SubsystemTestCommand extends Command {
   protected abstract void stopTest();
 
   protected final void startFaultMonitoring(List<TestMotor> motors) {
-    faultCollector = new FaultCollector(motors, failures);
+    faultCollector = new FaultCollector(motors, warnings);
     faultCollector.baselineStickyFaults();
   }
 
@@ -99,6 +105,10 @@ public abstract class SubsystemTestCommand extends Command {
     failures.add(failure);
   }
 
+  protected final void addWarning(String warning) {
+    warnings.add(warning);
+  }
+
   protected final void completeTest() {
     complete = true;
   }
@@ -106,6 +116,7 @@ public abstract class SubsystemTestCommand extends Command {
   final void clearResultAlerts() {
     passAlert.set(false);
     failureAlert.set(false);
+    warningAlert.set(false);
   }
 
   private void publishResult() {
@@ -119,6 +130,12 @@ public abstract class SubsystemTestCommand extends Command {
       failureAlert.setText(
           "[" + subsystemName + "] Tests failed" + assembledDebugString + ": " + String.join("; ", failures));
       failureAlert.set(true);
+    }
+
+    if (!warnings.isEmpty()) {
+      warningAlert.setText(
+          "[" + subsystemName + "] Warnings: " + String.join("; ", warnings));
+      warningAlert.set(true);
     }
   }
 
