@@ -98,6 +98,10 @@ public class Vision extends SubsystemBase {
       }
   }
 
+  public boolean areCamerasConnected() {
+    return leftCamInputs.connected && rightCamInputs.connected;
+  }
+
   private void processPose(CameraIO.PoseObservation obs) {
     processPose(obs, Transform2d.kZero);
   }

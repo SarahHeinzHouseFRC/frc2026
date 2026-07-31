@@ -132,6 +132,7 @@ public class PhotonCameraIO implements CameraIO {
     inputs.results = results.toArray(new PoseObservation[0]);
     publisher.set(latestCameraPose);
 //    Logger.recordOutput("/SHARP/Vision/" + cameraName, latestCameraPose);
+    inputs.connected = camera.isConnected();
   }
 
   private static Pose3d getBest(Pose3d best, Pose3d alternate) {

@@ -72,7 +72,7 @@ public class RobotContainer {
 
   private final Alert batteryWarning = new Alert("battery voltage momentarily dropped below 12v; please replace", Alert.AlertType.kWarning);
   private final Alert batteryAlert = new Alert("battery voltage momentarily dropped below 10v; replace now!", Alert.AlertType.kError);
-  private final Command testModeCommand = new RobotTestMode(drive, launcher, intake, ball);
+  private final Command testModeCommand = new RobotTestMode(drive, launcher, intake, ball, vision);
 
   public static RobotContainer getInstance() {
     return instance;

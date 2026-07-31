@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 
 public interface CameraIO {
   public static class CameraIOInputs {
+    public boolean connected = false;
     public PoseObservation[] results = new PoseObservation[0];
   }
 
