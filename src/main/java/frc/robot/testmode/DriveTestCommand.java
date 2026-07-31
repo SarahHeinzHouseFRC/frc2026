@@ -53,6 +53,7 @@ public final class DriveTestCommand extends SubsystemTestCommand {
     double elapsed = phaseElapsed();
     switch (phase) {
       case ORIENT -> {
+        drive.runVelocity(new ChassisSpeeds(TEST_SPEED_MPS, 0.0, 0.0));
         if (elapsed >= 1.0) {
           stopTest();
           startFaultMonitoring(drive.getTestMotors());

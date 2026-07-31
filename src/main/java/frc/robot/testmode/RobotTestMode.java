@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.ball.BallInputs;
 import frc.robot.subsystems.ball.BallSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -60,9 +61,15 @@ public final class RobotTestMode extends SequentialCommandGroup {
 
     addCommands(
         Commands.runOnce(this::beginTestMode),
-        Commands.waitSeconds(1.0),
+        Commands.waitSeconds(.5),
         Commands.deadline(sequentialTests, backgroundTests),
-        Commands.runOnce(this::finishTestMode));
+        Commands.runOnce(this::finishTestMode),
+        Commands.waitSeconds(.5),
+        Commands.run(() -> {
+          launcher.setFlywheelSetpoint(1000);
+          drive.runVelocity(new ChassisSpeeds(.5, 0.0, 0.0));
+          ball.runInputs(new BallInputs(.25, .25, .25));
+        }, drive, ball, launcher));
   }
 
   private void beginTestMode() {
