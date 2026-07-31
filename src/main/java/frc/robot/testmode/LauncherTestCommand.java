@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 /** Checks both launcher flywheels at each required velocity. */
 public final class LauncherTestCommand extends SubsystemTestCommand {
   private static final int[] SETPOINTS_RPM = {2000, 3000, 4000, 5000};
+  private static final int RPM_TOLERANCE = 100;
 
   private double[] maxSetpointDeviations = {0.0, 0.0, 0.0, 0.0};
 
@@ -53,10 +54,9 @@ public final class LauncherTestCommand extends SubsystemTestCommand {
 
   private void checkSetpoint(int setpointIndex) {
     int setpoint = SETPOINTS_RPM[setpointIndex];
-    double tolerance = Math.max(100.0, setpoint * 0.05);
     double[] velocities = launcher.getFlywheelVelocities();
     for (int i = 0; i < velocities.length; i++) {
-      if (!withinTolerance(Math.abs(velocities[i]), setpoint, tolerance)) {
+      if (!withinTolerance(Math.abs(velocities[i]), setpoint, RPM_TOLERANCE)) {
         addFailure("flywheel " + (i + 1) + " outside tolerance at " + setpoint + " RPM");
       }
 

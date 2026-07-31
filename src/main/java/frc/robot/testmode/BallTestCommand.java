@@ -4,7 +4,7 @@ import frc.robot.subsystems.ball.BallSubsystem;
 
 /** Runs and validates all three ball-path motors in both directions. */
 public final class BallTestCommand extends SubsystemTestCommand {
-  private static final double[] MINIMUM_RPMS = {1000.0, 1000.0, 1000.0};
+  private static final double[] MINIMUM_RPMS = {4500.0, 4500.0, 4500.0};
   private static final String[] MOTOR_NAMES = {"intake", "belt", "indexer"};
 
   private double[] minAbsoluteRpms = {9999.0, 9999.0, 9999.0};

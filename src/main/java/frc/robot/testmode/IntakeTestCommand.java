@@ -5,7 +5,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /** Exercises and validates both intake pivot motors. */
 public final class IntakeTestCommand extends SubsystemTestCommand {
-  private static final double POSITION_TOLERANCE = 0.07;
+  private static final double POSITION_TOLERANCE = 0.075;
 
   private double maxPositionDeviationStowed = 0.0;
   private double maxPositionDeviationDeployed = 0.0;

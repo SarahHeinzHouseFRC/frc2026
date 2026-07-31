@@ -8,9 +8,9 @@ import frc.robot.subsystems.drive.Drive;
 /** Exercises all four swerve directions and validates every module. */
 public final class DriveTestCommand extends SubsystemTestCommand {
   private static final double TEST_SPEED_MPS = 2.0;
-  private static final double SPEED_TOLERANCE_MPS = 1.0;
+  private static final double SPEED_TOLERANCE_MPS = 0.65;
   private static final double TARGET_SPEED_TOLERANCE_MPS = 0.05;
-  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(5.0);
+  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(2.0);
   private static final String[] MODULE_NAMES = {
     "front-left", "front-right", "back-left", "back-right"
   };
@@ -138,11 +138,11 @@ public final class DriveTestCommand extends SubsystemTestCommand {
           actual[i].speedMetersPerSecond,
           targets[i].speedMetersPerSecond,
           SPEED_TOLERANCE_MPS)) {
-        addFailure(direction + " " + MODULE_NAMES[i] + " wheel speed outside ±1.0 m/s");
+        addFailure(direction + " " + MODULE_NAMES[i] + " wheel speed outside ±0.65 m/s");
       }
       Rotation2d angleError = actual[i].angle.minus(targets[i].angle);
       if (Math.abs(angleError.getRadians()) > ANGLE_TOLERANCE_RADIANS) {
-        addFailure(direction + " " + MODULE_NAMES[i] + " steering angle outside ±5 degrees");
+        addFailure(direction + " " + MODULE_NAMES[i] + " steering angle outside ±2 degrees");
       }
 
       double speedDeviation = Math.abs(actual[i].speedMetersPerSecond - targets[i].speedMetersPerSecond);
