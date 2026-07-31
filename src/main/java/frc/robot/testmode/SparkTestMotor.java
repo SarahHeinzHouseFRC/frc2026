@@ -18,4 +18,14 @@ public record SparkTestMotor(String name, SparkBase motor) implements TestMotor 
   public int stickyFaultBits() {
     return motor.getStickyFaults().rawBits;
   }
+
+  @Override
+  public int activeWarningBits() {
+    return motor.getWarnings().rawBits;
+  }
+
+  @Override
+  public int stickyWarningBits() {
+    return motor.getStickyWarnings().rawBits;
+  }
 }

@@ -1,6 +1,6 @@
 package frc.robot.testmode;
 
-/** Read-only fault access used by the robot's test-mode diagnostics. */
+/** Read-only fault and warning access used by the robot's test-mode diagnostics. */
 public interface TestMotor {
   String name();
 
@@ -9,4 +9,8 @@ public interface TestMotor {
   int activeFaultBits();
 
   int stickyFaultBits();
+
+  int activeWarningBits();
+
+  int stickyWarningBits();
 }

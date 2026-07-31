@@ -60,12 +60,22 @@ public final class RobotTestMode extends SequentialCommandGroup {
 
     addCommands(
         Commands.runOnce(this::beginTestMode),
+        Commands.waitSeconds(1.0),
         Commands.deadline(sequentialTests, backgroundTests),
         Commands.runOnce(this::finishTestMode));
   }
 
   private void beginTestMode() {
     stopAll();
+
+    // REV status frames are enabled lazily by their first getter call. Prime every velocity used by
+    // the diagnostics before any measured phase so the first run cannot consume the initial cached
+    // zero while a status frame is being enabled.
+    drive.getModuleStates();
+    launcher.getFlywheelVelocities();
+    ball.getMotorVelocities();
+    intake.getPivotPositions();
+
     overallAlert.set(false);
     for (SubsystemTestCommand test : subsystemTests) {
       test.clearResultAlerts();
