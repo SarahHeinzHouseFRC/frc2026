@@ -21,6 +21,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.SharpSubsystem;
+import frc.robot.testmode.TestMotor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
@@ -38,6 +42,10 @@ public class Drive extends SharpSubsystem {
       };
 
   private SwerveModuleState[] states = new SwerveModuleState[] {
+      new SwerveModuleState(), new SwerveModuleState(),
+      new SwerveModuleState(), new SwerveModuleState()
+  };
+  private SwerveModuleState[] targetStates = new SwerveModuleState[] {
       new SwerveModuleState(), new SwerveModuleState(),
       new SwerveModuleState(), new SwerveModuleState()
   };
@@ -101,6 +109,8 @@ public class Drive extends SharpSubsystem {
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
       modules[i].runSetpoint(setpointStates[i]);
+      targetStates[i] =
+          new SwerveModuleState(setpointStates[i].speedMetersPerSecond, setpointStates[i].angle);
     }
 
     // Log optimized setpoints (runSetpoint mutates each state)
@@ -119,12 +129,30 @@ public class Drive extends SharpSubsystem {
     return poseEstimator.getEstimatedPosition();
   }
 
-  private SwerveModuleState[] getModuleStates() {
+  public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = new SwerveModuleState[4];
     for (int i = 0; i < 4; i++) {
       states[i] = modules[i].getState();
     }
     return states;
+  }
+
+  public SwerveModuleState[] getTargetModuleStates() {
+    SwerveModuleState[] result = new SwerveModuleState[targetStates.length];
+    for (int i = 0; i < targetStates.length; i++) {
+      result[i] =
+          new SwerveModuleState(targetStates[i].speedMetersPerSecond, targetStates[i].angle);
+    }
+    return result;
+  }
+
+  public List<TestMotor> getTestMotors() {
+    String[] names = {"front-left", "front-right", "back-left", "back-right"};
+    List<TestMotor> result = new ArrayList<>();
+    for (int i = 0; i < modules.length; i++) {
+      result.addAll(modules[i].getTestMotors(names[i]));
+    }
+    return List.copyOf(result);
   }
 
   public ChassisSpeeds getChassisSpeeds() {

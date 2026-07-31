@@ -10,8 +10,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.SharpSubsystem;
+import frc.robot.testmode.SparkTestMotor;
+import frc.robot.testmode.TestMotor;
 import frc.robot.utils.SparkUtils;
 
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 import static com.revrobotics.PersistMode.kPersistParameters;
@@ -78,6 +81,16 @@ public class LauncherSubsystem extends SharpSubsystem {
 
   public double getFlywheelVelocity() {
     return flywheel1Encoder.getVelocity();
+  }
+
+  public double[] getFlywheelVelocities() {
+    return new double[] {flywheel1Encoder.getVelocity(), flywheel2Encoder.getVelocity()};
+  }
+
+  public List<TestMotor> getTestMotors() {
+    return List.of(
+        new SparkTestMotor("launcher flywheel 1", flywheel1),
+        new SparkTestMotor("launcher flywheel 2", flywheel2));
   }
 
   public void stopFlywheel() {

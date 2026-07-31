@@ -9,6 +9,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.SharpSubsystem;
+import frc.robot.testmode.SparkTestMotor;
+import frc.robot.testmode.TestMotor;
+
+import java.util.List;
 
 public class BallSubsystem extends SharpSubsystem {
   private final static BallSubsystem instance = new BallSubsystem();
@@ -80,6 +84,21 @@ public class BallSubsystem extends SharpSubsystem {
     runIntake(0);
     runBelt(0);
     runIndexer(0);
+  }
+
+  public double[] getMotorVelocities() {
+    return new double[] {
+      intakeMotor.getEncoder().getVelocity(),
+      beltMotor.getEncoder().getVelocity(),
+      indexerMotor.getEncoder().getVelocity()
+    };
+  }
+
+  public List<TestMotor> getTestMotors() {
+    return List.of(
+        new SparkTestMotor("ball intake", intakeMotor),
+        new SparkTestMotor("ball belt", beltMotor),
+        new SparkTestMotor("ball indexer", indexerMotor));
   }
 
   public boolean isIndexerJammed() {

@@ -12,6 +12,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.robot.testmode.SparkTestMotor;
+import frc.robot.testmode.TestMotor;
+
+import java.util.List;
 
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
@@ -151,5 +155,11 @@ public class Module {
 
   public SwerveModuleState getState() {
     return new SwerveModuleState(getDriveVelocity() * wheelRadiusMeters, new Rotation2d(getTurnPosition()));
+  }
+
+  public List<TestMotor> getTestMotors(String moduleName) {
+    return List.of(
+        new SparkTestMotor(moduleName + " drive", driveMotor),
+        new SparkTestMotor(moduleName + " steer", turnMotor));
   }
 }

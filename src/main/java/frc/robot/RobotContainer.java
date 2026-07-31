@@ -34,6 +34,7 @@ import frc.robot.subsystems.turret.AutoTurret;
 import frc.robot.subsystems.turret.ManualTurret;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.testmode.RobotTestMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,6 +72,7 @@ public class RobotContainer {
 
   private final Alert batteryWarning = new Alert("battery voltage momentarily dropped below 12v; please replace", Alert.AlertType.kWarning);
   private final Alert batteryAlert = new Alert("battery voltage momentarily dropped below 10v; replace now!", Alert.AlertType.kError);
+  private final Command testModeCommand = new RobotTestMode(drive, launcher, intake, ball);
 
   public static RobotContainer getInstance() {
     return instance;
@@ -166,8 +168,10 @@ public class RobotContainer {
                 teleopShooter.getShooterMode() == TeleopShooter.ShooterMode.DRIVE_AUTO
                     && (controller.getRightTriggerAxis() > .1 || controller.getRightBumperButton()));
     Trigger isTeleopEnabled = new Trigger(DriverStation::isTeleopEnabled);
+    Trigger isTestEnabled = new Trigger(DriverStation::isTestEnabled);
     driveAutoShooting.and(isTeleopEnabled).whileTrue(driveAutoShoot);
     driveAutoShooting.negate().and(isTeleopEnabled).whileTrue(normalDrive);
+    isTestEnabled.whileTrue(testModeCommand);
 
 
     new Trigger(controller::getStartButton).onTrue(Commands.runOnce(drive::resetOdometry));

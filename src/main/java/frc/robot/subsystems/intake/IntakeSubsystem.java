@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import com.revrobotics.PersistMode;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -10,6 +11,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.SharpSubsystem;
+import frc.robot.testmode.SparkTestMotor;
+import frc.robot.testmode.TestMotor;
+
+import java.util.List;
 
 import static frc.robot.subsystems.intake.IntakeConstants.*;
 
@@ -21,8 +26,10 @@ public class IntakeSubsystem extends SharpSubsystem {
 
   private final SparkMax pivotMotor = new SparkMax(26, SparkLowLevel.MotorType.kBrushless);
   private final SparkClosedLoopController pivotController;
+  private final AbsoluteEncoder pivotEncoder;
   private final SparkMax pivotMotor2 = new SparkMax(27, SparkLowLevel.MotorType.kBrushless);
   private final SparkClosedLoopController pivotController2;
+  private final AbsoluteEncoder pivotEncoder2;
 
   private IntakeSubsystem() {
 
@@ -56,6 +63,7 @@ public class IntakeSubsystem extends SharpSubsystem {
     pivotMotor.configure(
         pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     pivotController = pivotMotor.getClosedLoopController();
+    pivotEncoder = pivotMotor.getAbsoluteEncoder();
 
     SparkMaxConfig pivotConfig2 = new SparkMaxConfig();
     pivotConfig2.apply(pivotConfig);
@@ -64,6 +72,7 @@ public class IntakeSubsystem extends SharpSubsystem {
 
     pivotMotor2.configure(pivotConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     pivotController2 = pivotMotor2.getClosedLoopController();
+    pivotEncoder2 = pivotMotor2.getAbsoluteEncoder();
   }
 
   public void setPosition(double position) {
@@ -82,6 +91,21 @@ public class IntakeSubsystem extends SharpSubsystem {
 
   public void retract() {
     setPositionSlowly(presetStowed);
+  }
+
+  public void stop() {
+    pivotMotor.stopMotor();
+    pivotMotor2.stopMotor();
+  }
+
+  public double[] getPivotPositions() {
+    return new double[] {pivotEncoder.getPosition(), pivotEncoder2.getPosition()};
+  }
+
+  public List<TestMotor> getTestMotors() {
+    return List.of(
+        new SparkTestMotor("intake pivot 1", pivotMotor),
+        new SparkTestMotor("intake pivot 2", pivotMotor2));
   }
 
   public Command shakeCommand() {
