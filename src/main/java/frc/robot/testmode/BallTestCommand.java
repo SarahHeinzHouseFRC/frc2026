@@ -34,7 +34,7 @@ public final class BallTestCommand extends SubsystemTestCommand {
   @Override
   protected void executeTest() {
     double elapsed = phaseElapsed();
-    if (elapsed >= 1.5) {
+    if (elapsed >= 1.0) {
       checkVelocities();
     }
     if (elapsed >= 2.0) {

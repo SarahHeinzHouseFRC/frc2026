@@ -12,6 +12,7 @@ public final class IntakeTestCommand extends SubsystemTestCommand {
 
   private enum Phase {
     PREPARE_DEPLOYED,
+    WAIT_BEFORE_TEST_START,
     STOW_MOVE,
     STOW_HOLD,
     DEPLOY_MOVE,
@@ -42,30 +43,38 @@ public final class IntakeTestCommand extends SubsystemTestCommand {
     switch (phase) {
       case PREPARE_DEPLOYED -> {
         if (atPosition(IntakeConstants.presetEngaged)) {
-          startStow();
-        } else if (elapsed >= 3.0) {
-          addFailure("initial deployment did not reach setpoint within 3 seconds");
-          startStow();
+          setPhase(Phase.WAIT_BEFORE_TEST_START, "waiting");
+        } else if (elapsed >= 2.0) {
+          addFailure("initial deployment did not reach setpoint within 2 seconds");
+          setPhase(Phase.WAIT_BEFORE_TEST_START, "waiting");
+        }
+      }
+      case WAIT_BEFORE_TEST_START -> {
+        if (elapsed >= 0.5) {
+          setPhase(Phase.STOW_MOVE, "stowing");
         }
       }
       case STOW_MOVE -> {
+        intake.retract();
         if (elapsed >= 1.0) {
           setPhase(Phase.STOW_HOLD, "verifying stowed");
         }
       }
       case STOW_HOLD -> {
+        intake.retract();
         checkPosition("stowed", IntakeConstants.presetStowed);
         if (elapsed >= 1.0) {
-          intake.deploy();
           setPhase(Phase.DEPLOY_MOVE, "deploying");
         }
       }
       case DEPLOY_MOVE -> {
+        intake.deploy();
         if (elapsed >= 1.0) {
           setPhase(Phase.DEPLOY_HOLD, "verifying deployed");
         }
       }
       case DEPLOY_HOLD -> {
+        intake.deploy();
         checkPosition("deployed", IntakeConstants.presetEngaged);
         if (elapsed >= 1.0) {
           stopTest();
@@ -73,11 +82,6 @@ public final class IntakeTestCommand extends SubsystemTestCommand {
         }
       }
     }
-  }
-
-  private void startStow() {
-    intake.retract();
-    setPhase(Phase.STOW_MOVE, "stowing");
   }
 
   private boolean atPosition(double target) {

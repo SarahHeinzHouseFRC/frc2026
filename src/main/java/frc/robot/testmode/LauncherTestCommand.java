@@ -35,7 +35,7 @@ public final class LauncherTestCommand extends SubsystemTestCommand {
     if (elapsed >= 1.5) {
       checkSetpoint(setpointIndex);
     }
-    if (elapsed >= 2.0) {
+    if (elapsed >= 2.5) {
       setpointIndex++;
       if (setpointIndex >= SETPOINTS_RPM.length) {
         stopTest();

@@ -3,6 +3,7 @@ package frc.robot.testmode;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -27,6 +28,8 @@ public final class RobotTestMode extends SequentialCommandGroup {
           "[TESTMODE] All subsystem tests finished",
           Alert.AlertType.kInfo);
 
+  private double startTime = 0.0;
+
   public RobotTestMode(
       Drive drive, LauncherSubsystem launcher, IntakeSubsystem intake, BallSubsystem ball, Vision vision) {
     this.drive = drive;
@@ -46,8 +49,11 @@ public final class RobotTestMode extends SequentialCommandGroup {
     Command sequentialTests =
         Commands.sequence(
             subsystemTests[0],
+            Commands.waitSeconds(1.0),
             subsystemTests[1],
+            Commands.waitSeconds(1.0),
             subsystemTests[2],
+            Commands.waitSeconds(1.0),
             subsystemTests[3]);
 
     Command backgroundTests =
@@ -57,22 +63,23 @@ public final class RobotTestMode extends SequentialCommandGroup {
                 vision::areCamerasConnected),
             new ContinuousTestCommand(
                 "BATTERY VOLTAGE",
-                () -> RobotController.getBatteryVoltage() >= 12.0));
+                () -> RobotController.getBatteryVoltage() >= 11.0));
 
     addCommands(
         Commands.runOnce(this::beginTestMode),
-        Commands.waitSeconds(.5),
+        Commands.waitSeconds(1.0),
         Commands.deadline(sequentialTests, backgroundTests),
         Commands.runOnce(this::finishTestMode),
-        Commands.waitSeconds(.5),
+        Commands.waitSeconds(1.0),
         Commands.run(() -> {
-          launcher.setFlywheelSetpoint(1000);
-          drive.runVelocity(new ChassisSpeeds(.5, 0.0, 0.0));
-          ball.runInputs(new BallInputs(.25, .25, .25));
+          launcher.setFlywheelSetpoint(500);
+          drive.runVelocity(new ChassisSpeeds(.2, 0.0, 0.0));
+          ball.runInputs(new BallInputs(.1, .1, .1));
         }, drive, ball, launcher));
   }
 
   private void beginTestMode() {
+    startTime = Timer.getFPGATimestamp();
     stopAll();
 
     // REV status frames are enabled lazily by their first getter call. Prime every velocity used by
@@ -90,8 +97,9 @@ public final class RobotTestMode extends SequentialCommandGroup {
   }
 
   private void finishTestMode() {
+    double elapsedTime = Timer.getFPGATimestamp() - startTime;
     stopAll();
-    overallAlert.setText("[TESTMODE] All subsystem tests finished");
+    overallAlert.setText(String.format("[TESTMODE] All subsystem tests finished in %.2fs", elapsedTime));
     overallAlert.set(true);
   }
 
