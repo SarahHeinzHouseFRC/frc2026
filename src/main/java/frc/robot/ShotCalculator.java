@@ -48,6 +48,8 @@ public class ShotCalculator {
   private Translation2d getTarget(Pose2d myPose) {
     if (myPose.getX() < FieldConstants.HUB.getX()) {
       return FieldConstants.HUB.toTranslation2d();
+    } else if (myPose.getX() > FieldConstants.ENEMY_HUB.getX()) {
+      return FieldConstants.ENEMY_HUB.toTranslation2d();
     } else {
       if (myPose.getY() < FieldConstants.HUB.getY()) { // right
         return FieldConstants.SHOT_TARGET_R.toTranslation2d();

@@ -12,6 +12,7 @@ public class FieldConstants {
   }
 
   public static final Translation3d HUB;
+  public static final Translation3d ENEMY_HUB;
 
   public static final Translation3d SHOT_TARGET_L;
   public static final Translation3d SHOT_TARGET_R;
@@ -21,11 +22,13 @@ public class FieldConstants {
   static {
     if (TYPE == FieldType.WELDED) {
       HUB = fromInches(182.11, 158.845, 72);
+      ENEMY_HUB = fromInches(469.11, 158.84, 72);
       SHOT_TARGET_R = fromInches(96, 119, 0);
       SHOT_TARGET_L = fromInches(96, 198, 0);
       fieldWidth = 8.06933;
     } else if (TYPE == FieldType.ANDYMARK) {
       HUB = fromInches(181.56, 158.32, 72);
+      ENEMY_HUB = fromInches(468.56, 158.32, 72);
       SHOT_TARGET_R = fromInches(96, 119, 0);
       SHOT_TARGET_L = fromInches(96, 198, 0);
       fieldWidth = 8.04266;
