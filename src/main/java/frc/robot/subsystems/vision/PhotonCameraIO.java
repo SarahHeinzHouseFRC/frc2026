@@ -44,7 +44,7 @@ public class PhotonCameraIO implements CameraIO {
     this.robotToCamera = robotToCamera;
     this.cameraName = cameraName;
     camera = new PhotonCamera(cameraName);
-    publisher = NetworkTableInstance.getDefault().getStructTopic("/SHARP/Vision" + cameraName, Pose3d.struct).publish();
+    publisher = NetworkTableInstance.getDefault().getStructTopic("/SHARP/Vision/" + cameraName, Pose3d.struct).publish();
     //    publisher =
     //        NetworkTableInstance.getDefault()
     //            .getStructTopic("/SHARP/Vision" + cameraName, Pose3d.struct)
@@ -85,7 +85,7 @@ public class PhotonCameraIO implements CameraIO {
         Pose3d bluePose = Pose3d.kZero;
         Pose3d best = (invert ? redPose : bluePose).plus(pnpResult.best).plus(cameraToRobot);
         Pose3d alt = (invert ? redPose : bluePose).plus(pnpResult.alt).plus(cameraToRobot);
-        Pose3d chosen = getBest(best, alt);
+        Pose3d chosen = VisionValidator.chooseBestPose(best, alt);
         results.add(
             new PoseObservation(
                 photonResult.getTimestampSeconds(),
@@ -96,7 +96,7 @@ public class PhotonCameraIO implements CameraIO {
                 targetDistance));
         if (photonResult.getTimestampSeconds() > latestTimestamp) {
           latestTimestamp = photonResult.getTimestampSeconds();
-          latestCameraPose = best.plus(robotToCamera);
+          latestCameraPose = chosen.plus(robotToCamera);
         }
       } else if (!photonResult.targets.isEmpty()) {
         if (photonResult.targets.size() != 1) {
@@ -110,7 +110,7 @@ public class PhotonCameraIO implements CameraIO {
             Pose3d best =
                 tagPose.get().plus(target.bestCameraToTarget.inverse()).plus(cameraToRobot);
             Pose3d alt = tagPose.get().plus(target.altCameraToTarget.inverse()).plus(cameraToRobot);
-            best = getBest(best, alt);
+            best = VisionValidator.chooseBestPose(best, alt);
             results.add(
                 new PoseObservation(
                     photonResult.getTimestampSeconds(),
@@ -133,20 +133,5 @@ public class PhotonCameraIO implements CameraIO {
     publisher.set(latestCameraPose);
 //    Logger.recordOutput("/SHARP/Vision/" + cameraName, latestCameraPose);
     inputs.connected = camera.isConnected();
-  }
-
-  private static Pose3d getBest(Pose3d best, Pose3d alternate) {
-    double tiltBest =
-        Math.acos(Math.cos(best.getRotation().getX()) * Math.cos(best.getRotation().getY()));
-    double tiltAlternate =
-        Math.acos(
-            Math.cos(alternate.getRotation().getX()) * Math.cos(alternate.getRotation().getY()));
-    if (tiltBest > .5 && tiltBest > tiltAlternate) return alternate;
-
-    double groundDistanceBest = best.getZ();
-    double groundDistanceAlternate = alternate.getZ();
-    if (groundDistanceBest > .3 && groundDistanceBest > groundDistanceAlternate) return alternate;
-
-    return best;
   }
 }
