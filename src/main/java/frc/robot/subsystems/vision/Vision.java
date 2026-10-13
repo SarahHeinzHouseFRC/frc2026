@@ -1,6 +1,7 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -8,7 +9,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 public class Vision extends SubsystemBase {
@@ -71,9 +74,6 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    leftCam.updateInputs(leftCamInputs);
-    rightCam.updateInputs(rightCamInputs);
-
     boolean localIsBlue = true;
     Optional<DriverStation.Alliance> allianceOptional = DriverStation.getAlliance();
     if (allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red) {
@@ -90,12 +90,18 @@ public class Vision extends SubsystemBase {
       rightCam.setIsBlue(isBlue);
     }
 
-      for (CameraIO.PoseObservation obs : leftCamInputs.results) {
-        processPose(obs);
-      }
-      for (CameraIO.PoseObservation obs : rightCamInputs.results) {
-        processPose(obs);
-      }
+    leftCam.updateInputs(leftCamInputs);
+    rightCam.updateInputs(rightCamInputs);
+
+    List<CameraIO.PoseObservation> observations =
+        new ArrayList<>(leftCamInputs.results.length + rightCamInputs.results.length);
+    observations.addAll(List.of(leftCamInputs.results));
+    observations.addAll(List.of(rightCamInputs.results));
+    observations.sort(Comparator.comparingDouble(CameraIO.PoseObservation::timestamp));
+
+    for (CameraIO.PoseObservation observation : observations) {
+      processPose(observation);
+    }
   }
 
   public boolean areCamerasConnected() {
@@ -109,13 +115,39 @@ public class Vision extends SubsystemBase {
   private void processPose(CameraIO.PoseObservation obs, Transform2d transform) {
     Pose2d pose = obs.pose().toPose2d().plus(transform);
     Drive drive = Drive.getInstance();
+    if (VisionValidator.shouldRejectPose(obs, pose, drive, isVisionInit)) {
+      return;
+    }
+
     if (!isVisionInit) {
       double start = Timer.getFPGATimestamp();
       drive.setPose(pose);
       System.out.println("vision init took " + (Timer.getFPGATimestamp() - start));
       isVisionInit = true;
     }
-    double stddev = Math.pow(obs.averageTagDistance(), 1.0 / obs.tagCount());
-    drive.addVisionMeasurement(pose, obs.timestamp(), VecBuilder.fill(stddev, stddev, Math.min(stddev * 5, 10)));
+
+    double distanceFactor =
+        obs.averageTagDistance() * obs.averageTagDistance() / obs.tagCount();
+
+    double linearStdDev =
+        MathUtil.clamp(
+            VisionConstants.LINEAR_STD_DEV_AT_ONE_METER * distanceFactor,
+            VisionConstants.MIN_LINEAR_STD_DEV,
+            VisionConstants.MAX_LINEAR_STD_DEV);
+
+    // when we are single tag it has no clue where we are so
+    // we set the stddev to a big number (labeled as such)
+    double angularStdDev =
+        obs.tagCount() > 1
+            ? MathUtil.clamp(
+                VisionConstants.ANGULAR_STD_DEV_AT_ONE_METER * distanceFactor,
+                VisionConstants.MIN_ANGULAR_STD_DEV,
+                VisionConstants.MAX_ANGULAR_STD_DEV)
+            : 1_000_000; // <- big number
+
+    drive.addVisionMeasurement(
+        pose,
+        obs.timestamp(),
+        VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
   }
 }
